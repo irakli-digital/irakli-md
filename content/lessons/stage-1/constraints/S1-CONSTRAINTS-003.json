@@ -1,0 +1,103 @@
+{
+  "id": "S1-CONSTRAINTS-003",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "constraints",
+    "difficulty": 3,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S1-CONSTRAINTS-002"],
+    "tags": ["constraints", "prompting", "quality"]
+  },
+  "scenario": {
+    "title": "The Quality Criteria",
+    "context": "You're using AI to generate product descriptions for an e-commerce site. The descriptions need to meet specific quality standards for SEO, readability, and conversion optimization.",
+    "goal": "Write a prompt with measurable quality constraints that ensure the output meets professional standards without needing manual revision.",
+    "constraints": [
+      "Include specific readability requirements",
+      "Define SEO constraints (keywords, structure)",
+      "Specify conversion-focused elements",
+      "Set measurable quality thresholds"
+    ],
+    "exampleInput": "Product: Ergonomic office chair. Price: $299. Key features: Lumbar support, adjustable height, breathable mesh. Target keyword: 'ergonomic office chair'.",
+    "hints": [
+      "What reading level should e-commerce descriptions target?",
+      "How many times should the main keyword appear?",
+      "What elements drive purchase decisions in product descriptions?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "readability-constraints",
+        "name": "Readability Constraints",
+        "weight": 25,
+        "description": "Are readability standards specified?",
+        "scoringGuide": {
+          "excellent": "Specific readability level with measurable criteria",
+          "good": "General readability guidance",
+          "adequate": "Vague simplicity request",
+          "poor": "No readability constraints"
+        }
+      },
+      {
+        "id": "seo-constraints",
+        "name": "SEO Constraints",
+        "weight": 25,
+        "description": "Are SEO requirements clearly defined?",
+        "scoringGuide": {
+          "excellent": "Specific keyword density, placement, and structure requirements",
+          "good": "Key SEO elements mentioned",
+          "adequate": "General SEO awareness",
+          "poor": "No SEO considerations"
+        }
+      },
+      {
+        "id": "conversion-elements",
+        "name": "Conversion Elements",
+        "weight": 25,
+        "description": "Are conversion-focused requirements included?",
+        "scoringGuide": {
+          "excellent": "Specific requirements for CTAs, benefits, urgency elements",
+          "good": "Some conversion elements specified",
+          "adequate": "General selling guidance",
+          "poor": "No conversion focus"
+        }
+      },
+      {
+        "id": "measurability",
+        "name": "Measurable Thresholds",
+        "weight": 25,
+        "description": "Are quality criteria measurable?",
+        "scoringGuide": {
+          "excellent": "Specific, testable quality thresholds",
+          "good": "Some measurable criteria",
+          "adequate": "Vague quality expectations",
+          "poor": "No measurable criteria"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Write a product description for our ergonomic office chair meeting these quality standards:\n\nReadability:\n- 8th grade reading level (Flesch-Kincaid)\n- Sentences under 20 words average\n- No industry jargon without explanation\n- Active voice throughout\n\nSEO requirements:\n- Primary keyword 'ergonomic office chair' in: title, first paragraph, at least 2x in body\n- Secondary keywords (use each once): 'lumbar support chair', 'adjustable desk chair'\n- Length: 150-200 words\n- Include H2 subheading with keyword variant\n\nConversion requirements:\n- Lead with biggest benefit (pain reduction), not features\n- Include 3 bullet points for scanability\n- Add social proof placeholder: [INSERT REVIEW QUOTE]\n- End with soft CTA: 'Experience the difference' style, not aggressive 'Buy Now'\n- Mention the value proposition (quality at $299 price point)\n\nDo NOT include:\n- Exaggerated claims ('best chair ever')\n- Competitor comparisons\n- Technical specifications (save for specs table)\n- Shipping or return policy details",
+    "commonMistakes": [
+      "Vague requests like 'make it SEO-friendly'",
+      "No specific keyword requirements",
+      "Forgetting conversion-focused elements",
+      "No measurable quality thresholds"
+    ],
+    "keyElements": [
+      "Specific readability level",
+      "SEO requirements with keyword details",
+      "Conversion elements specified",
+      "Measurable quality criteria"
+    ],
+    "antiPatterns": [
+      "'Write a good product description'",
+      "'Make it SEO-friendly'",
+      "No word count or structure requirements",
+      "No conversion considerations"
+    ]
+  }
+}

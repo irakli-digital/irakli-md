@@ -1,0 +1,103 @@
+{
+  "id": "S1-OUTPUT-SHAPING-003",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "output-shaping",
+    "difficulty": 3,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S1-OUTPUT-SHAPING-002"],
+    "tags": ["output-shaping", "prompting", "sections"]
+  },
+  "scenario": {
+    "title": "The Report Generator",
+    "context": "You need AI to generate a weekly team status report. The report will be automatically processed by your project management system, which expects specific sections in a specific order with specific metadata.",
+    "goal": "Write a prompt that produces a multi-section document with exact section headers, required metadata, and conditional content based on data availability.",
+    "constraints": [
+      "Define exact section headers and order",
+      "Specify required metadata for each section",
+      "Include conditional rules (if X then include Y)",
+      "Define fallback content for missing data"
+    ],
+    "exampleInput": "Team: Engineering. Week: Jan 8-12. Data: 3 completed items, 2 blocked items, 1 team member on PTO. Needs to integrate with Notion.",
+    "hints": [
+      "What sections are always required? Which are conditional?",
+      "What metadata (dates, counts, etc.) should appear where?",
+      "What should appear if there are no blocked items?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "section-structure",
+        "name": "Section Structure",
+        "weight": 25,
+        "description": "Are sections clearly defined with exact headers?",
+        "scoringGuide": {
+          "excellent": "All sections listed with exact header text and order",
+          "good": "Sections defined but headers not exact",
+          "adequate": "General sections mentioned",
+          "poor": "No section structure"
+        }
+      },
+      {
+        "id": "metadata-specification",
+        "name": "Metadata Specification",
+        "weight": 25,
+        "description": "Is required metadata clearly specified?",
+        "scoringGuide": {
+          "excellent": "All metadata fields defined with format and placement",
+          "good": "Key metadata mentioned",
+          "adequate": "Some metadata implied",
+          "poor": "No metadata specification"
+        }
+      },
+      {
+        "id": "conditional-rules",
+        "name": "Conditional Rules",
+        "weight": 25,
+        "description": "Are conditional content rules specified?",
+        "scoringGuide": {
+          "excellent": "Clear if/then rules for conditional sections",
+          "good": "Some conditional logic mentioned",
+          "adequate": "Implied conditions",
+          "poor": "No conditional handling"
+        }
+      },
+      {
+        "id": "fallback-handling",
+        "name": "Fallback Handling",
+        "weight": 25,
+        "description": "Are fallbacks for missing data defined?",
+        "scoringGuide": {
+          "excellent": "Specific fallback content for each potential gap",
+          "good": "General fallback guidance",
+          "adequate": "Awareness of missing data possibility",
+          "poor": "No fallback consideration"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Generate a weekly status report using this exact structure for Notion integration:\n\n```\n# Weekly Status: [Team Name]\n**Period:** [Start Date] - [End Date]\n**Author:** Auto-generated\n**Status:** [GOOD/CAUTION/BLOCKED]\n\n## Summary\n[2-3 sentence executive summary]\nMetrics: [X] completed | [Y] in progress | [Z] blocked\n\n## Completed This Week\n[List each item as: - [ITEM-ID] Item description]\nIF no items: \"No items completed this week.\"\n\n## In Progress\n[List each item as: - [ITEM-ID] Item description (X% complete)]\nIF no items: \"No items currently in progress.\"\n\n## Blocked Items\n[List each item as: - [ITEM-ID] Item description | Blocker: [reason] | Owner: [name]]\nIF no blocked items: OMIT THIS SECTION ENTIRELY\n\n## Team Notes\nIF PTO: \"Team capacity: [X]/[Y] members (PTO: [names])\"\nIF no PTO: \"Team at full capacity.\"\n\n## Next Week Focus\n[Bullet list of 2-3 priorities]\n```\n\nData for this report:\n- Team: Engineering\n- Week: Jan 8-12, 2024\n- Completed: 3 items\n- In progress: 4 items\n- Blocked: 2 items\n- PTO: Sarah (Mon-Wed)\n\nRules:\n- Overall Status = BLOCKED if any blocked items exist, CAUTION if >50% items in progress, else GOOD\n- Use placeholder [ITEM-ID] format: ENG-XXX\n- All sections required except Blocked Items (conditional)\n- Dates in format: Mon DD, YYYY",
+    "commonMistakes": [
+      "Not specifying exact section headers",
+      "Forgetting metadata requirements",
+      "No conditional section rules",
+      "No fallback content defined"
+    ],
+    "keyElements": [
+      "Exact section headers and order",
+      "Metadata fields specified",
+      "Conditional inclusion rules",
+      "Fallback content defined"
+    ],
+    "antiPatterns": [
+      "'Write a status report'",
+      "Vague section descriptions",
+      "No handling of missing data",
+      "No conditional logic"
+    ]
+  }
+}

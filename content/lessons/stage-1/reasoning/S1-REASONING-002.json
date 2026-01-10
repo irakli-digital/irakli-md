@@ -1,0 +1,103 @@
+{
+  "id": "S1-REASONING-002",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "reasoning",
+    "difficulty": 2,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S1-REASONING-001"],
+    "tags": ["reasoning", "prompting", "alternatives"]
+  },
+  "scenario": {
+    "title": "The Options Analyzer",
+    "context": "Your startup needs to choose between three different pricing models for a new SaaS product. You want the AI to analyze each option systematically, considering multiple factors before making a recommendation.",
+    "goal": "Write a prompt that makes the AI evaluate multiple options against defined criteria, showing the reasoning behind each assessment before reaching a conclusion.",
+    "constraints": [
+      "Request evaluation of each option separately",
+      "Define the criteria to evaluate against",
+      "Ask for pros/cons for each option",
+      "Request a reasoned final recommendation"
+    ],
+    "exampleInput": "Options: A) Freemium with $10/mo pro tier, B) $20/mo flat rate no free tier, C) Usage-based at $0.05/action. Factors: Customer acquisition, revenue predictability, churn risk.",
+    "hints": [
+      "How can you structure the analysis to be systematic?",
+      "Should each option be evaluated against all criteria?",
+      "How should the AI weigh the pros and cons?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "systematic-evaluation",
+        "name": "Systematic Evaluation",
+        "weight": 30,
+        "description": "Does the prompt request systematic analysis of each option?",
+        "scoringGuide": {
+          "excellent": "Clear structure for evaluating each option independently",
+          "good": "Requests evaluation of options",
+          "adequate": "Mentions comparing options",
+          "poor": "No structured analysis requested"
+        }
+      },
+      {
+        "id": "criteria-definition",
+        "name": "Criteria Definition",
+        "weight": 25,
+        "description": "Are evaluation criteria clearly defined?",
+        "scoringGuide": {
+          "excellent": "Specific criteria listed with clear definitions",
+          "good": "Criteria mentioned but not detailed",
+          "adequate": "Implied evaluation factors",
+          "poor": "No criteria specified"
+        }
+      },
+      {
+        "id": "pros-cons-request",
+        "name": "Pros/Cons Analysis",
+        "weight": 25,
+        "description": "Does the prompt ask for balanced analysis?",
+        "scoringGuide": {
+          "excellent": "Explicitly requests pros and cons for each option",
+          "good": "Asks for balanced view",
+          "adequate": "Implies wanting trade-offs",
+          "poor": "No request for balanced analysis"
+        }
+      },
+      {
+        "id": "recommendation-reasoning",
+        "name": "Reasoned Recommendation",
+        "weight": 20,
+        "description": "Does the prompt request a justified recommendation?",
+        "scoringGuide": {
+          "excellent": "Explicitly asks for recommendation with reasoning linked to analysis",
+          "good": "Asks for recommendation with explanation",
+          "adequate": "Requests recommendation",
+          "poor": "No recommendation or reasoning requested"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Analyze these three pricing models for our B2B SaaS product. Evaluate each systematically before recommending one.\n\nOptions to evaluate:\nA) Freemium: Free basic tier + $10/mo pro\nB) Flat rate: $20/mo, no free tier\nC) Usage-based: $0.05 per action\n\nFor EACH option, analyze against these criteria:\n1. Customer acquisition: How easy is it to get users in the door?\n2. Revenue predictability: How forecastable is monthly revenue?\n3. Churn risk: What's the risk of customers leaving?\n4. Expansion potential: Can we grow revenue from existing customers?\n\nStructure your analysis as:\n- Option [A/B/C]\n  - Pros (list 2-3)\n  - Cons (list 2-3)\n  - Score on each criterion (High/Medium/Low)\n\nAfter analyzing all three, provide your recommendation:\n- Which option and why\n- What's the biggest trade-off we're accepting\n- What we should monitor if we choose this option\n\nContext: We're a seed-stage startup, so customer acquisition matters more than immediate revenue.",
+    "commonMistakes": [
+      "Asking 'which is better?' without analysis structure",
+      "Not defining evaluation criteria",
+      "Requesting only pros OR cons, not both",
+      "Not asking for reasoning behind recommendation"
+    ],
+    "keyElements": [
+      "Systematic per-option analysis",
+      "Clear evaluation criteria",
+      "Balanced pros/cons request",
+      "Reasoned recommendation"
+    ],
+    "antiPatterns": [
+      "'Which pricing model should we use?'",
+      "No criteria for evaluation",
+      "One-sided analysis request",
+      "No explanation of recommendation expected"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "S1-REASONING-003",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "reasoning",
+    "difficulty": 3,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S1-REASONING-002"],
+    "tags": ["reasoning", "prompting", "assumptions"]
+  },
+  "scenario": {
+    "title": "The Assumption Checker",
+    "context": "You're planning a product launch and want AI help predicting potential outcomes. However, any prediction involves assumptions that could be wrong. You want the AI to be explicit about its assumptions and how they affect conclusions.",
+    "goal": "Write a prompt that forces the AI to state its assumptions explicitly, explain how each assumption affects the conclusion, and describe what changes if assumptions are wrong.",
+    "constraints": [
+      "Request explicit listing of assumptions",
+      "Ask how each assumption impacts the conclusion",
+      "Request sensitivity analysis (what if assumptions are wrong)",
+      "Ask for confidence levels"
+    ],
+    "exampleInput": "Question: Will our mobile app reach 10K users in the first month? Context: B2C fitness app, $50K marketing budget, launching in January.",
+    "hints": [
+      "What assumptions would the AI need to make to answer this?",
+      "How might the answer change if key assumptions are wrong?",
+      "Can you ask the AI to rate its confidence?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "assumption-listing",
+        "name": "Assumption Listing",
+        "weight": 30,
+        "description": "Does the prompt require explicit assumption listing?",
+        "scoringGuide": {
+          "excellent": "Explicitly requires listing all assumptions before answering",
+          "good": "Asks for assumptions to be stated",
+          "adequate": "Mentions assumptions",
+          "poor": "No assumption awareness"
+        }
+      },
+      {
+        "id": "assumption-impact",
+        "name": "Assumption Impact Analysis",
+        "weight": 25,
+        "description": "Does the prompt ask how assumptions affect conclusions?",
+        "scoringGuide": {
+          "excellent": "Requires explanation of how each assumption impacts the answer",
+          "good": "Asks for relationship between assumptions and conclusions",
+          "adequate": "Implies connection should be shown",
+          "poor": "No impact analysis requested"
+        }
+      },
+      {
+        "id": "sensitivity",
+        "name": "Sensitivity Analysis",
+        "weight": 25,
+        "description": "Does the prompt request 'what if' analysis?",
+        "scoringGuide": {
+          "excellent": "Explicitly asks what changes if assumptions are wrong",
+          "good": "Requests alternative scenarios",
+          "adequate": "Mentions considering uncertainties",
+          "poor": "No sensitivity analysis"
+        }
+      },
+      {
+        "id": "confidence-levels",
+        "name": "Confidence Assessment",
+        "weight": 20,
+        "description": "Does the prompt ask for confidence levels?",
+        "scoringGuide": {
+          "excellent": "Requests confidence rating with explanation of uncertainty",
+          "good": "Asks for confidence indication",
+          "adequate": "Implies certainty matters",
+          "poor": "No confidence assessment"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Predict whether our mobile app can reach 10K users in month one. I need you to be explicit about your reasoning.\n\nContext: B2C fitness app, $50K marketing budget, January launch.\n\nStructure your response:\n\n1. ASSUMPTIONS: Before answering, list every assumption you're making (e.g., about conversion rates, market conditions, competition). Label each as:\n   - [DATA] - based on typical industry data\n   - [INFERRED] - reasonable inference from context\n   - [GUESSED] - arbitrary assumption due to missing info\n\n2. PREDICTION: Give your answer based on these assumptions.\n\n3. ASSUMPTION SENSITIVITY: For each major assumption, explain:\n   - If this assumption is BETTER than expected: how does the prediction change?\n   - If this assumption is WORSE than expected: how does the prediction change?\n\n4. CONFIDENCE LEVEL: Rate your confidence (High/Medium/Low) and explain:\n   - What would increase your confidence?\n   - What's the biggest uncertainty affecting your prediction?\n\n5. KEY RISKS: What 2-3 factors could most easily make this prediction wrong?",
+    "commonMistakes": [
+      "Asking for prediction without assumption awareness",
+      "Not asking how assumptions affect the answer",
+      "Forgetting to request alternative scenarios",
+      "Not asking for confidence levels"
+    ],
+    "keyElements": [
+      "Explicit assumption listing required",
+      "Assumption-to-conclusion link requested",
+      "Sensitivity/what-if analysis",
+      "Confidence assessment"
+    ],
+    "antiPatterns": [
+      "'Will we reach 10K users?'",
+      "No mention of assumptions",
+      "Treating AI prediction as certain",
+      "No consideration of uncertainty"
+    ]
+  }
+}

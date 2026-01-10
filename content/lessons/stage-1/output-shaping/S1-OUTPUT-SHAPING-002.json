@@ -1,0 +1,103 @@
+{
+  "id": "S1-OUTPUT-SHAPING-002",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "output-shaping",
+    "difficulty": 2,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S1-OUTPUT-SHAPING-001"],
+    "tags": ["output-shaping", "prompting", "lists"]
+  },
+  "scenario": {
+    "title": "The Structured List",
+    "context": "You're creating a troubleshooting guide and need AI to generate a decision tree of questions and answers. The output needs to be consistently formatted so it can be imported into your help desk software.",
+    "goal": "Write a prompt that produces structured, hierarchical output with consistent formatting that could be parsed programmatically.",
+    "constraints": [
+      "Define hierarchy levels clearly",
+      "Specify exact delimiters or markers",
+      "Include numbering/labeling scheme",
+      "Define relationships between items"
+    ],
+    "exampleInput": "Topic: 'App won't open'. Need 3-level decision tree with yes/no branches. For help desk import (needs consistent structure).",
+    "hints": [
+      "How will you indicate parent-child relationships?",
+      "What markers will separate levels or branches?",
+      "How should yes/no paths be labeled?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "hierarchy-definition",
+        "name": "Hierarchy Definition",
+        "weight": 30,
+        "description": "Are hierarchy levels clearly defined?",
+        "scoringGuide": {
+          "excellent": "Clear level definitions with visual/structural markers",
+          "good": "Levels defined but markers less clear",
+          "adequate": "Some hierarchy indicated",
+          "poor": "No hierarchy definition"
+        }
+      },
+      {
+        "id": "delimiter-specification",
+        "name": "Delimiter Specification",
+        "weight": 25,
+        "description": "Are delimiters/markers explicitly specified?",
+        "scoringGuide": {
+          "excellent": "Exact delimiters specified for parsing",
+          "good": "Some delimiters defined",
+          "adequate": "General formatting guidance",
+          "poor": "No delimiter specification"
+        }
+      },
+      {
+        "id": "labeling-scheme",
+        "name": "Labeling Scheme",
+        "weight": 25,
+        "description": "Is a consistent numbering/labeling system defined?",
+        "scoringGuide": {
+          "excellent": "Complete labeling scheme (1.1, 1.2, etc.)",
+          "good": "Labeling mentioned but not detailed",
+          "adequate": "Implied labeling",
+          "poor": "No labeling scheme"
+        }
+      },
+      {
+        "id": "relationship-clarity",
+        "name": "Relationship Clarity",
+        "weight": 20,
+        "description": "Are relationships between items clearly specified?",
+        "scoringGuide": {
+          "excellent": "Parent-child and branching relationships explicit",
+          "good": "Some relationship guidance",
+          "adequate": "Implied relationships",
+          "poor": "No relationship specification"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Create a troubleshooting decision tree for 'App won't open'. Format it for help desk software import using this exact structure:\n\n```\n[LEVEL-1] Question text\n  [YES -> LEVEL-2-A] Next question if yes\n    [YES -> LEVEL-3-A1] Resolution or next step\n    [NO -> LEVEL-3-A2] Alternative resolution\n  [NO -> LEVEL-2-B] Next question if no\n    [YES -> LEVEL-3-B1] Resolution or next step\n    [NO -> LEVEL-3-B2] Alternative resolution\n```\n\nFormatting rules:\n- Each level indented by 2 spaces from parent\n- Level markers: [LEVEL-X] where X is depth (1, 2, 3)\n- Branch markers: [YES ->] or [NO ->] followed by destination ID\n- Terminal nodes (resolutions) start with [RESOLVE]\n- Each node ID must be unique (LEVEL-2-A, LEVEL-2-B, etc.)\n\nExample node:\n```\n[LEVEL-1] Is the app icon visible on your home screen?\n  [YES -> LEVEL-2-A] Does the app briefly open then crash?\n  [NO -> LEVEL-2-B] Have you recently updated your device?\n```\n\nRequirements:\n- Minimum 3 levels deep\n- Each question must have both YES and NO paths\n- Terminal nodes must provide actionable resolution\n- Maximum 15 words per question",
+    "commonMistakes": [
+      "Not specifying hierarchy markers",
+      "Forgetting to define delimiters",
+      "No numbering/ID scheme",
+      "Unclear branching logic"
+    ],
+    "keyElements": [
+      "Clear hierarchy level markers",
+      "Explicit delimiters",
+      "Consistent ID/numbering scheme",
+      "Relationship markers defined"
+    ],
+    "antiPatterns": [
+      "'Create a decision tree'",
+      "No format specification",
+      "Assuming standard formatting",
+      "No parsing considerations"
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "id": "S1-CLARITY-001",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "clarity",
+    "difficulty": 1,
+    "estimatedMinutes": 5,
+    "prerequisites": [],
+    "tags": ["beginner", "prompting", "clarity"]
+  },
+  "scenario": {
+    "title": "The Vague Email Request",
+    "context": "You're a marketing assistant. Your manager just sent you a Slack message: 'Can you use AI to help me with the email thing?' You need to write a prompt that will help draft a professional email, but you have very little context.",
+    "goal": "Write a prompt that asks Claude to help draft a professional email. Your prompt should demonstrate that vague requests lead to vague outputs, OR show how to ask for clarification effectively.",
+    "constraints": [
+      "Your prompt must be under 200 words",
+      "You cannot assume what type of email is needed",
+      "The prompt should be something you'd actually send to an AI assistant"
+    ],
+    "exampleInput": "Manager's message: 'Can you use AI to help me with the email thing?'",
+    "hints": [
+      "Think about what information you're missing: recipient, purpose, tone, deadline?",
+      "A good prompt either asks for clarification OR explicitly states assumptions",
+      "Consider using a format like: 'I need help with X. Here's what I know: [...]. Here's what I need: [...]'"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "clarity",
+        "name": "Request Clarity",
+        "weight": 30,
+        "description": "Does the prompt clearly state what help is needed?",
+        "scoringGuide": {
+          "excellent": "Crystal clear about what output is expected and in what format",
+          "good": "Mostly clear with minor ambiguities",
+          "adequate": "Understandable but requires interpretation",
+          "poor": "Vague or confusing request"
+        }
+      },
+      {
+        "id": "context",
+        "name": "Context Handling",
+        "weight": 30,
+        "description": "Does the prompt acknowledge missing context appropriately?",
+        "scoringGuide": {
+          "excellent": "Explicitly identifies gaps and either asks for clarification or states assumptions",
+          "good": "Acknowledges some missing context",
+          "adequate": "Makes assumptions without stating them",
+          "poor": "Ignores the context problem entirely"
+        }
+      },
+      {
+        "id": "actionability",
+        "name": "Actionability",
+        "weight": 25,
+        "description": "Can the AI actually produce useful output from this prompt?",
+        "scoringGuide": {
+          "excellent": "AI could produce immediately useful output or clear next steps",
+          "good": "AI could produce mostly useful output",
+          "adequate": "AI could produce something, but may miss the mark",
+          "poor": "AI would struggle to produce anything useful"
+        }
+      },
+      {
+        "id": "professionalism",
+        "name": "Professional Tone",
+        "weight": 15,
+        "description": "Is the prompt written professionally?",
+        "scoringGuide": {
+          "excellent": "Professional, concise, well-structured",
+          "good": "Professional with minor issues",
+          "adequate": "Acceptable but could be improved",
+          "poor": "Unprofessional or poorly written"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "I need help drafting a professional email, but I'm missing key details. Before I can write an effective prompt, I need to clarify: 1) Who is the recipient? 2) What is the purpose (follow-up, request, announcement)? 3) What tone is appropriate? 4) Is there a deadline? For now, could you help me create a template that asks for these details, or suggest what questions I should ask my manager to get the context I need?",
+    "commonMistakes": [
+      "Immediately trying to draft an email without acknowledging missing context",
+      "Making too many assumptions without stating them",
+      "Writing a prompt that's too generic to be useful",
+      "Not specifying what format of help is needed"
+    ],
+    "keyElements": [
+      "Acknowledges the vague nature of the request",
+      "Identifies specific missing information",
+      "Either asks for clarification OR states explicit assumptions",
+      "Specifies what kind of output would be helpful"
+    ],
+    "antiPatterns": [
+      "Just saying 'write me an email'",
+      "Ignoring the context problem",
+      "Over-complicating with unnecessary details",
+      "Being passive or unclear about needs"
+    ]
+  }
+}

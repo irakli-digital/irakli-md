@@ -1,0 +1,103 @@
+{
+  "id": "S1-CONTEXT-002",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "context",
+    "difficulty": 2,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S1-CONTEXT-001"],
+    "tags": ["context", "prompting", "role"]
+  },
+  "scenario": {
+    "title": "The Expert Persona",
+    "context": "You need AI help explaining a technical concept (API rate limiting) to different audiences. The explanation needs to be tailored to the specific audience's knowledge level and needs.",
+    "goal": "Write a prompt that establishes the right expert persona and provides enough context about the audience to get an appropriately tailored explanation.",
+    "constraints": [
+      "Define who the AI should 'be' (their expertise)",
+      "Describe the specific audience's background",
+      "Specify what the audience already knows",
+      "Include what the audience needs to achieve"
+    ],
+    "exampleInput": "Topic: API rate limiting. Audience: Marketing team members who need to understand why their automated reports sometimes fail.",
+    "hints": [
+      "What kind of expert would be best at explaining this? A senior engineer? A technical writer?",
+      "What technical knowledge does a marketing team typically have?",
+      "What's the marketing team's actual goal - do they need deep understanding or just enough to solve their problem?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "persona-definition",
+        "name": "Expert Persona",
+        "weight": 25,
+        "description": "Is an appropriate expert role established?",
+        "scoringGuide": {
+          "excellent": "Clear, appropriate expert role with relevant expertise defined",
+          "good": "Expert role established but generic",
+          "adequate": "Implied expertise",
+          "poor": "No persona or inappropriate one"
+        }
+      },
+      {
+        "id": "audience-knowledge",
+        "name": "Audience Knowledge Level",
+        "weight": 30,
+        "description": "Is the audience's existing knowledge clearly defined?",
+        "scoringGuide": {
+          "excellent": "Specific knowledge level with examples of what they know/don't know",
+          "good": "General knowledge level stated",
+          "adequate": "Implied knowledge level",
+          "poor": "No indication of audience knowledge"
+        }
+      },
+      {
+        "id": "audience-needs",
+        "name": "Audience Needs",
+        "weight": 25,
+        "description": "Are the audience's practical needs specified?",
+        "scoringGuide": {
+          "excellent": "Clear goal and how understanding helps achieve it",
+          "good": "Goal mentioned but not connected to explanation",
+          "adequate": "Vague sense of purpose",
+          "poor": "No indication of why audience needs this"
+        }
+      },
+      {
+        "id": "tailoring-guidance",
+        "name": "Tailoring Guidance",
+        "weight": 20,
+        "description": "Does the prompt guide appropriate tailoring?",
+        "scoringGuide": {
+          "excellent": "Clear guidance on what to include/exclude for this audience",
+          "good": "Some tailoring direction",
+          "adequate": "Basic level indication",
+          "poor": "No tailoring guidance"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Act as a friendly tech educator who specializes in explaining developer concepts to non-technical business teams.\n\nAudience context: Marketing team members who use tools like Zapier and HubSpot but have no coding background. They understand 'APIs' as 'connections between apps' but don't know technical details. Their immediate problem: automated reports are failing with 'rate limit exceeded' errors.\n\nExplain API rate limiting in a way that: 1) Uses analogies they'd understand (no code or technical jargon), 2) Focuses on WHY this affects their reports, 3) Gives them 2-3 practical things they can do to prevent failures. Keep it under 200 words - they need the practical solution, not a deep technical education.",
+    "commonMistakes": [
+      "Not defining an expert persona at all",
+      "Choosing a persona too technical for the audience",
+      "Assuming AI knows audience's background",
+      "Not connecting explanation to practical needs"
+    ],
+    "keyElements": [
+      "Appropriate expert role defined",
+      "Audience knowledge level specified",
+      "Practical goal/need identified",
+      "Guidance on depth and approach"
+    ],
+    "antiPatterns": [
+      "'Explain rate limiting'",
+      "No mention of audience",
+      "Asking for technical explanation for non-technical audience",
+      "No connection to real-world use case"
+    ]
+  }
+}

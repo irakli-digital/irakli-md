@@ -1,0 +1,103 @@
+{
+  "id": "S1-CONSTRAINTS-002",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "constraints",
+    "difficulty": 2,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S1-CONSTRAINTS-001"],
+    "tags": ["constraints", "prompting", "boundaries"]
+  },
+  "scenario": {
+    "title": "The Content Boundaries",
+    "context": "You're creating educational content about investing basics for teenagers. The content needs to be engaging but must stay within strict ethical and legal boundaries appropriate for minors.",
+    "goal": "Write a prompt that sets clear content boundaries, specifying what topics/approaches are allowed and which are strictly off-limits.",
+    "constraints": [
+      "Define age-appropriate content guidelines",
+      "Specify topics that must be included",
+      "List topics/approaches that are off-limits",
+      "Include any required disclaimers or caveats"
+    ],
+    "exampleInput": "Topic: Introduction to investing. Audience: 15-17 year olds. Platform: Educational app for high schoolers.",
+    "hints": [
+      "What investing topics are appropriate for teens vs adults?",
+      "What financial advice would be inappropriate for minors?",
+      "Are there any legal/regulatory considerations for financial education for minors?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "inclusion-clarity",
+        "name": "Required Content",
+        "weight": 25,
+        "description": "Are required topics/elements clearly specified?",
+        "scoringGuide": {
+          "excellent": "Clear list of must-cover topics with rationale",
+          "good": "Topics listed but prioritization unclear",
+          "adequate": "General topic guidance",
+          "poor": "No specific content requirements"
+        }
+      },
+      {
+        "id": "exclusion-clarity",
+        "name": "Excluded Content",
+        "weight": 30,
+        "description": "Are off-limits topics clearly defined?",
+        "scoringGuide": {
+          "excellent": "Explicit list of excluded topics with reasons",
+          "good": "Key exclusions mentioned",
+          "adequate": "Some boundaries implied",
+          "poor": "No exclusions specified"
+        }
+      },
+      {
+        "id": "age-appropriateness",
+        "name": "Age Appropriateness",
+        "weight": 25,
+        "description": "Are age-appropriate guidelines specified?",
+        "scoringGuide": {
+          "excellent": "Clear age-appropriate language and complexity guidelines",
+          "good": "General age considerations mentioned",
+          "adequate": "Age mentioned but no specific guidelines",
+          "poor": "No age-appropriate guidance"
+        }
+      },
+      {
+        "id": "disclaimer-requirements",
+        "name": "Disclaimers/Caveats",
+        "weight": 20,
+        "description": "Are required disclaimers specified?",
+        "scoringGuide": {
+          "excellent": "Specific disclaimer requirements with placement",
+          "good": "General disclaimer guidance",
+          "adequate": "Awareness of need for caveats",
+          "poor": "No disclaimer consideration"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Create educational content about investing basics for high school students (15-17 years old).\n\nMUST include:\n- What investing means (growing money over time)\n- Difference between saving and investing\n- Concept of risk vs reward\n- Power of compound interest with relatable examples\n- Why starting young matters\n\nOFF-LIMITS (do not mention):\n- Specific stock picks or recommendations\n- Day trading or short-term speculation\n- Cryptocurrency or highly volatile assets\n- Leverage, margin trading, or borrowing to invest\n- Any 'get rich quick' framing\n- Specific brokerages or financial products\n\nAge-appropriate guidelines:\n- Use analogies teens understand (gaming progress, sports training)\n- Avoid complex financial jargon; define any terms used\n- Keep examples realistic for teen budgets ($20-100 ranges)\n- Emphasize learning over earning\n\nRequired disclaimer: Include a note that this is educational content only, not financial advice, and teens should discuss investing with parents/guardians.",
+    "commonMistakes": [
+      "Not specifying what's off-limits for minors",
+      "Forgetting age-appropriate language guidelines",
+      "No consideration of legal/ethical boundaries",
+      "Missing required disclaimers"
+    ],
+    "keyElements": [
+      "Clear must-include topics",
+      "Explicit exclusions list",
+      "Age-appropriate guidelines",
+      "Required disclaimers"
+    ],
+    "antiPatterns": [
+      "'Write investing content for teens'",
+      "No off-limits topics mentioned",
+      "No age-appropriate adjustments",
+      "No disclaimer requirements"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "S1-REASONING-001",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "reasoning",
+    "difficulty": 1,
+    "estimatedMinutes": 5,
+    "prerequisites": ["S1-CLARITY-002", "S1-CONSTRAINTS-001"],
+    "tags": ["reasoning", "prompting", "step-by-step"]
+  },
+  "scenario": {
+    "title": "The Thinking Prompt",
+    "context": "You're trying to solve a complex scheduling problem: fitting 5 meetings into a calendar with various constraints. You want the AI to think through the problem systematically rather than jumping to an answer.",
+    "goal": "Write a prompt that elicits step-by-step reasoning, asking the AI to show its work before giving a final answer.",
+    "constraints": [
+      "Request explicit step-by-step thinking",
+      "Ask the AI to consider constraints before solutions",
+      "Have the AI explain its reasoning",
+      "Request verification of the solution"
+    ],
+    "exampleInput": "Meetings: A (1hr, must be morning), B (30min, after A), C (1hr, any time), D (2hr, must include lunch), E (30min, end of day). Available: 9am-5pm.",
+    "hints": [
+      "How can you get the AI to 'think out loud'?",
+      "Should the AI list constraints before trying to solve?",
+      "How can you verify the solution actually works?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "step-request",
+        "name": "Step-by-Step Request",
+        "weight": 30,
+        "description": "Does the prompt explicitly request step-by-step thinking?",
+        "scoringGuide": {
+          "excellent": "Clear instruction to think through steps before answering",
+          "good": "Requests explanation of reasoning",
+          "adequate": "Implies wanting to see work",
+          "poor": "No request for reasoning process"
+        }
+      },
+      {
+        "id": "constraint-first",
+        "name": "Constraints First",
+        "weight": 25,
+        "description": "Does the prompt ask AI to consider constraints before solving?",
+        "scoringGuide": {
+          "excellent": "Explicitly asks to list/analyze constraints first",
+          "good": "Mentions considering constraints",
+          "adequate": "Constraints are in the prompt but not ordered",
+          "poor": "No constraint consideration requested"
+        }
+      },
+      {
+        "id": "reasoning-visibility",
+        "name": "Reasoning Visibility",
+        "weight": 25,
+        "description": "Does the prompt ask the AI to explain its decisions?",
+        "scoringGuide": {
+          "excellent": "Requests explanation of why each decision was made",
+          "good": "Asks for some justification",
+          "adequate": "Implies wanting reasoning",
+          "poor": "No request for explanation"
+        }
+      },
+      {
+        "id": "verification",
+        "name": "Solution Verification",
+        "weight": 20,
+        "description": "Does the prompt request verification of the answer?",
+        "scoringGuide": {
+          "excellent": "Explicitly asks AI to verify solution against constraints",
+          "good": "Mentions checking the answer",
+          "adequate": "Implies verification",
+          "poor": "No verification requested"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "I need to schedule 5 meetings in an 8-hour day (9am-5pm). Please solve this step-by-step:\n\nStep 1: List all the constraints from the meeting requirements:\n- Meeting A: 1 hour, must be in morning (before noon)\n- Meeting B: 30 min, must happen after Meeting A\n- Meeting C: 1 hour, flexible timing\n- Meeting D: 2 hours, must include lunch hour (12-1pm)\n- Meeting E: 30 min, must be at end of day (before 5pm)\n\nStep 2: Identify the most constrained meetings and schedule those first. Explain why you're starting with each one.\n\nStep 3: Fill in the flexible meetings around the fixed ones.\n\nStep 4: Show the complete schedule.\n\nStep 5: Verify your solution - go through each meeting and confirm it meets all its constraints. Flag any conflicts.\n\nIf there's no valid solution, explain which constraints conflict and suggest which one to relax.",
+    "commonMistakes": [
+      "Just stating the problem and asking for the answer",
+      "Not asking for reasoning to be shown",
+      "Not requesting constraint analysis first",
+      "Forgetting to ask for verification"
+    ],
+    "keyElements": [
+      "Explicit step-by-step instruction",
+      "Constraint analysis before solving",
+      "Request for reasoning explanation",
+      "Verification step included"
+    ],
+    "antiPatterns": [
+      "'Schedule these meetings'",
+      "No request to show work",
+      "No verification step",
+      "Expecting AI to figure out the right approach"
+    ]
+  }
+}

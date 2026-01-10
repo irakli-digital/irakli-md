@@ -1,0 +1,103 @@
+{
+  "id": "S1-OUTPUT-SHAPING-001",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "output-shaping",
+    "difficulty": 1,
+    "estimatedMinutes": 5,
+    "prerequisites": ["S1-CONSTRAINTS-002"],
+    "tags": ["output-shaping", "prompting", "structure"]
+  },
+  "scenario": {
+    "title": "The Template Filler",
+    "context": "You need AI to generate multiple product feature descriptions that all follow the exact same structure. This will be used in a comparison table, so consistency is critical.",
+    "goal": "Write a prompt that defines a specific output template/structure that the AI must follow exactly for consistent, usable results.",
+    "constraints": [
+      "Define the exact structure/template to follow",
+      "Specify field names or labels",
+      "Include an example of the desired format",
+      "Specify what to do if information doesn't fit the template"
+    ],
+    "exampleInput": "Features to describe: 1) Auto-save, 2) Cloud sync, 3) Offline mode. Use case: comparison table on marketing website.",
+    "hints": [
+      "What fields should each feature description have?",
+      "How can you show the AI exactly what format you want?",
+      "What if a feature doesn't have all the information for every field?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "template-clarity",
+        "name": "Template Clarity",
+        "weight": 35,
+        "description": "Is the output template/structure clearly defined?",
+        "scoringGuide": {
+          "excellent": "Exact template with field names and structure",
+          "good": "Clear structure but some ambiguity",
+          "adequate": "General structure indicated",
+          "poor": "No template provided"
+        }
+      },
+      {
+        "id": "example-provided",
+        "name": "Example Provided",
+        "weight": 25,
+        "description": "Is a concrete example of desired output included?",
+        "scoringGuide": {
+          "excellent": "Complete example showing exact expected format",
+          "good": "Partial example",
+          "adequate": "General example reference",
+          "poor": "No example"
+        }
+      },
+      {
+        "id": "field-specification",
+        "name": "Field Specification",
+        "weight": 20,
+        "description": "Are individual fields/sections clearly specified?",
+        "scoringGuide": {
+          "excellent": "Each field defined with name and expected content type",
+          "good": "Fields named but content loosely defined",
+          "adequate": "Some fields mentioned",
+          "poor": "No field specification"
+        }
+      },
+      {
+        "id": "edge-case-handling",
+        "name": "Edge Case Handling",
+        "weight": 20,
+        "description": "Does the prompt address incomplete or edge-case data?",
+        "scoringGuide": {
+          "excellent": "Clear instructions for handling missing/unusual data",
+          "good": "Some edge case guidance",
+          "adequate": "Implied handling",
+          "poor": "No edge case consideration"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Generate feature descriptions for our comparison table. Each feature MUST follow this exact template:\n\n```\nFEATURE: [Feature Name]\nONE-LINER: [10 words max - what it does]\nBENEFIT: [User-focused benefit, 15 words max]\nHOW IT WORKS: [Simple explanation, 20 words max]\nBEST FOR: [Target user type]\n```\n\nExample (follow this format exactly):\n```\nFEATURE: Auto-save\nONE-LINER: Automatically saves your work every 30 seconds\nBENEFIT: Never lose your progress, even if your device crashes unexpectedly\nHOW IT WORKS: Background process detects changes and saves silently to local storage\nBEST FOR: Users who work on long documents\n```\n\nFeatures to describe:\n1. Auto-save\n2. Cloud sync  \n3. Offline mode\n\nRules:\n- Maintain identical field names and order\n- Keep within word limits (count them)\n- If a field doesn't apply, write 'N/A' rather than omitting it\n- Use sentence case, not title case\n- No bullet points or sub-lists within fields",
+    "commonMistakes": [
+      "Describing desired output vaguely",
+      "Not providing a concrete example",
+      "Not specifying field names/labels",
+      "Forgetting to handle incomplete data cases"
+    ],
+    "keyElements": [
+      "Exact template structure",
+      "Concrete example provided",
+      "Field names specified",
+      "Edge case instructions"
+    ],
+    "antiPatterns": [
+      "'Write feature descriptions'",
+      "No template or structure",
+      "No example format",
+      "Assuming AI knows your preferred format"
+    ]
+  }
+}

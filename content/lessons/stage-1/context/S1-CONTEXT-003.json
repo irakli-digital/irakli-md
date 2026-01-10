@@ -1,0 +1,103 @@
+{
+  "id": "S1-CONTEXT-003",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "context",
+    "difficulty": 3,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S1-CONTEXT-002"],
+    "tags": ["context", "prompting", "situational"]
+  },
+  "scenario": {
+    "title": "The Situational Briefing",
+    "context": "You're preparing for a difficult conversation with a client who is unhappy about a project delay. You want AI to help you draft talking points, but the AI needs to understand the full situation to give appropriate advice.",
+    "goal": "Write a prompt that provides comprehensive situational context including the history, relationships, stakes, and constraints - enabling the AI to give nuanced, situation-appropriate advice.",
+    "constraints": [
+      "Include the relevant history leading to this situation",
+      "Describe the relationship dynamics",
+      "Specify what's at stake for both parties",
+      "Mention any constraints or sensitivities"
+    ],
+    "exampleInput": "Situation: Project delayed by 3 weeks. Client: Enterprise customer, 2-year relationship. Cause: Unexpected technical challenges.",
+    "hints": [
+      "What's the history with this client? First issue or pattern?",
+      "What does this client value most? What are they sensitive to?",
+      "What outcomes are acceptable to you? What's non-negotiable?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "historical-context",
+        "name": "Historical Context",
+        "weight": 25,
+        "description": "Is relevant history provided?",
+        "scoringGuide": {
+          "excellent": "Clear timeline and relevant past interactions",
+          "good": "Key historical points mentioned",
+          "adequate": "Some history implied",
+          "poor": "No historical context"
+        }
+      },
+      {
+        "id": "relationship-dynamics",
+        "name": "Relationship Dynamics",
+        "weight": 25,
+        "description": "Are relationship factors explained?",
+        "scoringGuide": {
+          "excellent": "Clear relationship status, power dynamics, and interpersonal factors",
+          "good": "Basic relationship context",
+          "adequate": "Implied relationship",
+          "poor": "No relationship context"
+        }
+      },
+      {
+        "id": "stakes-clarity",
+        "name": "Stakes Clarity",
+        "weight": 25,
+        "description": "Are the stakes for all parties clear?",
+        "scoringGuide": {
+          "excellent": "Explicit stakes for both sides with specifics",
+          "good": "Stakes mentioned but one-sided",
+          "adequate": "General sense of importance",
+          "poor": "No indication of stakes"
+        }
+      },
+      {
+        "id": "constraints-sensitivities",
+        "name": "Constraints & Sensitivities",
+        "weight": 25,
+        "description": "Are constraints and sensitivities identified?",
+        "scoringGuide": {
+          "excellent": "Clear boundaries, sensitivities, and limitations",
+          "good": "Some constraints mentioned",
+          "adequate": "Implied limitations",
+          "poor": "No awareness of constraints"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Help me prepare talking points for a difficult client conversation.\n\nSituation: Our software implementation project is delayed by 3 weeks. This is our first delay with this client in 2 years of partnership.\n\nClient context: Acme Corp is our 3rd largest account ($150K/year). Main contact is Sarah, VP of Operations - she's been our champion internally but her team is frustrated. She has quarterly board meetings where she reports on projects. The delay may affect her credibility.\n\nOur side: The delay was caused by undocumented legacy systems we discovered during integration. We've already absorbed $20K in additional costs. We cannot extend further without additional budget, but we're willing to add a dedicated support week post-launch at no cost.\n\nSensitivities: Sarah may feel she under-scoped the project internally. Don't suggest anything that implies she made a mistake. Frame our solution as 'partnership adjustment' not 'scope change.'\n\nGoal: Talking points that acknowledge the delay's impact, explain without making excuses, and present our proposed resolution in a way that helps Sarah present this positively to her board.",
+    "commonMistakes": [
+      "Only presenting one side of the situation",
+      "Not explaining relationship history",
+      "Ignoring what's at stake for the other party",
+      "Not mentioning sensitive topics to avoid"
+    ],
+    "keyElements": [
+      "Relevant historical context",
+      "Relationship dynamics explained",
+      "Stakes for both parties",
+      "Constraints and sensitivities identified"
+    ],
+    "antiPatterns": [
+      "'Help me with a difficult client conversation'",
+      "Only your perspective provided",
+      "No relationship context",
+      "No awareness of client's position"
+    ]
+  }
+}

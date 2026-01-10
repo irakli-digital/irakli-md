@@ -1,0 +1,103 @@
+{
+  "id": "S1-CONSTRAINTS-001",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "constraints",
+    "difficulty": 1,
+    "estimatedMinutes": 5,
+    "prerequisites": ["S1-CLARITY-001"],
+    "tags": ["constraints", "prompting", "format"]
+  },
+  "scenario": {
+    "title": "The Format Frenzy",
+    "context": "You need AI to write social media posts for a product launch, but you have very specific platform requirements and brand guidelines to follow.",
+    "goal": "Write a prompt that specifies clear format constraints (length, structure, style) to get output that fits your exact requirements without needing extensive editing.",
+    "constraints": [
+      "Specify exact character/word limits",
+      "Define structural requirements (hashtags, emojis, etc.)",
+      "Include tone/style constraints",
+      "Mention what to avoid"
+    ],
+    "exampleInput": "Product: Wireless earbuds with 40-hour battery. Platforms: Twitter (280 chars) and LinkedIn (longer form). Launch: Next Monday.",
+    "hints": [
+      "What are the literal character limits for each platform?",
+      "Does your brand use emojis? Hashtags? How many?",
+      "What words or phrases are off-limits for your brand?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "length-constraints",
+        "name": "Length Constraints",
+        "weight": 30,
+        "description": "Are length/size limits clearly specified?",
+        "scoringGuide": {
+          "excellent": "Exact limits specified for each output type",
+          "good": "General length guidance provided",
+          "adequate": "Vague length indication",
+          "poor": "No length constraints"
+        }
+      },
+      {
+        "id": "structural-requirements",
+        "name": "Structural Requirements",
+        "weight": 25,
+        "description": "Are structural elements specified?",
+        "scoringGuide": {
+          "excellent": "Clear requirements for all structural elements",
+          "good": "Most structural elements specified",
+          "adequate": "Some structure indicated",
+          "poor": "No structural guidance"
+        }
+      },
+      {
+        "id": "style-constraints",
+        "name": "Style Constraints",
+        "weight": 25,
+        "description": "Are style/tone constraints defined?",
+        "scoringGuide": {
+          "excellent": "Clear style guidelines with examples",
+          "good": "Style direction provided",
+          "adequate": "Basic tone indication",
+          "poor": "No style constraints"
+        }
+      },
+      {
+        "id": "exclusions",
+        "name": "Exclusions",
+        "weight": 20,
+        "description": "Is there clarity on what to avoid?",
+        "scoringGuide": {
+          "excellent": "Explicit list of things to avoid",
+          "good": "Some exclusions mentioned",
+          "adequate": "Implied exclusions",
+          "poor": "No guidance on what to avoid"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Write social media posts for our wireless earbuds product launch.\n\nFormat requirements:\n- Twitter: Max 260 characters (leave room for link), include 1-2 relevant hashtags, no emojis (brand guideline)\n- LinkedIn: 100-150 words, professional tone, can include bullet points for features, no hashtags\n\nStyle constraints:\n- Active voice only\n- Focus on benefit ('40 hours of music') not spec ('40-hour battery')\n- Tone: Confident but not aggressive, avoid superlatives like 'best' or 'revolutionary'\n- Include a soft CTA ('Learn more' not 'Buy now')\n\nDo NOT include:\n- Price mentions\n- Competitor comparisons\n- Claims we can't verify (e.g., 'best sound quality')\n- Launch date (we'll add manually)",
+    "commonMistakes": [
+      "Not specifying platform-specific limits",
+      "Forgetting to mention emoji/hashtag preferences",
+      "No guidance on tone",
+      "Not mentioning what to avoid"
+    ],
+    "keyElements": [
+      "Exact length limits per platform",
+      "Structural element requirements",
+      "Tone and style guidelines",
+      "Clear exclusions"
+    ],
+    "antiPatterns": [
+      "'Write some social media posts'",
+      "No character limits",
+      "No mention of brand guidelines",
+      "No exclusions or restrictions"
+    ]
+  }
+}

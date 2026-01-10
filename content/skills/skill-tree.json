@@ -1,0 +1,237 @@
+{
+  "stages": [
+    {
+      "id": 1,
+      "name": "Prompting",
+      "description": "Get correct reasoning and output shape from AI",
+      "color": "#3B82F6",
+      "certification": "Prompt Engineer L1",
+      "skills": [
+        {
+          "id": "clarity",
+          "name": "Clarity",
+          "description": "Writing unambiguous instructions",
+          "icon": "type",
+          "scenariosRequired": 3,
+          "prerequisites": [],
+          "order": 1
+        },
+        {
+          "id": "context",
+          "name": "Context",
+          "description": "Providing sufficient background",
+          "icon": "file-text",
+          "scenariosRequired": 3,
+          "prerequisites": ["clarity"],
+          "order": 2
+        },
+        {
+          "id": "constraints",
+          "name": "Constraints",
+          "description": "Setting boundaries (length, format, tone)",
+          "icon": "sliders",
+          "scenariosRequired": 3,
+          "prerequisites": ["clarity"],
+          "order": 3
+        },
+        {
+          "id": "reasoning",
+          "name": "Reasoning",
+          "description": "Eliciting step-by-step thinking",
+          "icon": "git-branch",
+          "scenariosRequired": 3,
+          "prerequisites": ["context", "constraints"],
+          "order": 4
+        },
+        {
+          "id": "output-shaping",
+          "name": "Output Shaping",
+          "description": "Getting structured responses",
+          "icon": "layout",
+          "scenariosRequired": 3,
+          "prerequisites": ["reasoning"],
+          "order": 5
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Structuring",
+      "description": "Turn AI output into machine-usable structure",
+      "color": "#8B5CF6",
+      "certification": "AI Systems Designer L2",
+      "requiredStage": 1,
+      "skills": [
+        {
+          "id": "json-extraction",
+          "name": "JSON Extraction",
+          "description": "Getting valid, parseable JSON",
+          "icon": "braces",
+          "scenariosRequired": 3,
+          "prerequisites": [],
+          "order": 1
+        },
+        {
+          "id": "schema-definition",
+          "name": "Schema Definition",
+          "description": "Designing input/output contracts",
+          "icon": "database",
+          "scenariosRequired": 3,
+          "prerequisites": ["json-extraction"],
+          "order": 2
+        },
+        {
+          "id": "output-parsing",
+          "name": "Output Parsing",
+          "description": "Extracting specific fields",
+          "icon": "filter",
+          "scenariosRequired": 3,
+          "prerequisites": ["json-extraction"],
+          "order": 3
+        },
+        {
+          "id": "step-decomposition",
+          "name": "Step Decomposition",
+          "description": "Breaking tasks into atomic units",
+          "icon": "list-tree",
+          "scenariosRequired": 3,
+          "prerequisites": ["schema-definition", "output-parsing"],
+          "order": 4
+        },
+        {
+          "id": "error-handling",
+          "name": "Error Handling",
+          "description": "Managing unexpected formats",
+          "icon": "shield-alert",
+          "scenariosRequired": 3,
+          "prerequisites": ["step-decomposition"],
+          "order": 5
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Automation",
+      "description": "Wire AI into workflows",
+      "color": "#F59E0B",
+      "certification": "AI Automation Specialist L3",
+      "requiredStage": 2,
+      "skills": [
+        {
+          "id": "triggers",
+          "name": "Triggers",
+          "description": "Event-based workflow initiation",
+          "icon": "zap",
+          "scenariosRequired": 3,
+          "prerequisites": [],
+          "order": 1
+        },
+        {
+          "id": "data-routing",
+          "name": "Data Routing",
+          "description": "Moving data between services",
+          "icon": "route",
+          "scenariosRequired": 3,
+          "prerequisites": ["triggers"],
+          "order": 2
+        },
+        {
+          "id": "api-integration",
+          "name": "API Integration",
+          "description": "Connecting external services",
+          "icon": "plug",
+          "scenariosRequired": 3,
+          "prerequisites": ["data-routing"],
+          "order": 3
+        },
+        {
+          "id": "conditional-logic",
+          "name": "Conditional Logic",
+          "description": "Branching based on AI output",
+          "icon": "git-fork",
+          "scenariosRequired": 3,
+          "prerequisites": ["api-integration"],
+          "order": 4
+        },
+        {
+          "id": "multi-step-chains",
+          "name": "Multi-Step Chains",
+          "description": "Sequential AI operations",
+          "icon": "workflow",
+          "scenariosRequired": 3,
+          "prerequisites": ["conditional-logic"],
+          "order": 5
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Vibe Coding",
+      "description": "Ship real products with AI",
+      "color": "#10B981",
+      "certification": "AI Product Builder L4",
+      "requiredStage": 3,
+      "skills": [
+        {
+          "id": "frontend-basics",
+          "name": "Frontend Basics",
+          "description": "Building simple UIs with AI assistance",
+          "icon": "layout-template",
+          "scenariosRequired": 3,
+          "prerequisites": [],
+          "order": 1
+        },
+        {
+          "id": "backend-integration",
+          "name": "Backend Integration",
+          "description": "Auth, storage, APIs",
+          "icon": "server",
+          "scenariosRequired": 3,
+          "prerequisites": ["frontend-basics"],
+          "order": 2
+        },
+        {
+          "id": "guardrails",
+          "name": "Guardrails",
+          "description": "Rate limits, input validation, safety",
+          "icon": "shield-check",
+          "scenariosRequired": 3,
+          "prerequisites": ["backend-integration"],
+          "order": 3
+        },
+        {
+          "id": "deployment",
+          "name": "Deployment",
+          "description": "Shipping to production",
+          "icon": "rocket",
+          "scenariosRequired": 3,
+          "prerequisites": ["guardrails"],
+          "order": 4
+        },
+        {
+          "id": "iteration",
+          "name": "Iteration",
+          "description": "Using AI to improve code",
+          "icon": "refresh-cw",
+          "scenariosRequired": 3,
+          "prerequisites": ["deployment"],
+          "order": 5
+        }
+      ]
+    }
+  ],
+  "xpRewards": {
+    "scenarioComplete": 100,
+    "perfectScore": 50,
+    "firstAttemptPass": 25,
+    "skillMastery": 200,
+    "stageCertification": 500,
+    "dailyStreak": 25,
+    "weeklyStreak": 100
+  },
+  "levelThresholds": [
+    0, 100, 250, 500, 850, 1300, 1850, 2500, 3250, 4100,
+    5050, 6100, 7250, 8500, 9850, 11300, 12850, 14500, 16250, 18100,
+    20050, 22100, 24250, 26500, 28850, 31300, 33850, 36500, 39250, 42100
+  ]
+}

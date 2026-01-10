@@ -1,0 +1,102 @@
+{
+  "id": "S1-CLARITY-002",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "clarity",
+    "difficulty": 2,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S1-CLARITY-001"],
+    "tags": ["clarity", "prompting", "instructions"]
+  },
+  "scenario": {
+    "title": "The Ambiguous Code Review",
+    "context": "You're a senior developer who needs AI help reviewing a junior developer's code. You want the AI to check for bugs, suggest improvements, and explain any issues it finds.",
+    "goal": "Write a prompt that clearly specifies what kind of code review you want, avoiding ambiguous requests like 'review this code' or 'make it better'.",
+    "constraints": [
+      "Your prompt must specify at least 3 specific things to check for",
+      "Include the level of detail expected in the feedback",
+      "Specify the format of the response you want"
+    ],
+    "exampleInput": "Code to review: A Python function that fetches user data from an API and caches it locally.",
+    "hints": [
+      "What specific aspects should the AI focus on? Security? Performance? Readability?",
+      "How detailed should the explanations be? Junior-friendly or expert-level?",
+      "What format would make the feedback most actionable? A list? Inline comments?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "specificity",
+        "name": "Specificity",
+        "weight": 35,
+        "description": "Does the prompt specify exactly what to look for?",
+        "scoringGuide": {
+          "excellent": "Lists 3+ specific review criteria with clear definitions",
+          "good": "Lists review criteria but some are vague",
+          "adequate": "Mentions general areas but lacks specific criteria",
+          "poor": "Generic 'review this code' type request"
+        }
+      },
+      {
+        "id": "detail-level",
+        "name": "Detail Level",
+        "weight": 25,
+        "description": "Does the prompt specify the depth of analysis expected?",
+        "scoringGuide": {
+          "excellent": "Explicitly states expected detail level and audience",
+          "good": "Implies detail level through context",
+          "adequate": "Some indication of expected depth",
+          "poor": "No guidance on how detailed feedback should be"
+        }
+      },
+      {
+        "id": "output-structure",
+        "name": "Output Structure",
+        "weight": 25,
+        "description": "Does the prompt specify how feedback should be organized?",
+        "scoringGuide": {
+          "excellent": "Clear format specification (sections, priorities, etc.)",
+          "good": "Some structure guidance provided",
+          "adequate": "Implied structure expectations",
+          "poor": "No format guidance"
+        }
+      },
+      {
+        "id": "actionability",
+        "name": "Actionability",
+        "weight": 15,
+        "description": "Would the response be immediately useful?",
+        "scoringGuide": {
+          "excellent": "Request is designed to produce actionable feedback",
+          "good": "Mostly actionable with minor gaps",
+          "adequate": "Somewhat actionable",
+          "poor": "Would produce generic, non-actionable feedback"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Review this Python function for: 1) Security vulnerabilities (SQL injection, data exposure, input validation), 2) Performance issues (unnecessary API calls, caching efficiency, memory usage), 3) Code readability (naming conventions, documentation, complexity). For each issue found, provide: a) Severity level (critical/medium/low), b) Line number or code section, c) Explanation suitable for a junior developer, d) Suggested fix with code example. Format: Group findings by category, list critical issues first.",
+    "commonMistakes": [
+      "Saying 'review this code' without specifying what to look for",
+      "Not specifying the expertise level of the intended audience",
+      "Forgetting to request actionable suggestions",
+      "Not indicating priority or severity expectations"
+    ],
+    "keyElements": [
+      "Specific review criteria listed",
+      "Expected detail level stated",
+      "Output format specified",
+      "Actionable feedback requested"
+    ],
+    "antiPatterns": [
+      "Just 'check for bugs'",
+      "'Make it better'",
+      "'Is this code good?'",
+      "No mention of what aspects to focus on"
+    ]
+  }
+}

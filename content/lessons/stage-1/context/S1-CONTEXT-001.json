@@ -1,0 +1,103 @@
+{
+  "id": "S1-CONTEXT-001",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "context",
+    "difficulty": 1,
+    "estimatedMinutes": 5,
+    "prerequisites": ["S1-CLARITY-001"],
+    "tags": ["context", "prompting", "background"]
+  },
+  "scenario": {
+    "title": "The Missing Background",
+    "context": "You're a product manager who needs help writing release notes for a new feature. The feature is a 'dark mode' toggle for your mobile app, but the AI has no idea about your product, users, or communication style.",
+    "goal": "Write a prompt that provides sufficient background context so the AI can write release notes that sound like they came from your company.",
+    "constraints": [
+      "Include at least 3 pieces of relevant context about your product/company",
+      "Specify your target audience",
+      "Define the tone/voice to use",
+      "Keep background context under 100 words"
+    ],
+    "exampleInput": "Feature: Dark mode toggle in app settings. Technical: Reduces battery usage by 20% on OLED screens.",
+    "hints": [
+      "What does the AI need to know about your product to write appropriately?",
+      "Who reads these release notes? Technical users? General public?",
+      "What's your brand voice? Casual? Corporate? Playful?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "product-context",
+        "name": "Product Context",
+        "weight": 30,
+        "description": "Does the prompt provide relevant product/company information?",
+        "scoringGuide": {
+          "excellent": "Clear product description, target market, and brand identity",
+          "good": "Most relevant context provided",
+          "adequate": "Basic product information only",
+          "poor": "No product context provided"
+        }
+      },
+      {
+        "id": "audience-definition",
+        "name": "Audience Definition",
+        "weight": 25,
+        "description": "Is the target audience clearly defined?",
+        "scoringGuide": {
+          "excellent": "Specific audience with relevant characteristics",
+          "good": "General audience definition",
+          "adequate": "Implied audience",
+          "poor": "No audience specified"
+        }
+      },
+      {
+        "id": "tone-specification",
+        "name": "Tone Specification",
+        "weight": 25,
+        "description": "Is the desired voice/tone clearly communicated?",
+        "scoringGuide": {
+          "excellent": "Explicit tone description with examples or reference",
+          "good": "Clear tone direction",
+          "adequate": "General tone indication",
+          "poor": "No tone guidance"
+        }
+      },
+      {
+        "id": "context-efficiency",
+        "name": "Context Efficiency",
+        "weight": 20,
+        "description": "Is the context concise but sufficient?",
+        "scoringGuide": {
+          "excellent": "All essential context, nothing superfluous",
+          "good": "Mostly efficient with minor extras",
+          "adequate": "Some unnecessary information",
+          "poor": "Either too sparse or too verbose"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Context: FocusApp is a productivity app for remote workers (25-45 age range). Our brand voice is friendly but professional - we avoid corporate jargon and speak directly to users. Our release notes are typically 2-3 sentences, focusing on user benefits over technical details.\n\nTask: Write release notes for our new dark mode feature. The feature saves 20% battery on OLED screens, but lead with the user experience benefit (easier on eyes, better for night use). Match our existing style: conversational, benefit-focused, no version numbers or technical specs.",
+    "commonMistakes": [
+      "Assuming the AI knows your product",
+      "Not specifying who reads the release notes",
+      "Forgetting to define brand voice",
+      "Providing irrelevant background information"
+    ],
+    "keyElements": [
+      "Product/company description",
+      "Target audience identification",
+      "Tone/voice specification",
+      "Relevant context only"
+    ],
+    "antiPatterns": [
+      "'Write release notes for dark mode'",
+      "No mention of brand voice",
+      "No audience specification",
+      "Dumping irrelevant company history"
+    ]
+  }
+}

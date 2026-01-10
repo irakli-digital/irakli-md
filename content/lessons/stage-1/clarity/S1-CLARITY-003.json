@@ -1,0 +1,103 @@
+{
+  "id": "S1-CLARITY-003",
+  "version": 1,
+  "meta": {
+    "stage": 1,
+    "skill": "clarity",
+    "difficulty": 3,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S1-CLARITY-002"],
+    "tags": ["clarity", "prompting", "complex-tasks"]
+  },
+  "scenario": {
+    "title": "The Multi-Step Analysis",
+    "context": "You're a business analyst preparing a market entry report. You need AI to analyze competitor data and produce insights, but the task involves multiple steps: data interpretation, trend identification, and strategic recommendations.",
+    "goal": "Write a prompt that clearly breaks down a complex, multi-step task into unambiguous instructions that prevent the AI from making assumptions or skipping steps.",
+    "constraints": [
+      "Your prompt must include numbered steps",
+      "Each step must have a clear deliverable",
+      "Include how steps connect to each other",
+      "Specify what should NOT be assumed"
+    ],
+    "exampleInput": "Competitor data: Company A (40% market share, premium pricing), Company B (25% share, mid-range), Company C (20% share, budget), Others (15%).",
+    "hints": [
+      "Break the task into sequential steps - what needs to happen first?",
+      "For each step, what specific output do you expect?",
+      "What assumptions might the AI make that you want to prevent?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "step-clarity",
+        "name": "Step Clarity",
+        "weight": 30,
+        "description": "Are the individual steps clearly defined?",
+        "scoringGuide": {
+          "excellent": "Each step has a specific action and expected output",
+          "good": "Steps are clear but some outputs are implied",
+          "adequate": "Steps are present but vague",
+          "poor": "No clear step breakdown"
+        }
+      },
+      {
+        "id": "logical-flow",
+        "name": "Logical Flow",
+        "weight": 25,
+        "description": "Do steps connect logically?",
+        "scoringGuide": {
+          "excellent": "Clear dependencies and flow between steps",
+          "good": "Mostly logical with minor gaps",
+          "adequate": "Some logical ordering",
+          "poor": "Steps seem disconnected or randomly ordered"
+        }
+      },
+      {
+        "id": "assumption-prevention",
+        "name": "Assumption Prevention",
+        "weight": 25,
+        "description": "Does the prompt prevent unwanted assumptions?",
+        "scoringGuide": {
+          "excellent": "Explicitly states what NOT to assume",
+          "good": "Implicitly constrains assumptions through specificity",
+          "adequate": "Some boundaries set",
+          "poor": "Leaves too much open to interpretation"
+        }
+      },
+      {
+        "id": "completeness",
+        "name": "Task Completeness",
+        "weight": 20,
+        "description": "Does the prompt cover the full scope?",
+        "scoringGuide": {
+          "excellent": "All aspects of the task are addressed",
+          "good": "Most aspects covered",
+          "adequate": "Core task covered, details missing",
+          "poor": "Significant parts of task omitted"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Analyze this competitor data in 4 steps:\n\nStep 1 - Data Summary: List each competitor with their market share and positioning. Do NOT add any competitors not in the data.\n\nStep 2 - Gap Analysis: Identify market segments that are underserved based on the data. Focus only on pricing tiers explicitly mentioned. Output: bullet list of gaps.\n\nStep 3 - Trend Identification: Based solely on the market share distribution, identify 2-3 patterns. Do NOT assume historical trends not provided. Output: numbered insights with supporting data points.\n\nStep 4 - Entry Recommendations: Suggest 2 market entry strategies based on Steps 2-3. For each: state the target segment, positioning rationale, and key risks. Do NOT recommend pricing without data to support it.",
+    "commonMistakes": [
+      "Giving one vague instruction for a complex task",
+      "Not specifying outputs for each step",
+      "Allowing AI to make assumptions about missing data",
+      "Steps that don't build on each other"
+    ],
+    "keyElements": [
+      "Numbered/ordered steps",
+      "Specific deliverable per step",
+      "Clear dependencies between steps",
+      "Explicit constraints on assumptions"
+    ],
+    "antiPatterns": [
+      "'Analyze this data and give me recommendations'",
+      "Steps without clear outputs",
+      "No mention of what to avoid assuming",
+      "Disconnected or redundant steps"
+    ]
+  }
+}
