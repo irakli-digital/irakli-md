@@ -5,6 +5,7 @@ import { progressRouter } from './progress';
 import { achievementsRouter } from './achievements';
 import { leaderboardRouter } from './leaderboard';
 import { subscriptionRouter } from './subscription';
+import { adminRouter } from './admin';
 
 export const appRouter = router({
   scenario: scenarioRouter,
@@ -13,6 +14,7 @@ export const appRouter = router({
   achievements: achievementsRouter,
   leaderboard: leaderboardRouter,
   subscription: subscriptionRouter,
+  admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

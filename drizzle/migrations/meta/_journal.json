@@ -15,6 +15,13 @@
       "when": 1768087405189,
       "tag": "0002_add_lessons_table",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768116768857,
+      "tag": "0002_naive_talon",
+      "breakpoints": true
     }
   ]
 }

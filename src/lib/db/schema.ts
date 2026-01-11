@@ -40,6 +40,9 @@ export const profiles = pgTable('profiles', {
   rectoken: text('rectoken'), // Flitt rectoken for recurring charges
   rectokenLifetime: text('rectoken_lifetime'),
 
+  // Role
+  role: text('role').default('user'), // 'user' | 'admin' | 'moderator'
+
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });

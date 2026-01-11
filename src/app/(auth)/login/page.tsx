@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { signIn, getSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { TerminalWindow } from '@/components/terminal/terminal-window';
 import { TerminalLine } from '@/components/terminal/terminal-line';
@@ -17,13 +17,16 @@ export default function LoginPage() {
   const router = useRouter();
 
   const handleEmailSubmit = () => {
-    if (email.includes('@')) {
+    // Allow 'admin' or emails with @
+    if (email.includes('@') || email === 'admin') {
       setStep('password');
     }
   };
 
   const handlePasswordSubmit = async () => {
-    if (password.length < 6) return;
+    // Allow shorter passwords for admin
+    const minLength = email === 'admin' ? 1 : 6;
+    if (password.length < minLength) return;
 
     setLoading(true);
     setError('');
@@ -35,7 +38,13 @@ export default function LoginPage() {
     });
 
     if (result?.ok) {
-      router.push('/');
+      // Fetch session to check role
+      const session = await getSession();
+      if (session?.user?.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     } else {
       setError('authentication failed. try again.');
     }
@@ -115,7 +124,7 @@ export default function LoginPage() {
           {step === 'password' && (
             <Button
               onClick={handlePasswordSubmit}
-              disabled={loading || password.length < 6}
+              disabled={loading || password.length < (email === 'admin' ? 1 : 6)}
               className="w-full bg-[#D97706] hover:bg-[#F59E0B] text-[#1A1A1A] font-mono"
             >
               {loading ? 'authenticating...' : '[ authenticate ]'}
