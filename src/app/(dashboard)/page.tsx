@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { TerminalWindow } from '@/components/terminal/terminal-window';
 import { TerminalLine } from '@/components/terminal/terminal-line';
 import { ScenarioCard } from '@/components/scenario/scenario-card';
@@ -8,12 +9,17 @@ import { LevelProgress, LevelBadge } from '@/components/gamification/level-progr
 import { XPDisplay } from '@/components/gamification/xp-display';
 import { StreakBadge, StreakWarning } from '@/components/gamification/streak-badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lock } from 'lucide-react';
 import { trpc } from '@/lib/trpc/client';
+import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: scenarios, isLoading } = trpc.scenario.getAvailable.useQuery();
+  const searchParams = useSearchParams();
+  const initialStage = parseInt(searchParams.get('stage') || '1', 10);
+  const [selectedStage, setSelectedStage] = useState(initialStage);
+
+  const { data: scenarios, isLoading } = trpc.scenario.getAvailable.useQuery({ stage: selectedStage });
   const { data: progress } = trpc.progress.getOverview.useQuery();
 
   const stageDescriptions: Record<number, string> = {
@@ -84,49 +90,59 @@ export default function DashboardPage() {
       <TerminalWindow title="~/stages">
         <div className="space-y-3">
           <TerminalLine prefix="info:" prefixColor="muted">
-            master each stage to become an AI practitioner
+            click a stage to see its lessons
           </TerminalLine>
           <div className="grid md:grid-cols-2 gap-3 mt-4">
-            {[1, 2, 3, 4].map((stage) => (
-              <div
-                key={stage}
-                className="p-3 bg-[#2D2D2D] rounded border border-[#333] hover:border-[#444] transition-colors"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className="text-xs px-2 py-0.5 rounded"
-                    style={{
-                      backgroundColor: `${
-                        stage === 1 ? '#3B82F6' :
-                        stage === 2 ? '#8B5CF6' :
-                        stage === 3 ? '#F59E0B' :
-                        '#10B981'
-                      }20`,
-                      color:
-                        stage === 1 ? '#3B82F6' :
-                        stage === 2 ? '#8B5CF6' :
-                        stage === 3 ? '#F59E0B' :
-                        '#10B981',
-                    }}
-                  >
-                    stage {stage}
-                  </span>
-                  {stage > 1 && (
-                    <span className="text-xs text-[#737373]">locked</span>
+            {[1, 2, 3, 4].map((stage) => {
+              const stageColor = stage === 1 ? '#3B82F6' : stage === 2 ? '#8B5CF6' : stage === 3 ? '#F59E0B' : '#10B981';
+              const isLocked = stage > (progress?.currentStage || 1);
+              const isSelected = stage === selectedStage;
+
+              return (
+                <button
+                  key={stage}
+                  onClick={() => !isLocked && setSelectedStage(stage)}
+                  disabled={isLocked}
+                  className={cn(
+                    'p-3 rounded border text-left transition-all',
+                    isLocked && 'bg-[#1A1A1A] border-[#333] opacity-50 cursor-not-allowed',
+                    !isLocked && !isSelected && 'bg-[#2D2D2D] border-[#333] hover:border-[#444] cursor-pointer',
+                    isSelected && 'bg-[#2D2D2D] cursor-pointer'
                   )}
-                </div>
-                <p className="text-sm text-[#A3A3A3]">{stageDescriptions[stage]}</p>
-              </div>
-            ))}
+                  style={{
+                    borderColor: isSelected ? stageColor : undefined,
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span
+                      className="text-xs px-2 py-0.5 rounded"
+                      style={{
+                        backgroundColor: `${stageColor}20`,
+                        color: stageColor,
+                      }}
+                    >
+                      stage {stage}
+                    </span>
+                    {isLocked && (
+                      <Lock className="h-3 w-3 text-[#737373]" />
+                    )}
+                    {isSelected && !isLocked && (
+                      <span className="text-xs text-[#D97706]">selected</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-[#A3A3A3]">{stageDescriptions[stage]}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
       </TerminalWindow>
 
       {/* Available Scenarios */}
-      <TerminalWindow title="~/scenarios">
+      <TerminalWindow title={`~/scenarios/stage-${selectedStage}`}>
         <div className="space-y-4">
           <TerminalLine prefix=">" prefixColor="accent">
-            available scenarios
+            stage {selectedStage} scenarios
           </TerminalLine>
 
           {isLoading ? (
