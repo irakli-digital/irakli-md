@@ -1,0 +1,104 @@
+{
+  "id": "S2-VALIDATION-003",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "validation",
+    "difficulty": 3,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S2-VALIDATION-002"],
+    "tags": ["validation", "schema", "error-reporting"]
+  },
+  "scenario": {
+    "title": "The Schema Enforcer",
+    "context": "You're building an AI data pipeline that must output JSON strictly conforming to a JSON Schema. Invalid output breaks downstream systems, so you need comprehensive validation with detailed error reporting.",
+    "goal": "Write a prompt that produces data conforming to a JSON Schema, with validation report including any issues found.",
+    "constraints": [
+      "Output must pass JSON Schema validation",
+      "Include validation report with any warnings",
+      "Handle required vs optional fields correctly",
+      "Respect additionalProperties constraints"
+    ],
+    "exampleInput": "Generate an employee record that conforms to the HR system schema. Schema requires: id (uuid), name (string, 1-100 chars), department (enum: engineering, sales, marketing, hr), salary (number, min 30000), start_date (date), manager_id (uuid, optional). No additional properties allowed.",
+    "hints": [
+      "Reference the schema constraints explicitly",
+      "Include a validation report section",
+      "Address required vs optional handling"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "schema-conformance",
+        "name": "Schema Conformance",
+        "weight": 30,
+        "description": "Does the prompt ensure schema compliance?",
+        "scoringGuide": {
+          "excellent": "All schema constraints referenced with verification",
+          "good": "Main schema elements addressed",
+          "adequate": "Schema mentioned",
+          "poor": "No schema awareness"
+        }
+      },
+      {
+        "id": "constraint-handling",
+        "name": "Constraint Handling",
+        "weight": 25,
+        "description": "Are all constraint types handled?",
+        "scoringGuide": {
+          "excellent": "Type, enum, range, pattern, required all addressed",
+          "good": "Most constraints covered",
+          "adequate": "Some constraints mentioned",
+          "poor": "No constraint handling"
+        }
+      },
+      {
+        "id": "error-reporting",
+        "name": "Validation Report",
+        "weight": 25,
+        "description": "Is validation reporting included?",
+        "scoringGuide": {
+          "excellent": "Structured validation report with details",
+          "good": "Validation status included",
+          "adequate": "Pass/fail indicated",
+          "poor": "No validation report"
+        }
+      },
+      {
+        "id": "additional-properties",
+        "name": "Additional Properties",
+        "weight": 20,
+        "description": "Is additionalProperties constraint respected?",
+        "scoringGuide": {
+          "excellent": "Explicit instruction about no extra fields",
+          "good": "Extra fields mentioned",
+          "adequate": "Implied restriction",
+          "poor": "No mention"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Generate an employee record that strictly conforms to this JSON Schema.\n\nSchema definition:\n```json\n{\n  \"type\": \"object\",\n  \"required\": [\"id\", \"name\", \"department\", \"salary\", \"start_date\"],\n  \"additionalProperties\": false,\n  \"properties\": {\n    \"id\": {\n      \"type\": \"string\",\n      \"format\": \"uuid\"\n    },\n    \"name\": {\n      \"type\": \"string\",\n      \"minLength\": 1,\n      \"maxLength\": 100\n    },\n    \"department\": {\n      \"type\": \"string\",\n      \"enum\": [\"engineering\", \"sales\", \"marketing\", \"hr\"]\n    },\n    \"salary\": {\n      \"type\": \"number\",\n      \"minimum\": 30000\n    },\n    \"start_date\": {\n      \"type\": \"string\",\n      \"format\": \"date\"\n    },\n    \"manager_id\": {\n      \"type\": \"string\",\n      \"format\": \"uuid\"\n    }\n  }\n}\n```\n\nOutput format:\n```json\n{\n  \"data\": {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"name\": \"Jane Smith\",\n    \"department\": \"engineering\",\n    \"salary\": 95000,\n    \"start_date\": \"2024-01-15\",\n    \"manager_id\": \"550e8400-e29b-41d4-a716-446655440001\"\n  },\n  \"validation\": {\n    \"valid\": true,\n    \"errors\": [],\n    \"warnings\": [],\n    \"checks_performed\": [\n      \"required_fields: PASS\",\n      \"type_validation: PASS\",\n      \"enum_validation: PASS\",\n      \"range_validation: PASS\",\n      \"format_validation: PASS\",\n      \"additional_properties: PASS\"\n    ]\n  }\n}\n```\n\nRules:\n- id: Generate valid UUID v4\n- department: MUST be one of the enum values (case-sensitive)\n- salary: MUST be >= 30000\n- start_date: Format YYYY-MM-DD\n- manager_id: Optional - include only if contextually appropriate\n- NO additional properties allowed (additionalProperties: false)\n\nValidation checks:\n- Verify all required fields present\n- Verify types match schema\n- Verify enum values exact match\n- Verify numeric ranges\n- Verify format constraints (uuid, date)\n- Verify no extra fields added\n\nReturn the data with validation report.",
+    "commonMistakes": [
+      "Not referencing schema constraints",
+      "Missing required fields",
+      "Wrong enum values",
+      "Adding extra properties",
+      "No validation report"
+    ],
+    "keyElements": [
+      "Schema constraints explicitly stated",
+      "All constraint types addressed",
+      "Validation report included",
+      "additionalProperties respected"
+    ],
+    "antiPatterns": [
+      "'Generate employee data'",
+      "No schema reference",
+      "No validation report",
+      "Extra fields added"
+    ]
+  }
+}

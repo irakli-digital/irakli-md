@@ -1,0 +1,103 @@
+{
+  "id": "S3-ERROR-HANDLING-001",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "error-handling",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-001"],
+    "tags": ["error-handling", "retry", "fallback"]
+  },
+  "scenario": {
+    "title": "The Resilient Classifier",
+    "context": "Your AI classification service occasionally fails due to rate limits, timeouts, or malformed responses. You need to design prompts that handle these failures gracefully with retries and fallbacks.",
+    "goal": "Write a prompt that includes retry logic instructions and fallback behavior for when AI calls fail.",
+    "constraints": [
+      "Define retry strategy (count, backoff)",
+      "Specify fallback for exhausted retries",
+      "Handle different error types differently",
+      "Include circuit breaker concept"
+    ],
+    "exampleInput": "Classify customer support ticket. If AI fails: retry 3x with exponential backoff. If still failing: fall back to keyword-based classification. If >50% failures in 5 min: stop sending to AI.",
+    "hints": [
+      "Define retry count and delay strategy",
+      "Specify what constitutes a 'failure'",
+      "Create fallback classification rules"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "retry-strategy",
+        "name": "Retry Strategy",
+        "weight": 30,
+        "description": "Is the retry strategy clearly defined?",
+        "scoringGuide": {
+          "excellent": "Full retry config with count, delays, backoff type",
+          "good": "Retry count and delays specified",
+          "adequate": "Retries mentioned",
+          "poor": "No retry strategy"
+        }
+      },
+      {
+        "id": "error-classification",
+        "name": "Error Classification",
+        "weight": 25,
+        "description": "Are different error types handled?",
+        "scoringGuide": {
+          "excellent": "Error types categorized with different handling",
+          "good": "Some error differentiation",
+          "adequate": "Errors acknowledged",
+          "poor": "No error classification"
+        }
+      },
+      {
+        "id": "fallback-logic",
+        "name": "Fallback Behavior",
+        "weight": 25,
+        "description": "Is fallback behavior defined?",
+        "scoringGuide": {
+          "excellent": "Clear fallback with logic/rules",
+          "good": "Fallback mentioned",
+          "adequate": "Some degraded mode",
+          "poor": "No fallback"
+        }
+      },
+      {
+        "id": "circuit-breaker",
+        "name": "Circuit Breaker",
+        "weight": 20,
+        "description": "Is circuit breaker logic included?",
+        "scoringGuide": {
+          "excellent": "Circuit breaker with thresholds and recovery",
+          "good": "Rate limiting mentioned",
+          "adequate": "Some protection implied",
+          "poor": "No circuit breaker"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a resilient AI classification call with error handling:\n\nPRIMARY AI CALL:\n```json\n{\n  \"task\": \"classify_ticket\",\n  \"input\": {\n    \"ticket_id\": \"TKT-123\",\n    \"subject\": \"Cannot login to account\",\n    \"body\": \"I've tried resetting my password...\"\n  },\n  \"expected_output\": {\n    \"category\": \"account_access\" | \"billing\" | \"technical\" | \"general\",\n    \"confidence\": 0.0-1.0,\n    \"reasoning\": \"string\"\n  }\n}\n```\n\n---\n\nERROR TYPES & HANDLING:\n\n1. RATE_LIMIT (429)\n   - Retryable: Yes\n   - Action: Exponential backoff, longer delays\n\n2. TIMEOUT (504, no response in 10s)\n   - Retryable: Yes\n   - Action: Standard retry\n\n3. MALFORMED_RESPONSE (AI returns invalid JSON)\n   - Retryable: Yes (AI may succeed on retry)\n   - Action: Standard retry\n\n4. CONTENT_FILTER (AI refuses to process)\n   - Retryable: No\n   - Action: Immediate fallback\n\n5. SERVICE_UNAVAILABLE (503)\n   - Retryable: Yes\n   - Action: Trigger circuit breaker check\n\n---\n\nRETRY STRATEGY:\n```json\n{\n  \"max_retries\": 3,\n  \"backoff\": \"exponential\",\n  \"base_delay_ms\": 1000,\n  \"max_delay_ms\": 10000,\n  \"jitter\": true,\n  \"retry_schedule\": [\n    {\"attempt\": 1, \"delay_ms\": 0},\n    {\"attempt\": 2, \"delay_ms\": 1000},\n    {\"attempt\": 3, \"delay_ms\": 2000},\n    {\"attempt\": 4, \"delay_ms\": 4000}\n  ]\n}\n```\n\n---\n\nFALLBACK CLASSIFICATION (when retries exhausted):\n```json\n{\n  \"fallback_rules\": [\n    {\n      \"keywords\": [\"login\", \"password\", \"access\", \"account\", \"sign in\"],\n      \"category\": \"account_access\"\n    },\n    {\n      \"keywords\": [\"charge\", \"bill\", \"invoice\", \"payment\", \"refund\"],\n      \"category\": \"billing\"\n    },\n    {\n      \"keywords\": [\"error\", \"bug\", \"crash\", \"not working\", \"broken\"],\n      \"category\": \"technical\"\n    },\n    {\n      \"keywords\": [],\n      \"category\": \"general\",\n      \"is_default\": true\n    }\n  ],\n  \"fallback_response\": {\n    \"category\": \"determined_by_rules\",\n    \"confidence\": 0.5,\n    \"source\": \"fallback_rules\",\n    \"ai_failed\": true\n  }\n}\n```\n\n---\n\nCIRCUIT BREAKER:\n```json\n{\n  \"circuit_breaker\": {\n    \"enabled\": true,\n    \"failure_threshold\": 5,\n    \"failure_window_seconds\": 60,\n    \"open_duration_seconds\": 30,\n    \"half_open_requests\": 2,\n    \"states\": {\n      \"CLOSED\": \"Normal operation, requests go to AI\",\n      \"OPEN\": \"Skip AI, use fallback directly\",\n      \"HALF_OPEN\": \"Test with limited requests\"\n    }\n  }\n}\n```\n\nCircuit Breaker Logic:\n- CLOSED: Track failures. If 5+ failures in 60s → OPEN\n- OPEN: All requests use fallback for 30s, then → HALF_OPEN\n- HALF_OPEN: Try 2 requests. If both succeed → CLOSED. If any fail → OPEN",
+    "commonMistakes": [
+      "No retry limits defined",
+      "Same handling for all errors",
+      "Missing fallback behavior",
+      "No circuit breaker protection"
+    ],
+    "keyElements": [
+      "Retry count, delays, backoff",
+      "Error type classification",
+      "Fallback rules/logic",
+      "Circuit breaker thresholds"
+    ],
+    "antiPatterns": [
+      "'Retry if it fails'",
+      "Infinite retries",
+      "No error differentiation",
+      "No fallback plan"
+    ]
+  }
+}

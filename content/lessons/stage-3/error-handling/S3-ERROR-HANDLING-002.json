@@ -1,0 +1,103 @@
+{
+  "id": "S3-ERROR-HANDLING-002",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "error-handling",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-ERROR-HANDLING-001"],
+    "tags": ["error-handling", "validation", "recovery"]
+  },
+  "scenario": {
+    "title": "The Self-Healing Pipeline",
+    "context": "Your data processing pipeline uses AI to transform records. Sometimes the AI produces invalid output. You need to design validation and self-correction mechanisms.",
+    "goal": "Write a prompt that validates AI output and attempts self-correction when validation fails.",
+    "constraints": [
+      "Define output validation rules",
+      "Include self-correction prompt for invalid output",
+      "Limit correction attempts",
+      "Log validation failures for analysis"
+    ],
+    "exampleInput": "AI extracts contact info. Validate: email format, phone digits only, required fields present. If invalid: send back to AI with error details for correction. Max 2 correction attempts.",
+    "hints": [
+      "Define validation checks explicitly",
+      "Design correction prompt with error context",
+      "Track validation failure reasons"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "validation-rules",
+        "name": "Validation Rules",
+        "weight": 30,
+        "description": "Are validation rules clearly specified?",
+        "scoringGuide": {
+          "excellent": "All rules with patterns and error messages",
+          "good": "Validation rules listed",
+          "adequate": "Some validation present",
+          "poor": "No validation rules"
+        }
+      },
+      {
+        "id": "correction-prompt",
+        "name": "Self-Correction Prompt",
+        "weight": 25,
+        "description": "Is the correction mechanism defined?",
+        "scoringGuide": {
+          "excellent": "Full correction prompt with error context",
+          "good": "Correction approach defined",
+          "adequate": "Retry mentioned",
+          "poor": "No correction mechanism"
+        }
+      },
+      {
+        "id": "attempt-limits",
+        "name": "Attempt Limits",
+        "weight": 25,
+        "description": "Are correction attempts limited?",
+        "scoringGuide": {
+          "excellent": "Clear limits with escalation path",
+          "good": "Limits specified",
+          "adequate": "Some limit implied",
+          "poor": "No limits"
+        }
+      },
+      {
+        "id": "error-logging",
+        "name": "Error Logging",
+        "weight": 20,
+        "description": "Are failures logged for analysis?",
+        "scoringGuide": {
+          "excellent": "Detailed error log schema",
+          "good": "Logging mentioned",
+          "adequate": "Some tracking implied",
+          "poor": "No error logging"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a self-healing AI extraction pipeline:\n\nSTEP 1: Initial AI Extraction\n```\nPrompt: Extract contact information from the following text...\n\nExpected output schema:\n{\n  \"name\": string (required),\n  \"email\": string (required, valid email format),\n  \"phone\": string (optional, digits only),\n  \"company\": string (optional)\n}\n```\n\n---\n\nSTEP 2: Output Validation\n\nValidation Rules:\n```json\n{\n  \"validations\": [\n    {\n      \"field\": \"name\",\n      \"rule\": \"required\",\n      \"check\": \"value !== null && value.trim().length > 0\",\n      \"error_code\": \"NAME_REQUIRED\",\n      \"error_message\": \"Name field is required and cannot be empty\"\n    },\n    {\n      \"field\": \"email\",\n      \"rule\": \"required\",\n      \"check\": \"value !== null && value.trim().length > 0\",\n      \"error_code\": \"EMAIL_REQUIRED\",\n      \"error_message\": \"Email field is required\"\n    },\n    {\n      \"field\": \"email\",\n      \"rule\": \"format\",\n      \"check\": \"/^[^\\\\s@]+@[^\\\\s@]+\\\\.[^\\\\s@]+$/.test(value)\",\n      \"error_code\": \"EMAIL_INVALID\",\n      \"error_message\": \"Email must be valid format (user@domain.com)\"\n    },\n    {\n      \"field\": \"phone\",\n      \"rule\": \"format\",\n      \"check\": \"value === null || /^\\\\d+$/.test(value)\",\n      \"error_code\": \"PHONE_INVALID\",\n      \"error_message\": \"Phone must contain only digits (no spaces, dashes, or parentheses)\"\n    }\n  ]\n}\n```\n\nValidation Result:\n```json\n{\n  \"valid\": false,\n  \"errors\": [\n    {\n      \"field\": \"email\",\n      \"value\": \"john.smith[at]email\",\n      \"error_code\": \"EMAIL_INVALID\",\n      \"error_message\": \"Email must be valid format (user@domain.com)\"\n    },\n    {\n      \"field\": \"phone\",\n      \"value\": \"555-123-4567\",\n      \"error_code\": \"PHONE_INVALID\",\n      \"error_message\": \"Phone must contain only digits\"\n    }\n  ]\n}\n```\n\n---\n\nSTEP 3: Self-Correction Prompt (if validation fails)\n\n```\nYour previous extraction had validation errors. Please correct the output.\n\nOriginal input text:\n\"[original text here]\"\n\nYour previous output:\n{\n  \"name\": \"John Smith\",\n  \"email\": \"john.smith[at]email\",\n  \"phone\": \"555-123-4567\",\n  \"company\": \"TechCorp\"\n}\n\nValidation errors found:\n1. email: \"john.smith[at]email\" - Email must be valid format (user@domain.com)\n   → The email appears to have \"[at]\" instead of \"@\". Please correct to proper email format.\n\n2. phone: \"555-123-4567\" - Phone must contain only digits\n   → Remove all non-digit characters. \"555-123-4567\" should become \"5551234567\"\n\nPlease provide corrected output following the exact schema:\n{\n  \"name\": string (required),\n  \"email\": string (required, valid format: user@domain.com),\n  \"phone\": string (digits only, e.g., \"5551234567\"),\n  \"company\": string (optional)\n}\n\nReturn ONLY the corrected JSON.\n```\n\n---\n\nATTEMPT LIMITS:\n```json\n{\n  \"max_correction_attempts\": 2,\n  \"current_attempt\": 1,\n  \"on_max_exceeded\": {\n    \"action\": \"flag_for_review\",\n    \"output\": {\n      \"status\": \"extraction_failed\",\n      \"last_output\": \"...\",\n      \"validation_errors\": [...],\n      \"requires_human_review\": true\n    }\n  }\n}\n```\n\n---\n\nERROR LOG SCHEMA:\n```json\n{\n  \"log_entry\": {\n    \"timestamp\": \"2024-01-15T10:30:00Z\",\n    \"record_id\": \"rec-123\",\n    \"pipeline_run_id\": \"run-456\",\n    \"attempt_number\": 1,\n    \"input_text\": \"John Smith, john.smith[at]email.com, 555-123-4567\",\n    \"ai_output\": {...},\n    \"validation_result\": {\n      \"valid\": false,\n      \"error_count\": 2,\n      \"errors\": [...]\n    },\n    \"correction_attempted\": true,\n    \"final_status\": \"corrected\" | \"failed\" | \"flagged\",\n    \"processing_time_ms\": 1500\n  }\n}\n```\n\nAnalytics queries enabled:\n- Most common validation errors\n- Correction success rate\n- Records requiring human review",
+    "commonMistakes": [
+      "Vague validation rules",
+      "No correction prompt design",
+      "Unlimited correction attempts",
+      "No error tracking"
+    ],
+    "keyElements": [
+      "Explicit validation rules per field",
+      "Correction prompt with error context",
+      "Attempt limits with escalation",
+      "Structured error logging"
+    ],
+    "antiPatterns": [
+      "'Validate and fix if wrong'",
+      "No specific validation rules",
+      "Infinite correction loops",
+      "No logging for analysis"
+    ]
+  }
+}

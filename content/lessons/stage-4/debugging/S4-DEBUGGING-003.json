@@ -1,0 +1,103 @@
+{
+  "id": "S4-DEBUGGING-003",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "debugging",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S4-DEBUGGING-002"],
+    "tags": ["debugging", "intermittent", "complex"]
+  },
+  "scenario": {
+    "title": "The Mystery Bug Hunter",
+    "context": "You have an intermittent bug that's hard to reproduce. It happens sometimes but not always, and you can't figure out the pattern. You need AI's help to identify potential causes.",
+    "goal": "Write a prompt that provides AI with all available evidence to help identify patterns in an intermittent bug.",
+    "constraints": [
+      "Document all known occurrences with context",
+      "List all conditions tried (what works, what doesn't)",
+      "Provide system state information",
+      "Include any patterns you've noticed (time, user type, etc.)"
+    ],
+    "exampleInput": "Payment processing fails ~5% of the time. No clear pattern. Same user can succeed then fail. Happens on all payment methods. Error: 'Transaction timeout' but Stripe dashboard shows no issues.",
+    "hints": [
+      "Log every occurrence with full context",
+      "Compare failing vs succeeding requests",
+      "Look for environmental/timing factors"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "occurrence-data",
+        "name": "Occurrence Documentation",
+        "weight": 30,
+        "description": "Are occurrences well documented?",
+        "scoringGuide": {
+          "excellent": "Multiple occurrences with full context each",
+          "good": "Several documented cases",
+          "adequate": "Some examples",
+          "poor": "Vague description"
+        }
+      },
+      {
+        "id": "pattern-analysis",
+        "name": "Pattern Analysis",
+        "weight": 25,
+        "description": "Have patterns been analyzed?",
+        "scoringGuide": {
+          "excellent": "Statistical analysis of patterns",
+          "good": "Patterns noted",
+          "adequate": "Some observations",
+          "poor": "No pattern analysis"
+        }
+      },
+      {
+        "id": "elimination",
+        "name": "Elimination Attempts",
+        "weight": 25,
+        "description": "What has been ruled out?",
+        "scoringGuide": {
+          "excellent": "Systematic elimination with evidence",
+          "good": "Some things ruled out",
+          "adequate": "Basic troubleshooting",
+          "poor": "Nothing tried"
+        }
+      },
+      {
+        "id": "system-state",
+        "name": "System State",
+        "weight": 20,
+        "description": "Is system state documented?",
+        "scoringGuide": {
+          "excellent": "Full system state at failure times",
+          "good": "Some system info",
+          "adequate": "Basic environment",
+          "poor": "No system state"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Help diagnose this intermittent bug:\n\nINTERMITTENT BUG: Payment Processing Failures\n\n---\n\nSYMPTOM SUMMARY:\n\n- Failure rate: ~5% of payment attempts (487 failures / 9,740 attempts last 7 days)\n- Error: \"Transaction timeout - please try again\"\n- Impact: Lost revenue, customer frustration, support tickets\n- First noticed: ~2 weeks ago\n- No deployment correlated with start\n\n---\n\nSAMPLE FAILURE CASES:\n\n```yaml\nCase 1:\n  timestamp: 2024-01-15T10:23:45Z\n  user_id: user-123\n  amount: $49.99\n  payment_method: Visa ending 4242\n  request_duration: 32,450ms (timeout at 30s)\n  stripe_status: No matching event in dashboard\n  server_logs: \"Payment intent created, awaiting confirmation...\"\n  user_action_before: Added item to cart, applied coupon\n  user_action_after: Retried immediately, succeeded\n  \nCase 2:\n  timestamp: 2024-01-15T10:45:12Z\n  user_id: user-456\n  amount: $129.00\n  payment_method: Mastercard ending 5555\n  request_duration: 31,200ms (timeout)\n  stripe_status: Payment succeeded (but we didn't receive webhook)\n  server_logs: \"Payment intent created, awaiting confirmation... [no follow-up]\"\n  user_action_before: Normal checkout flow\n  user_action_after: Contacted support, was charged but no order created\n  \nCase 3:\n  timestamp: 2024-01-15T14:02:33Z\n  user_id: user-123 (same as Case 1)\n  amount: $49.99\n  payment_method: Same Visa 4242\n  result: SUCCESS (276ms)\n  note: Same user, same card, same amount as failed Case 1\n```\n\n---\n\nSTATISTICAL ANALYSIS:\n\n```yaml\nFailure patterns analyzed:\n\nBy time of day:\n  00:00-06:00: 3.2% failure rate\n  06:00-12:00: 5.8% failure rate  # Slightly higher\n  12:00-18:00: 4.9% failure rate\n  18:00-24:00: 5.4% failure rate\n  Verdict: No strong time correlation\n\nBy payment method:\n  Visa: 5.1% failure\n  Mastercard: 4.8% failure\n  Amex: 5.3% failure\n  Verdict: No payment method correlation\n\nBy amount:\n  <$50: 4.9% failure\n  $50-$100: 5.2% failure\n  >$100: 5.0% failure\n  Verdict: No amount correlation\n\nBy user type:\n  New users: 5.4% failure\n  Returning users: 4.8% failure\n  Verdict: No significant difference\n\nBy server instance:\n  server-1: 4.2% failure\n  server-2: 7.1% failure  # ANOMALY\n  server-3: 4.5% failure\n  server-4: 4.3% failure\n  Verdict: POSSIBLE SERVER-2 ISSUE\n```\n\n---\n\nSYSTEM STATE DURING FAILURES:\n\n```yaml\nServer-2 at failure times:\n  CPU: 45-65% (normal)\n  Memory: 72% (normal)\n  Network: Normal latency to Stripe\n  \n  BUT:\n  - Connection pool: 48/50 connections used\n  - Stripe SDK connections: Some in TIME_WAIT state\n  - Process uptime: 14 days (no restart since deployment)\n```\n\n```yaml\nExternal dependencies:\n  Stripe API status: No incidents reported\n  Database: Normal response times\n  Redis: Normal\n  \n  BUT:\n  - Webhook delivery: 12 missed webhooks in same period\n  - All missed webhooks were to server-2\n```\n\n---\n\nWHAT WE'VE RULED OUT:\n\n```yaml\n- NOT user-specific: Same user succeeds and fails\n- NOT card-specific: Same card succeeds and fails\n- NOT amount-specific: All amounts affected equally\n- NOT time-specific: Happens throughout day\n- NOT Stripe-side: Their dashboard shows successful charges\n- NOT network: Other API calls work fine\n\nPOSSIBLY related to:\n- Server-2 specifically (higher failure rate)\n- Connection pool exhaustion?\n- Long-running process memory leak?\n- Webhook delivery to specific instance?\n```\n\n---\n\nRELEVANT CODE:\n\n```typescript\n// services/payment.ts\nexport async function processPayment(order: Order) {\n  const paymentIntent = await stripe.paymentIntents.create({\n    amount: order.total,\n    currency: 'usd',\n    customer: order.customerId,\n    metadata: { orderId: order.id },\n  });\n\n  // Wait for confirmation (this is where timeout happens)\n  const confirmed = await waitForPaymentConfirmation(paymentIntent.id, {\n    timeout: 30000,  // 30 second timeout\n    pollInterval: 500,\n  });\n\n  if (!confirmed) {\n    throw new Error('Transaction timeout - please try again');\n  }\n\n  return confirmed;\n}\n\n// This function polls for webhook-delivered confirmation\nasync function waitForPaymentConfirmation(intentId, options) {\n  const start = Date.now();\n  while (Date.now() - start < options.timeout) {\n    const status = await redis.get(`payment:${intentId}:status`);\n    if (status === 'succeeded') return true;\n    if (status === 'failed') return false;\n    await sleep(options.pollInterval);\n  }\n  return null;  // Timeout\n}\n```\n\n```typescript\n// Webhook handler\napp.post('/webhooks/stripe', async (req, res) => {\n  const event = stripe.webhooks.constructEvent(...);\n  \n  if (event.type === 'payment_intent.succeeded') {\n    await redis.set(\n      `payment:${event.data.object.id}:status`,\n      'succeeded',\n      'EX',\n      3600\n    );\n  }\n  \n  res.json({ received: true });\n});\n```\n\n---\n\nHYPOTHESES:\n\n1. Server-2 is not receiving webhooks properly\n2. Connection pool exhaustion causing Stripe API delays\n3. Redis set failing silently on server-2\n4. Load balancer routing webhooks unevenly\n\n---\n\nQUESTIONS:\n\n1. What's the most likely root cause?\n2. How can I confirm the hypothesis?\n3. What's the fix?\n4. How do I make the system more resilient?",
+    "commonMistakes": [
+      "Not documenting occurrences",
+      "No statistical analysis",
+      "Not ruling things out",
+      "Missing system state"
+    ],
+    "keyElements": [
+      "Multiple documented occurrences",
+      "Statistical pattern analysis",
+      "Systematic elimination",
+      "System state at failure times"
+    ],
+    "antiPatterns": [
+      "'Sometimes payments fail'",
+      "Single example only",
+      "No analysis",
+      "No system context"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "S3-INTEGRATION-001",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "integration",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-001"],
+    "tags": ["integration", "api", "webhook"]
+  },
+  "scenario": {
+    "title": "The API Connector",
+    "context": "Your workflow needs to call external APIs (Slack, email, CRM) based on AI-generated decisions. You need to design prompts that produce API-ready payloads.",
+    "goal": "Write a prompt that generates properly formatted payloads for external API calls based on AI analysis.",
+    "constraints": [
+      "Match exact API payload schemas",
+      "Handle authentication tokens/headers",
+      "Include error response handling",
+      "Support both request and response mapping"
+    ],
+    "exampleInput": "After AI classifies a support ticket as urgent, send Slack notification. Slack API expects: {channel, text, attachments[]}. Include ticket details, priority badge, and action button.",
+    "hints": [
+      "Define the exact API schema required",
+      "Map AI output fields to API fields",
+      "Include authentication requirements"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "payload-schema",
+        "name": "Payload Schema",
+        "weight": 30,
+        "description": "Does the output match API requirements?",
+        "scoringGuide": {
+          "excellent": "Exact schema match with all fields",
+          "good": "Schema mostly correct",
+          "adequate": "Basic structure present",
+          "poor": "Schema mismatch"
+        }
+      },
+      {
+        "id": "field-mapping",
+        "name": "Field Mapping",
+        "weight": 25,
+        "description": "Are AI outputs mapped to API fields?",
+        "scoringGuide": {
+          "excellent": "Clear mapping with transformations",
+          "good": "Mapping defined",
+          "adequate": "Some mapping present",
+          "poor": "No field mapping"
+        }
+      },
+      {
+        "id": "auth-handling",
+        "name": "Authentication",
+        "weight": 25,
+        "description": "Is authentication addressed?",
+        "scoringGuide": {
+          "excellent": "Auth headers/tokens properly handled",
+          "good": "Auth mentioned",
+          "adequate": "Security implied",
+          "poor": "No auth handling"
+        }
+      },
+      {
+        "id": "error-handling",
+        "name": "Error Handling",
+        "weight": 20,
+        "description": "Are API errors handled?",
+        "scoringGuide": {
+          "excellent": "Error responses mapped with retry logic",
+          "good": "Error handling present",
+          "adequate": "Some error awareness",
+          "poor": "No error handling"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design an API integration for Slack notifications:\n\nINTEGRATION: Slack Notification on Urgent Ticket\n\n---\n\nTRIGGER CONDITION:\n```json\n{\n  \"trigger\": \"ticket_classified\",\n  \"conditions\": [\n    {\"field\": \"priority\", \"operator\": \"equals\", \"value\": \"urgent\"},\n    {\"field\": \"category\", \"operator\": \"in\", \"value\": [\"outage\", \"security\", \"data_loss\"]}\n  ]\n}\n```\n\n---\n\nAI OUTPUT (from classifier):\n```json\n{\n  \"ticket_id\": \"TKT-12345\",\n  \"subject\": \"Production database down\",\n  \"priority\": \"urgent\",\n  \"category\": \"outage\",\n  \"customer\": \"Acme Corp\",\n  \"customer_tier\": \"enterprise\",\n  \"summary\": \"Customer reports complete database outage affecting all users\",\n  \"recommended_action\": \"Immediate escalation to on-call engineer\"\n}\n```\n\n---\n\nAPI PAYLOAD GENERATION PROMPT:\n\n```\nGenerate a Slack API payload for this urgent ticket notification.\n\nTicket data:\n{{ai_classifier_output}}\n\nSlack API Requirements:\n- Endpoint: POST https://slack.com/api/chat.postMessage\n- Content-Type: application/json\n- Authorization: Bearer {{SLACK_BOT_TOKEN}}\n\nRequired payload schema:\n{\n  \"channel\": \"string (channel ID)\",\n  \"text\": \"string (fallback text)\",\n  \"attachments\": [\n    {\n      \"color\": \"string (hex color)\",\n      \"title\": \"string\",\n      \"text\": \"string\",\n      \"fields\": [\n        {\"title\": \"string\", \"value\": \"string\", \"short\": boolean}\n      ],\n      \"actions\": [\n        {\"type\": \"button\", \"text\": \"string\", \"url\": \"string\", \"style\": \"string\"}\n      ]\n    }\n  ]\n}\n\nMapping rules:\n- channel: Use #urgent-support for priority=urgent, else #support-tickets\n- color: \"#FF0000\" for urgent, \"#FFA500\" for high, \"#36A64F\" for normal\n- Include ticket ID, customer, category, summary in fields\n- Add \"View Ticket\" button linking to ticket URL\n- Add \"Acknowledge\" button for on-call response\n\nReturn ONLY the JSON payload.\n```\n\n---\n\nEXPECTED OUTPUT:\n```json\n{\n  \"channel\": \"C0123URGENT\",\n  \"text\": \"[URGENT] TKT-12345: Production database down - Acme Corp\",\n  \"attachments\": [\n    {\n      \"color\": \"#FF0000\",\n      \"title\": \"URGENT: Production database down\",\n      \"title_link\": \"https://support.example.com/tickets/TKT-12345\",\n      \"text\": \"Customer reports complete database outage affecting all users\",\n      \"fields\": [\n        {\n          \"title\": \"Ticket ID\",\n          \"value\": \"TKT-12345\",\n          \"short\": true\n        },\n        {\n          \"title\": \"Customer\",\n          \"value\": \"Acme Corp (Enterprise)\",\n          \"short\": true\n        },\n        {\n          \"title\": \"Category\",\n          \"value\": \"Outage\",\n          \"short\": true\n        },\n        {\n          \"title\": \"Priority\",\n          \"value\": \"URGENT\",\n          \"short\": true\n        },\n        {\n          \"title\": \"Recommended Action\",\n          \"value\": \"Immediate escalation to on-call engineer\",\n          \"short\": false\n        }\n      ],\n      \"actions\": [\n        {\n          \"type\": \"button\",\n          \"text\": \"View Ticket\",\n          \"url\": \"https://support.example.com/tickets/TKT-12345\",\n          \"style\": \"primary\"\n        },\n        {\n          \"type\": \"button\",\n          \"text\": \"Acknowledge\",\n          \"url\": \"https://support.example.com/tickets/TKT-12345/acknowledge\",\n          \"style\": \"danger\"\n        }\n      ],\n      \"footer\": \"Support Bot\",\n      \"ts\": 1705312800\n    }\n  ]\n}\n```\n\n---\n\nAUTHENTICATION HANDLING:\n```json\n{\n  \"auth\": {\n    \"type\": \"bearer\",\n    \"token_source\": \"env:SLACK_BOT_TOKEN\",\n    \"header\": \"Authorization: Bearer {{token}}\"\n  },\n  \"headers\": {\n    \"Content-Type\": \"application/json\"\n  }\n}\n```\n\n---\n\nERROR HANDLING:\n```json\n{\n  \"error_responses\": {\n    \"channel_not_found\": {\n      \"slack_error\": \"channel_not_found\",\n      \"action\": \"fallback_to_default_channel\",\n      \"fallback_channel\": \"C0123DEFAULT\",\n      \"retry\": true\n    },\n    \"rate_limited\": {\n      \"slack_error\": \"rate_limited\",\n      \"action\": \"queue_with_backoff\",\n      \"retry_after\": \"{{response.headers.Retry-After}}\"\n    },\n    \"invalid_auth\": {\n      \"slack_error\": \"invalid_auth\",\n      \"action\": \"alert_ops\",\n      \"retry\": false\n    },\n    \"message_too_long\": {\n      \"slack_error\": \"msg_too_long\",\n      \"action\": \"truncate_and_retry\",\n      \"truncate_field\": \"attachments[0].text\",\n      \"max_length\": 3000\n    }\n  }\n}\n```",
+    "commonMistakes": [
+      "Payload doesn't match API schema",
+      "No field mapping from AI output",
+      "Missing authentication",
+      "No error handling"
+    ],
+    "keyElements": [
+      "Exact API payload schema",
+      "AI output to API field mapping",
+      "Authentication configuration",
+      "Error response handling"
+    ],
+    "antiPatterns": [
+      "'Send to Slack'",
+      "Generic payload structure",
+      "Hardcoded values",
+      "No error handling"
+    ]
+  }
+}

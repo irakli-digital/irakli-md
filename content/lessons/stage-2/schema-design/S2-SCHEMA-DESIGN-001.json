@@ -1,0 +1,103 @@
+{
+  "id": "S2-SCHEMA-DESIGN-001",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "schema-design",
+    "difficulty": 1,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S2-JSON-OUTPUT-001"],
+    "tags": ["schema", "data-modeling", "beginner"]
+  },
+  "scenario": {
+    "title": "The Event Schema",
+    "context": "You're building a calendar integration that needs to sync events from AI-generated meeting summaries. The downstream system expects events in a specific schema with proper date/time handling.",
+    "goal": "Write a prompt that produces calendar events matching a precise schema with proper datetime formatting and timezone handling.",
+    "constraints": [
+      "Dates must be ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ)",
+      "Duration must be in minutes (integer)",
+      "Attendees must be an array of email strings",
+      "Required fields: title, start_time, end_time, organizer"
+    ],
+    "exampleInput": "Meeting summary: 'Team standup tomorrow at 9am EST for 30 minutes. Attendees: john@company.com, sarah@company.com. Organized by mike@company.com.'",
+    "hints": [
+      "Be explicit about datetime format with examples",
+      "Specify timezone handling (convert to UTC?)",
+      "Show the exact schema with field types"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "datetime-format",
+        "name": "DateTime Format",
+        "weight": 30,
+        "description": "Is the datetime format precisely specified?",
+        "scoringGuide": {
+          "excellent": "ISO 8601 format shown with example, timezone handling clear",
+          "good": "Format specified with example",
+          "adequate": "Format mentioned",
+          "poor": "No datetime format specified"
+        }
+      },
+      {
+        "id": "schema-structure",
+        "name": "Schema Structure",
+        "weight": 25,
+        "description": "Is the full schema clearly defined?",
+        "scoringGuide": {
+          "excellent": "All fields with types and requirements shown",
+          "good": "Fields listed with types",
+          "adequate": "Basic structure present",
+          "poor": "No schema structure"
+        }
+      },
+      {
+        "id": "field-types",
+        "name": "Field Types",
+        "weight": 25,
+        "description": "Are data types specified for each field?",
+        "scoringGuide": {
+          "excellent": "Types for all fields with constraints",
+          "good": "Main types specified",
+          "adequate": "Some types implied",
+          "poor": "No type specification"
+        }
+      },
+      {
+        "id": "array-handling",
+        "name": "Array Fields",
+        "weight": 20,
+        "description": "Are array fields properly specified?",
+        "scoringGuide": {
+          "excellent": "Array structure with item type defined",
+          "good": "Array mentioned with items",
+          "adequate": "Array implied",
+          "poor": "No array specification"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Extract calendar event details from the meeting summary and return JSON matching this exact schema:\n\n```json\n{\n  \"title\": \"string - Event title\",\n  \"start_time\": \"string - ISO 8601 UTC (e.g., 2024-01-15T14:00:00Z)\",\n  \"end_time\": \"string - ISO 8601 UTC\",\n  \"duration_minutes\": \"integer\",\n  \"organizer\": \"string - email address\",\n  \"attendees\": [\"array of email strings\"],\n  \"location\": \"string or null\",\n  \"description\": \"string or null\"\n}\n```\n\nRules:\n- Convert all times to UTC (Z suffix)\n- Today's date is 2024-01-15 for relative references like 'tomorrow'\n- EST = UTC-5, so 9am EST = 14:00 UTC\n- Calculate end_time from start_time + duration\n- If location not mentioned, use null\n\nReturn ONLY valid JSON.\n\nMeeting summary:\n[text here]",
+    "commonMistakes": [
+      "Not specifying ISO 8601 format",
+      "Forgetting timezone conversion rules",
+      "Not showing how to handle relative dates",
+      "Missing field type specifications"
+    ],
+    "keyElements": [
+      "ISO 8601 format with example",
+      "Timezone handling rules",
+      "Complete schema with types",
+      "Array field structure"
+    ],
+    "antiPatterns": [
+      "'Extract event details'",
+      "No datetime format specified",
+      "Timezone handling unclear",
+      "Missing schema structure"
+    ]
+  }
+}

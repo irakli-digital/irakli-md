@@ -1,0 +1,103 @@
+{
+  "id": "S3-CHAINING-001",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "chaining",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-001"],
+    "tags": ["chaining", "sequential", "data-passing"]
+  },
+  "scenario": {
+    "title": "The Analysis Chain",
+    "context": "You're building a document analysis pipeline where each AI step builds on the previous one's output. The chain must pass data correctly between steps while maintaining context.",
+    "goal": "Write a prompt that defines a sequential AI chain with explicit data passing and context accumulation.",
+    "constraints": [
+      "Chain has 3+ sequential AI calls",
+      "Each step's output feeds the next step's input",
+      "Accumulate context across the chain",
+      "Define the final merged output structure"
+    ],
+    "exampleInput": "Document analysis chain: Step 1: Extract key entities → Step 2: Identify relationships between entities → Step 3: Generate summary using entities + relationships → Step 4: Create action items from summary. Each step needs context from all previous steps.",
+    "hints": [
+      "Define input/output contract per step",
+      "Show how context accumulates",
+      "Specify the final output structure"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "step-sequence",
+        "name": "Step Sequence",
+        "weight": 25,
+        "description": "Are sequential steps clearly defined?",
+        "scoringGuide": {
+          "excellent": "All steps with clear sequence and dependencies",
+          "good": "Steps defined in order",
+          "adequate": "Multiple steps present",
+          "poor": "No clear sequence"
+        }
+      },
+      {
+        "id": "data-contracts",
+        "name": "Data Contracts",
+        "weight": 30,
+        "description": "Are input/output contracts defined per step?",
+        "scoringGuide": {
+          "excellent": "Full schemas for each step's I/O",
+          "good": "I/O mentioned per step",
+          "adequate": "Some data flow implied",
+          "poor": "No data contracts"
+        }
+      },
+      {
+        "id": "context-accumulation",
+        "name": "Context Accumulation",
+        "weight": 25,
+        "description": "Is context passed and accumulated?",
+        "scoringGuide": {
+          "excellent": "Clear context building across steps",
+          "good": "Context passing mentioned",
+          "adequate": "Some context awareness",
+          "poor": "No context accumulation"
+        }
+      },
+      {
+        "id": "final-output",
+        "name": "Final Output",
+        "weight": 20,
+        "description": "Is the merged final output defined?",
+        "scoringGuide": {
+          "excellent": "Complete final output structure",
+          "good": "Final output mentioned",
+          "adequate": "End state implied",
+          "poor": "No final output defined"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a document analysis chain with context accumulation:\n\nCHAIN: Document Analysis Pipeline\nInput: Raw document text\nOutput: Structured analysis with entities, relationships, summary, and action items\n\n---\n\nCONTEXT OBJECT (passed through chain):\n```json\n{\n  \"chain_id\": \"chain-123\",\n  \"document_id\": \"doc-456\",\n  \"original_text\": \"Full document text...\",\n  \"accumulated\": {\n    \"entities\": null,\n    \"relationships\": null,\n    \"summary\": null,\n    \"action_items\": null\n  },\n  \"metadata\": {\n    \"started_at\": \"2024-01-15T10:00:00Z\",\n    \"current_step\": 1,\n    \"total_steps\": 4\n  }\n}\n```\n\n---\n\nSTEP 1: Entity Extraction\n\nInput:\n```json\n{\n  \"text\": \"{{context.original_text}}\",\n  \"instruction\": \"Extract all named entities from this document\"\n}\n```\n\nPrompt:\n```\nExtract all named entities from the following document.\n\nCategories to identify:\n- PERSON: People's names\n- ORG: Organizations, companies\n- DATE: Dates and time references\n- MONEY: Financial amounts\n- PRODUCT: Products or services mentioned\n\nReturn JSON:\n{\n  \"entities\": [\n    {\"text\": \"entity text\", \"type\": \"PERSON|ORG|DATE|MONEY|PRODUCT\", \"count\": 1}\n  ]\n}\n\nDocument:\n[document text]\n```\n\nOutput → Update context:\n```json\n{\n  \"accumulated\": {\n    \"entities\": [\n      {\"text\": \"John Smith\", \"type\": \"PERSON\", \"count\": 3},\n      {\"text\": \"Acme Corp\", \"type\": \"ORG\", \"count\": 5},\n      {\"text\": \"Q4 2024\", \"type\": \"DATE\", \"count\": 2}\n    ]\n  }\n}\n```\n\n---\n\nSTEP 2: Relationship Identification\n\nInput:\n```json\n{\n  \"text\": \"{{context.original_text}}\",\n  \"entities\": \"{{context.accumulated.entities}}\",\n  \"instruction\": \"Identify relationships between these entities\"\n}\n```\n\nPrompt:\n```\nGiven this document and the extracted entities, identify relationships between them.\n\nEntities found:\n{{JSON list of entities from Step 1}}\n\nFor each relationship, specify:\n- source_entity: The first entity\n- relationship_type: works_for, owns, purchased, mentioned_with, etc.\n- target_entity: The second entity\n- evidence: Quote from text supporting this relationship\n\nReturn JSON:\n{\n  \"relationships\": [\n    {\n      \"source\": \"entity text\",\n      \"type\": \"relationship type\",\n      \"target\": \"entity text\",\n      \"evidence\": \"supporting quote\"\n    }\n  ]\n}\n\nDocument:\n[document text]\n```\n\nOutput → Update context:\n```json\n{\n  \"accumulated\": {\n    \"entities\": [...],\n    \"relationships\": [\n      {\n        \"source\": \"John Smith\",\n        \"type\": \"works_for\",\n        \"target\": \"Acme Corp\",\n        \"evidence\": \"John Smith, VP at Acme Corp, announced...\"\n      }\n    ]\n  }\n}\n```\n\n---\n\nSTEP 3: Summary Generation\n\nInput:\n```json\n{\n  \"text\": \"{{context.original_text}}\",\n  \"entities\": \"{{context.accumulated.entities}}\",\n  \"relationships\": \"{{context.accumulated.relationships}}\",\n  \"instruction\": \"Generate summary using extracted information\"\n}\n```\n\nPrompt:\n```\nGenerate a structured summary of this document.\n\nUse the extracted entities and relationships to ensure accuracy:\n\nKey Entities:\n{{entities list}}\n\nKey Relationships:\n{{relationships list}}\n\nProvide:\n1. Executive summary (2-3 sentences)\n2. Key points (bullet list)\n3. Important dates/deadlines\n4. Key stakeholders and their roles\n\nReturn JSON:\n{\n  \"executive_summary\": \"string\",\n  \"key_points\": [\"point1\", \"point2\"],\n  \"dates\": [{\"date\": \"Q4 2024\", \"significance\": \"deadline\"}],\n  \"stakeholders\": [{\"name\": \"...\", \"role\": \"...\"}]\n}\n\nDocument:\n[document text]\n```\n\n---\n\nSTEP 4: Action Item Extraction\n\nInput:\n```json\n{\n  \"text\": \"{{context.original_text}}\",\n  \"summary\": \"{{context.accumulated.summary}}\",\n  \"entities\": \"{{context.accumulated.entities}}\",\n  \"instruction\": \"Extract action items based on full analysis\"\n}\n```\n\nPrompt:\n```\nBased on the document and analysis, extract action items.\n\nContext from analysis:\n- Summary: {{summary}}\n- Key dates: {{dates from summary}}\n- Stakeholders: {{stakeholders}}\n\nFor each action item:\n- action: What needs to be done\n- owner: Who should do it (from stakeholders if applicable)\n- deadline: When (from dates if applicable)\n- priority: high/medium/low\n- source: Quote from document\n\nReturn JSON:\n{\n  \"action_items\": [\n    {\n      \"action\": \"Review Q4 proposal\",\n      \"owner\": \"John Smith\",\n      \"deadline\": \"2024-10-15\",\n      \"priority\": \"high\",\n      \"source\": \"John will review the proposal by...\"\n    }\n  ]\n}\n```\n\n---\n\nFINAL OUTPUT (merged from all steps):\n```json\n{\n  \"document_id\": \"doc-456\",\n  \"analysis\": {\n    \"entities\": [...],\n    \"relationships\": [...],\n    \"summary\": {...},\n    \"action_items\": [...]\n  },\n  \"metadata\": {\n    \"processed_at\": \"2024-01-15T10:00:30Z\",\n    \"chain_duration_ms\": 3500,\n    \"steps_completed\": 4\n  }\n}\n```",
+    "commonMistakes": [
+      "Steps not clearly sequenced",
+      "Missing data contracts",
+      "No context passing between steps",
+      "Undefined final output"
+    ],
+    "keyElements": [
+      "Clear step sequence with dependencies",
+      "Input/output contracts per step",
+      "Context accumulation pattern",
+      "Merged final output structure"
+    ],
+    "antiPatterns": [
+      "'Analyze this document step by step'",
+      "No explicit data passing",
+      "Steps without defined I/O",
+      "No final structure"
+    ]
+  }
+}

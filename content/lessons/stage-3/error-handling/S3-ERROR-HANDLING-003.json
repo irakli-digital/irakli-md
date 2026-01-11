@@ -1,0 +1,103 @@
+{
+  "id": "S3-ERROR-HANDLING-003",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "error-handling",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S3-ERROR-HANDLING-002"],
+    "tags": ["error-handling", "graceful-degradation", "observability"]
+  },
+  "scenario": {
+    "title": "The Degradation Strategy",
+    "context": "Your production AI service needs to maintain availability even when AI capabilities degrade. You need a comprehensive graceful degradation strategy with multiple fallback levels.",
+    "goal": "Write a prompt that defines a multi-tier degradation strategy with observability and automatic recovery.",
+    "constraints": [
+      "Define 3+ degradation levels (full AI, partial AI, no AI)",
+      "Specify triggers for each degradation level",
+      "Include observability metrics and alerts",
+      "Define automatic recovery criteria"
+    ],
+    "exampleInput": "E-commerce product recommendation service. Level 1: Full AI personalization. Level 2: AI with cached models (lower quality). Level 3: Rule-based recommendations (no AI). Level 4: Trending/popular only (minimal logic).",
+    "hints": [
+      "Define service levels with capabilities",
+      "Specify metrics that trigger degradation",
+      "Include recovery path back to full service"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "degradation-levels",
+        "name": "Degradation Levels",
+        "weight": 30,
+        "description": "Are degradation tiers clearly defined?",
+        "scoringGuide": {
+          "excellent": "3+ levels with capabilities and trade-offs",
+          "good": "Multiple levels defined",
+          "adequate": "Some degradation mentioned",
+          "poor": "No degradation levels"
+        }
+      },
+      {
+        "id": "triggers",
+        "name": "Degradation Triggers",
+        "weight": 25,
+        "description": "Are triggers for each level specified?",
+        "scoringGuide": {
+          "excellent": "Specific metrics and thresholds per level",
+          "good": "Triggers mentioned",
+          "adequate": "Some conditions implied",
+          "poor": "No triggers defined"
+        }
+      },
+      {
+        "id": "observability",
+        "name": "Observability",
+        "weight": 25,
+        "description": "Are metrics and alerting defined?",
+        "scoringGuide": {
+          "excellent": "Full metrics schema with alert thresholds",
+          "good": "Metrics listed",
+          "adequate": "Monitoring mentioned",
+          "poor": "No observability"
+        }
+      },
+      {
+        "id": "recovery",
+        "name": "Recovery Criteria",
+        "weight": 20,
+        "description": "Is recovery path defined?",
+        "scoringGuide": {
+          "excellent": "Clear recovery criteria per level",
+          "good": "Recovery mentioned",
+          "adequate": "Implied recovery",
+          "poor": "No recovery path"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a graceful degradation strategy for the recommendation service:\n\nSERVICE: Product Recommendations\nSLA: 99.9% availability, <200ms p95 latency\n\n---\n\nSERVICE LEVELS:\n\nLEVEL 1: FULL AI (Optimal)\n```json\n{\n  \"level\": 1,\n  \"name\": \"full_ai\",\n  \"description\": \"Full AI personalization with real-time inference\",\n  \"capabilities\": {\n    \"personalization\": \"real-time user embedding\",\n    \"model\": \"latest production model\",\n    \"features\": [\"browsing history\", \"purchase history\", \"similar users\", \"trending boost\"],\n    \"expected_ctr_lift\": \"25%\"\n  },\n  \"requirements\": {\n    \"ai_service\": \"healthy\",\n    \"latency_p95\": \"<150ms\",\n    \"error_rate\": \"<1%\"\n  }\n}\n```\n\nLEVEL 2: CACHED AI (Degraded)\n```json\n{\n  \"level\": 2,\n  \"name\": \"cached_ai\",\n  \"description\": \"AI using cached user embeddings (6-hour staleness)\",\n  \"capabilities\": {\n    \"personalization\": \"cached user embedding\",\n    \"model\": \"latest production model\",\n    \"features\": [\"cached preferences\", \"similar users\", \"trending boost\"],\n    \"expected_ctr_lift\": \"15%\"\n  },\n  \"trade_offs\": [\n    \"Recommendations may not reflect recent browsing\",\n    \"New users get generic recommendations\"\n  ]\n}\n```\n\nLEVEL 3: RULE-BASED (No AI)\n```json\n{\n  \"level\": 3,\n  \"name\": \"rule_based\",\n  \"description\": \"Pre-computed rules, no AI inference\",\n  \"capabilities\": {\n    \"personalization\": \"category affinity only\",\n    \"model\": \"none\",\n    \"features\": [\"category match\", \"price range match\", \"brand affinity\"],\n    \"expected_ctr_lift\": \"5%\"\n  },\n  \"implementation\": {\n    \"rules\": [\n      \"Show items from user's most-viewed category\",\n      \"Match price range to user's purchase history\",\n      \"Boost brands user has purchased before\"\n    ]\n  }\n}\n```\n\nLEVEL 4: STATIC (Emergency)\n```json\n{\n  \"level\": 4,\n  \"name\": \"static\",\n  \"description\": \"Pre-computed popular items only\",\n  \"capabilities\": {\n    \"personalization\": \"none\",\n    \"model\": \"none\",\n    \"features\": [\"global trending\", \"best sellers\"],\n    \"expected_ctr_lift\": \"0%\"\n  },\n  \"implementation\": {\n    \"source\": \"hourly-refreshed popularity cache\",\n    \"fallback\": \"last known popular items\"\n  }\n}\n```\n\n---\n\nDEGRADATION TRIGGERS:\n\n```json\n{\n  \"triggers\": {\n    \"level_1_to_2\": {\n      \"conditions\": [\n        {\"metric\": \"ai_latency_p95\", \"threshold\": \">150ms\", \"duration\": \"2min\"},\n        {\"metric\": \"ai_error_rate\", \"threshold\": \">5%\", \"duration\": \"1min\"}\n      ],\n      \"operator\": \"OR\"\n    },\n    \"level_2_to_3\": {\n      \"conditions\": [\n        {\"metric\": \"ai_service_health\", \"threshold\": \"unhealthy\", \"duration\": \"30s\"},\n        {\"metric\": \"ai_latency_p95\", \"threshold\": \">500ms\", \"duration\": \"1min\"},\n        {\"metric\": \"ai_error_rate\", \"threshold\": \">20%\", \"duration\": \"1min\"}\n      ],\n      \"operator\": \"OR\"\n    },\n    \"level_3_to_4\": {\n      \"conditions\": [\n        {\"metric\": \"rule_engine_health\", \"threshold\": \"unhealthy\"},\n        {\"metric\": \"database_latency\", \"threshold\": \">200ms\", \"duration\": \"1min\"}\n      ],\n      \"operator\": \"OR\"\n    }\n  }\n}\n```\n\n---\n\nRECOVERY CRITERIA:\n\n```json\n{\n  \"recovery\": {\n    \"level_4_to_3\": {\n      \"conditions\": [\n        {\"metric\": \"database_latency\", \"threshold\": \"<100ms\", \"duration\": \"2min\"},\n        {\"metric\": \"rule_engine_health\", \"threshold\": \"healthy\", \"duration\": \"2min\"}\n      ],\n      \"operator\": \"AND\",\n      \"cooldown\": \"5min\"\n    },\n    \"level_3_to_2\": {\n      \"conditions\": [\n        {\"metric\": \"ai_service_health\", \"threshold\": \"healthy\", \"duration\": \"5min\"},\n        {\"metric\": \"ai_error_rate\", \"threshold\": \"<5%\", \"duration\": \"5min\"}\n      ],\n      \"operator\": \"AND\",\n      \"cooldown\": \"10min\"\n    },\n    \"level_2_to_1\": {\n      \"conditions\": [\n        {\"metric\": \"ai_latency_p95\", \"threshold\": \"<100ms\", \"duration\": \"10min\"},\n        {\"metric\": \"ai_error_rate\", \"threshold\": \"<1%\", \"duration\": \"10min\"},\n        {\"metric\": \"cache_freshness\", \"threshold\": \"<1hour\"}\n      ],\n      \"operator\": \"AND\",\n      \"cooldown\": \"15min\"\n    }\n  },\n  \"recovery_strategy\": \"gradual\",\n  \"traffic_ramp\": [10, 25, 50, 75, 100]\n}\n```\n\n---\n\nOBSERVABILITY:\n\n```json\n{\n  \"metrics\": [\n    {\n      \"name\": \"ai_latency_p95\",\n      \"type\": \"histogram\",\n      \"unit\": \"ms\",\n      \"alert_thresholds\": {\"warning\": 100, \"critical\": 200}\n    },\n    {\n      \"name\": \"ai_error_rate\",\n      \"type\": \"gauge\",\n      \"unit\": \"percent\",\n      \"alert_thresholds\": {\"warning\": 2, \"critical\": 10}\n    },\n    {\n      \"name\": \"current_service_level\",\n      \"type\": \"gauge\",\n      \"values\": [1, 2, 3, 4],\n      \"alert_on_change\": true\n    },\n    {\n      \"name\": \"degradation_events\",\n      \"type\": \"counter\",\n      \"labels\": [\"from_level\", \"to_level\", \"trigger_reason\"]\n    },\n    {\n      \"name\": \"recommendation_quality\",\n      \"type\": \"gauge\",\n      \"unit\": \"ctr_percent\",\n      \"baseline_by_level\": {\"1\": 8.5, \"2\": 7.0, \"3\": 5.5, \"4\": 4.0}\n    }\n  ],\n  \"alerts\": [\n    {\n      \"name\": \"ServiceDegraded\",\n      \"condition\": \"current_service_level > 1\",\n      \"severity\": \"warning\",\n      \"notify\": [\"slack-oncall\"]\n    },\n    {\n      \"name\": \"ServiceCritical\",\n      \"condition\": \"current_service_level >= 3\",\n      \"severity\": \"critical\",\n      \"notify\": [\"pagerduty\"]\n    }\n  ],\n  \"dashboard\": \"grafana/recommendations-health\"\n}\n```",
+    "commonMistakes": [
+      "Only one fallback level",
+      "No specific trigger thresholds",
+      "Missing recovery criteria",
+      "No observability metrics"
+    ],
+    "keyElements": [
+      "Multiple degradation levels with capabilities",
+      "Specific trigger metrics and thresholds",
+      "Recovery criteria with cooldowns",
+      "Full observability stack"
+    ],
+    "antiPatterns": [
+      "'Fall back if AI fails'",
+      "Binary on/off degradation",
+      "No recovery path",
+      "No monitoring defined"
+    ]
+  }
+}

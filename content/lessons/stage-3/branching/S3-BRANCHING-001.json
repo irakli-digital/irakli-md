@@ -1,0 +1,103 @@
+{
+  "id": "S3-BRANCHING-001",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "branching",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-001"],
+    "tags": ["branching", "conditional", "routing"]
+  },
+  "scenario": {
+    "title": "The Intent Router",
+    "context": "Your customer service bot needs to route incoming messages to different AI handlers based on detected intent. Each intent type has its own specialized prompt and response format.",
+    "goal": "Write a prompt that classifies intent and routes to appropriate handlers with different processing logic.",
+    "constraints": [
+      "Define 4+ intent categories",
+      "Each intent routes to different handler prompt",
+      "Include confidence threshold for routing",
+      "Handle low-confidence (ambiguous) cases"
+    ],
+    "exampleInput": "Route customer message: 'I want to cancel my subscription but first tell me about the refund policy'. Intents: billing_inquiry, cancellation_request, account_help, general_question, complaint.",
+    "hints": [
+      "Define intent taxonomy clearly",
+      "Specify handler prompt for each intent",
+      "Handle multi-intent messages"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "intent-taxonomy",
+        "name": "Intent Taxonomy",
+        "weight": 25,
+        "description": "Are intents clearly defined?",
+        "scoringGuide": {
+          "excellent": "All intents with descriptions and examples",
+          "good": "Intents listed with descriptions",
+          "adequate": "Basic intents present",
+          "poor": "No intent definition"
+        }
+      },
+      {
+        "id": "routing-logic",
+        "name": "Routing Logic",
+        "weight": 30,
+        "description": "Is routing to handlers defined?",
+        "scoringGuide": {
+          "excellent": "Clear intent→handler mapping with prompts",
+          "good": "Routing defined",
+          "adequate": "Some routing implied",
+          "poor": "No routing logic"
+        }
+      },
+      {
+        "id": "confidence-handling",
+        "name": "Confidence Handling",
+        "weight": 25,
+        "description": "Are confidence thresholds addressed?",
+        "scoringGuide": {
+          "excellent": "Thresholds with fallback behavior",
+          "good": "Confidence mentioned",
+          "adequate": "Some uncertainty handling",
+          "poor": "No confidence handling"
+        }
+      },
+      {
+        "id": "multi-intent",
+        "name": "Multi-Intent Handling",
+        "weight": 20,
+        "description": "Are multi-intent messages handled?",
+        "scoringGuide": {
+          "excellent": "Strategy for multiple intents",
+          "good": "Multi-intent acknowledged",
+          "adequate": "Implied handling",
+          "poor": "Single intent only"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design an intent-based routing system:\n\nROUTER: Customer Service Intent Classifier\n\n---\n\nINTENT TAXONOMY:\n\n```json\n{\n  \"intents\": [\n    {\n      \"id\": \"billing_inquiry\",\n      \"description\": \"Questions about charges, invoices, payment methods\",\n      \"examples\": [\n        \"Why was I charged twice?\",\n        \"What's my current balance?\",\n        \"Can I change my payment method?\"\n      ],\n      \"handler\": \"billing_handler\"\n    },\n    {\n      \"id\": \"cancellation_request\",\n      \"description\": \"Requests to cancel service or subscription\",\n      \"examples\": [\n        \"I want to cancel my account\",\n        \"How do I unsubscribe?\",\n        \"Please stop my subscription\"\n      ],\n      \"handler\": \"cancellation_handler\",\n      \"priority\": \"high\"\n    },\n    {\n      \"id\": \"account_help\",\n      \"description\": \"Account access, settings, profile issues\",\n      \"examples\": [\n        \"I can't log in\",\n        \"How do I reset my password?\",\n        \"Update my email address\"\n      ],\n      \"handler\": \"account_handler\"\n    },\n    {\n      \"id\": \"product_question\",\n      \"description\": \"Questions about features, how-to, capabilities\",\n      \"examples\": [\n        \"How does feature X work?\",\n        \"Can your product do Y?\",\n        \"What's the difference between plans?\"\n      ],\n      \"handler\": \"product_handler\"\n    },\n    {\n      \"id\": \"complaint\",\n      \"description\": \"Negative feedback, issues, frustration\",\n      \"examples\": [\n        \"This is ridiculous\",\n        \"Your service is terrible\",\n        \"I've been waiting for days\"\n      ],\n      \"handler\": \"escalation_handler\",\n      \"priority\": \"high\"\n    },\n    {\n      \"id\": \"general_question\",\n      \"description\": \"Catch-all for other inquiries\",\n      \"examples\": [\n        \"What are your hours?\",\n        \"Where are you located?\"\n      ],\n      \"handler\": \"general_handler\"\n    }\n  ]\n}\n```\n\n---\n\nCLASSIFICATION PROMPT:\n\n```\nClassify the customer's intent from their message.\n\nAvailable intents:\n- billing_inquiry: Questions about charges, payments, invoices\n- cancellation_request: Wants to cancel/unsubscribe (HIGH PRIORITY)\n- account_help: Login issues, password, account settings\n- product_question: How-to, features, capabilities\n- complaint: Expressing frustration or dissatisfaction (HIGH PRIORITY)\n- general_question: Other inquiries\n\nFor each detected intent, provide:\n- intent_id: The intent category\n- confidence: 0.0-1.0 how certain you are\n- evidence: Key phrases that indicate this intent\n\nIMPORTANT: Messages may contain MULTIPLE intents. List all detected.\n\nReturn JSON:\n{\n  \"intents\": [\n    {\n      \"intent_id\": \"cancellation_request\",\n      \"confidence\": 0.95,\n      \"evidence\": \"'I want to cancel my subscription'\"\n    },\n    {\n      \"intent_id\": \"billing_inquiry\",\n      \"confidence\": 0.80,\n      \"evidence\": \"'tell me about the refund policy'\"\n    }\n  ],\n  \"primary_intent\": \"cancellation_request\",\n  \"is_multi_intent\": true,\n  \"sentiment\": \"neutral\" | \"negative\" | \"positive\",\n  \"urgency\": \"high\" | \"normal\" | \"low\"\n}\n\nCustomer message:\n\"{{message}}\"\n```\n\n---\n\nROUTING LOGIC:\n\n```json\n{\n  \"routing_rules\": {\n    \"confidence_threshold\": 0.7,\n    \"low_confidence_action\": \"route_to_human\",\n    \n    \"multi_intent_strategy\": {\n      \"method\": \"priority_then_sequence\",\n      \"rules\": [\n        \"If complaint detected with any confidence > 0.5, handle first\",\n        \"If cancellation detected, prioritize over billing\",\n        \"Otherwise, handle highest confidence first\",\n        \"Chain handlers for remaining intents\"\n      ]\n    },\n    \n    \"routing_table\": {\n      \"cancellation_request\": {\n        \"handler\": \"cancellation_handler\",\n        \"requires_auth\": true,\n        \"auto_escalate_if_sentiment\": \"negative\"\n      },\n      \"billing_inquiry\": {\n        \"handler\": \"billing_handler\",\n        \"requires_auth\": true\n      },\n      \"complaint\": {\n        \"handler\": \"escalation_handler\",\n        \"always_log\": true,\n        \"notify_team\": true\n      },\n      \"account_help\": {\n        \"handler\": \"account_handler\"\n      },\n      \"product_question\": {\n        \"handler\": \"product_handler\"\n      },\n      \"general_question\": {\n        \"handler\": \"general_handler\"\n      }\n    }\n  }\n}\n```\n\n---\n\nHANDLER PROMPTS (example for cancellation):\n\n```\n[CANCELLATION HANDLER]\n\nCustomer wants to cancel their subscription.\n\nCustomer info:\n- Account: {{account_id}}\n- Plan: {{current_plan}}\n- Tenure: {{months_active}} months\n- Last payment: {{last_payment_date}}\n\nObjectives:\n1. Acknowledge their request empathetically\n2. Ask about reason (if not provided)\n3. Offer retention options based on reason:\n   - Price concern → offer discount\n   - Not using → offer pause\n   - Missing features → explain roadmap\n4. If still wants to cancel, explain process and refund policy\n5. Confirm next steps\n\nTone: Empathetic, not pushy, respectful of their decision\n\nCustomer's message: \"{{original_message}}\"\nDetected secondary intents: {{other_intents}}\n```\n\n---\n\nLOW CONFIDENCE HANDLING:\n\n```json\n{\n  \"low_confidence_response\": {\n    \"threshold\": 0.7,\n    \"action\": \"clarification_prompt\",\n    \"prompt\": \"I want to make sure I understand your request correctly. Are you looking to:\\n\\n1. Get help with billing or payments\\n2. Cancel or pause your subscription\\n3. Get help with your account\\n4. Learn about our product features\\n5. Something else\\n\\nPlease reply with a number or describe what you need.\"\n  }\n}\n```",
+    "commonMistakes": [
+      "Intent categories not defined",
+      "No confidence thresholds",
+      "Single intent assumption",
+      "Missing handler prompts"
+    ],
+    "keyElements": [
+      "Clear intent taxonomy with examples",
+      "Routing table with handlers",
+      "Confidence threshold handling",
+      "Multi-intent strategy"
+    ],
+    "antiPatterns": [
+      "'Route based on intent'",
+      "No intent definitions",
+      "Ignoring confidence",
+      "Single intent only"
+    ]
+  }
+}

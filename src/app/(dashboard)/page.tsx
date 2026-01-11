@@ -26,9 +26,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Stats Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#252525] rounded-lg border border-[#333]">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 p-3 sm:p-4 bg-[#252525] rounded-lg border border-[#333]">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-3">
             <LevelBadge level={progress?.level || 1} size="md" />
             <XPDisplay xp={progress?.totalXP || 0} size="md" />
           </div>
@@ -42,7 +42,7 @@ export default function DashboardPage() {
           onClick={() => router.push('/progress')}
           variant="ghost"
           size="sm"
-          className="text-[#D97706] hover:text-[#F59E0B] hover:bg-[#D97706]/10 font-mono"
+          className="text-[#D97706] hover:text-[#F59E0B] hover:bg-[#D97706]/10 font-mono text-xs sm:text-sm"
         >
           view progress
           <ArrowRight className="h-4 w-4 ml-1" />
@@ -57,7 +57,8 @@ export default function DashboardPage() {
       {/* Welcome Section */}
       <TerminalWindow title="~/dashboard">
         <div className="space-y-4">
-          <pre className="text-[#D97706] text-xs leading-tight">
+          {/* ASCII banner - hidden on mobile */}
+          <pre className="hidden sm:block text-[#D97706] text-xs leading-tight">
 {`   █████╗ ██╗    ██╗     ██╗████████╗
   ██╔══██╗██║    ██║     ██║╚══██╔══╝
   ███████║██║    ██║     ██║   ██║
@@ -65,6 +66,8 @@ export default function DashboardPage() {
   ██║  ██║██║    ███████╗██║   ██║
   ╚═╝  ╚═╝╚═╝    ╚══════╝╚═╝   ╚═╝   `}
           </pre>
+          {/* Mobile title */}
+          <h1 className="sm:hidden text-xl font-bold text-[#D97706] font-mono">AI_LIT</h1>
 
           <TerminalLine prefix=">" prefixColor="accent">
             welcome back. ready to practice?

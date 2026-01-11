@@ -1,0 +1,103 @@
+{
+  "id": "S4-TESTING-001",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "testing",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S4-CODE-GENERATION-001"],
+    "tags": ["testing", "unit-tests", "ai-generated"]
+  },
+  "scenario": {
+    "title": "The Test Generator",
+    "context": "You have code that needs tests. You want AI to generate comprehensive unit tests that cover edge cases you might miss.",
+    "goal": "Write a prompt that guides AI to generate thorough unit tests with good coverage of edge cases and failure modes.",
+    "constraints": [
+      "Cover happy path and error cases",
+      "Include edge cases (null, empty, boundary)",
+      "Use appropriate testing patterns (arrange-act-assert)",
+      "Mock external dependencies"
+    ],
+    "exampleInput": "Generate tests for a validateEmail function. It should accept valid emails, reject invalid ones, handle edge cases like empty strings, null, very long emails, unicode characters.",
+    "hints": [
+      "Show the code to be tested",
+      "List categories of tests needed",
+      "Specify what should be mocked"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "code-context",
+        "name": "Code Under Test",
+        "weight": 25,
+        "description": "Is the code to test provided?",
+        "scoringGuide": {
+          "excellent": "Full code with dependencies explained",
+          "good": "Code provided",
+          "adequate": "Basic code",
+          "poor": "No code"
+        }
+      },
+      {
+        "id": "test-categories",
+        "name": "Test Categories",
+        "weight": 30,
+        "description": "Are test categories specified?",
+        "scoringGuide": {
+          "excellent": "Comprehensive categories with examples",
+          "good": "Categories listed",
+          "adequate": "Some categories",
+          "poor": "No guidance"
+        }
+      },
+      {
+        "id": "edge-cases",
+        "name": "Edge Cases",
+        "weight": 25,
+        "description": "Are edge cases explicitly requested?",
+        "scoringGuide": {
+          "excellent": "Specific edge cases listed",
+          "good": "Edge cases mentioned",
+          "adequate": "General awareness",
+          "poor": "No edge cases"
+        }
+      },
+      {
+        "id": "testing-patterns",
+        "name": "Testing Patterns",
+        "weight": 20,
+        "description": "Are testing patterns specified?",
+        "scoringGuide": {
+          "excellent": "Framework, patterns, and mocking specified",
+          "good": "Framework mentioned",
+          "adequate": "Basic requirements",
+          "poor": "No pattern guidance"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Generate comprehensive unit tests for this email validation function:\n\nTEST GENERATION REQUEST\n\n---\n\nCODE UNDER TEST:\n\n```typescript\n// lib/validations/email.ts\n\nexport interface EmailValidationResult {\n  valid: boolean;\n  error?: string;\n  normalized?: string;\n}\n\nexport function validateEmail(email: unknown): EmailValidationResult {\n  // Handle non-string inputs\n  if (email === null || email === undefined) {\n    return { valid: false, error: 'Email is required' };\n  }\n  \n  if (typeof email !== 'string') {\n    return { valid: false, error: 'Email must be a string' };\n  }\n\n  const trimmed = email.trim().toLowerCase();\n  \n  if (trimmed.length === 0) {\n    return { valid: false, error: 'Email cannot be empty' };\n  }\n\n  if (trimmed.length > 254) {\n    return { valid: false, error: 'Email is too long' };\n  }\n\n  // RFC 5322 simplified regex\n  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  \n  if (!emailRegex.test(trimmed)) {\n    return { valid: false, error: 'Invalid email format' };\n  }\n\n  // Check for common disposable email domains\n  const disposableDomains = ['tempmail.com', 'throwaway.com'];\n  const domain = trimmed.split('@')[1];\n  \n  if (disposableDomains.includes(domain)) {\n    return { valid: false, error: 'Disposable email addresses not allowed' };\n  }\n\n  return { valid: true, normalized: trimmed };\n}\n```\n\n---\n\nTESTING FRAMEWORK:\n\n- Framework: Vitest\n- Pattern: Arrange-Act-Assert\n- Style: Descriptive test names using `describe`/`it`\n\n---\n\nTEST CATEGORIES TO COVER:\n\n```yaml\n1_happy_path:\n  - Valid simple email (user@example.com)\n  - Valid with subdomain (user@mail.example.com)\n  - Valid with numbers (user123@example.com)\n  - Valid with dots in local part (first.last@example.com)\n  - Valid with plus sign (user+tag@example.com)\n  - Returns normalized (lowercase, trimmed) email\n\n2_type_errors:\n  - null input\n  - undefined input\n  - number input\n  - object input\n  - array input\n  - boolean input\n\n3_empty_and_whitespace:\n  - Empty string\n  - Only whitespace\n  - Leading/trailing whitespace (should still pass if valid after trim)\n\n4_length_boundaries:\n  - Exactly 254 characters (max valid length)\n  - 255 characters (should fail)\n  - Very long email (1000 chars)\n  - Minimum valid length (a@b.c = 5 chars)\n\n5_format_validation:\n  - Missing @ symbol\n  - Multiple @ symbols\n  - Missing domain\n  - Missing local part\n  - Missing TLD\n  - Spaces in email\n  - Invalid characters (test what's rejected)\n\n6_disposable_emails:\n  - tempmail.com should be rejected\n  - throwaway.com should be rejected\n  - Similar but valid domains should pass (e.g., tempmail.org)\n\n7_unicode_and_special_cases:\n  - International domain (valid IDN)\n  - Unicode characters in local part\n  - Punycode domains\n\n8_normalization:\n  - Uppercase email returns lowercase normalized\n  - Mixed case returns lowercase\n  - Whitespace is trimmed\n```\n\n---\n\nEXPECTED TEST STRUCTURE:\n\n```typescript\nimport { describe, it, expect } from 'vitest';\nimport { validateEmail } from './email';\n\ndescribe('validateEmail', () => {\n  describe('valid emails', () => {\n    it('accepts simple valid email', () => {\n      // Arrange\n      const email = 'user@example.com';\n      \n      // Act\n      const result = validateEmail(email);\n      \n      // Assert\n      expect(result.valid).toBe(true);\n      expect(result.normalized).toBe('user@example.com');\n      expect(result.error).toBeUndefined();\n    });\n    \n    // ... more valid email tests\n  });\n\n  describe('type errors', () => {\n    it.each([\n      [null, 'Email is required'],\n      [undefined, 'Email is required'],\n      [123, 'Email must be a string'],\n      [{}, 'Email must be a string'],\n    ])('returns error for %p', (input, expectedError) => {\n      const result = validateEmail(input);\n      expect(result.valid).toBe(false);\n      expect(result.error).toBe(expectedError);\n    });\n  });\n\n  // ... more test groups\n});\n```\n\n---\n\nADDITIONAL REQUIREMENTS:\n\n- Use `it.each` for parameterized tests where appropriate\n- Include test for error message content (not just that error exists)\n- Test that normalized email is returned only on success\n- Group tests logically with nested `describe` blocks\n- Add comments for non-obvious test cases\n- Target: 100% line coverage, 100% branch coverage",
+    "commonMistakes": [
+      "No code to test provided",
+      "Only happy path tests",
+      "No edge cases specified",
+      "No testing framework guidance"
+    ],
+    "keyElements": [
+      "Full code under test",
+      "Categorized test requirements",
+      "Specific edge cases listed",
+      "Framework and pattern specified"
+    ],
+    "antiPatterns": [
+      "'Write tests for this function'",
+      "No code shown",
+      "No test categories",
+      "No edge case guidance"
+    ]
+  }
+}

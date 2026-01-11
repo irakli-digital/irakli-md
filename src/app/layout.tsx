@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import { SessionProvider } from 'next-auth/react';
 import { TRPCProvider } from '@/lib/trpc/provider';
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
 const jetbrainsMono = JetBrains_Mono({
@@ -25,6 +26,7 @@ export default function RootLayout({
         <SessionProvider>
           <TRPCProvider>{children}</TRPCProvider>
         </SessionProvider>
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

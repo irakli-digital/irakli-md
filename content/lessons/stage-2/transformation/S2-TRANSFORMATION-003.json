@@ -1,0 +1,104 @@
+{
+  "id": "S2-TRANSFORMATION-003",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "transformation",
+    "difficulty": 3,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S2-TRANSFORMATION-002"],
+    "tags": ["transformation", "normalization", "denormalization"]
+  },
+  "scenario": {
+    "title": "The API Adapter",
+    "context": "Your middleware translates between two different API formats. The source API returns denormalized data with embedded objects, while the target API expects normalized data with ID references.",
+    "goal": "Write a prompt that transforms denormalized nested data into normalized format with proper entity separation and references.",
+    "constraints": [
+      "Extract embedded objects into separate entity collections",
+      "Replace embedded objects with ID references",
+      "Generate consistent IDs for extracted entities",
+      "Handle duplicate entities (same data = same ID)"
+    ],
+    "exampleInput": "Denormalized: {orders: [{id: 'ord-1', customer: {name: 'John', email: 'john@email.com'}, items: [{product: {name: 'Widget', price: 29.99}, quantity: 2}]}]}. Need: separate customers, products, and orders collections with ID references.",
+    "hints": [
+      "Define which entities to extract",
+      "Specify ID generation strategy",
+      "Show how references replace embedded objects",
+      "Handle entity deduplication"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "entity-extraction",
+        "name": "Entity Extraction",
+        "weight": 30,
+        "description": "Are embedded entities properly extracted?",
+        "scoringGuide": {
+          "excellent": "All entities identified with extraction rules",
+          "good": "Entities listed for extraction",
+          "adequate": "Some extraction implied",
+          "poor": "No entity extraction"
+        }
+      },
+      {
+        "id": "reference-replacement",
+        "name": "Reference Replacement",
+        "weight": 25,
+        "description": "Are embedded objects replaced with IDs?",
+        "scoringGuide": {
+          "excellent": "Clear replacement pattern with examples",
+          "good": "Reference pattern shown",
+          "adequate": "References mentioned",
+          "poor": "No reference replacement"
+        }
+      },
+      {
+        "id": "id-generation",
+        "name": "ID Generation",
+        "weight": 25,
+        "description": "Is ID generation strategy defined?",
+        "scoringGuide": {
+          "excellent": "ID strategy with deduplication rules",
+          "good": "ID generation mentioned",
+          "adequate": "IDs implied",
+          "poor": "No ID strategy"
+        }
+      },
+      {
+        "id": "output-collections",
+        "name": "Collection Structure",
+        "weight": 20,
+        "description": "Are separate collections properly structured?",
+        "scoringGuide": {
+          "excellent": "All collections with relationships clear",
+          "good": "Collections shown",
+          "adequate": "Multiple outputs implied",
+          "poor": "Single output only"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Transform this denormalized API response into normalized format.\n\nEntity Extraction Rules:\n\n1. customers:\n   - Extract from: order.customer\n   - ID generation: Hash of email (ensures same customer = same ID)\n   - Fields to keep: name, email\n\n2. products:\n   - Extract from: order.items[].product\n   - ID generation: Hash of name (ensures same product = same ID)\n   - Fields to keep: name, price\n\n3. orders:\n   - Keep at top level\n   - Replace customer object → customer_id reference\n   - Replace items[].product → product_id reference\n\nOutput Format:\n```json\n{\n  \"customers\": [\n    {\n      \"id\": \"cust_abc123\",\n      \"name\": \"John\",\n      \"email\": \"john@email.com\"\n    }\n  ],\n  \"products\": [\n    {\n      \"id\": \"prod_xyz789\",\n      \"name\": \"Widget\",\n      \"price\": 29.99\n    }\n  ],\n  \"orders\": [\n    {\n      \"id\": \"ord-1\",\n      \"customer_id\": \"cust_abc123\",\n      \"items\": [\n        {\n          \"product_id\": \"prod_xyz789\",\n          \"quantity\": 2,\n          \"line_total\": 59.98\n        }\n      ],\n      \"order_total\": 59.98\n    }\n  ]\n}\n```\n\nDeduplication Rules:\n- Same email → same customer_id (don't create duplicate customers)\n- Same product name → same product_id (don't create duplicate products)\n- Collect all unique entities across all orders\n\nID Format:\n- customers: 'cust_' + 8 char hash\n- products: 'prod_' + 8 char hash\n- orders: keep original ID\n\nCalculated fields:\n- line_total = product.price * quantity\n- order_total = sum of line_totals\n\nInput:\n[denormalized data here]\n\nReturn normalized JSON with separate collections.",
+    "commonMistakes": [
+      "Not extracting all embedded entities",
+      "Missing ID references",
+      "No deduplication logic",
+      "Missing relationship mapping"
+    ],
+    "keyElements": [
+      "Entity extraction rules",
+      "Reference replacement pattern",
+      "ID generation with deduplication",
+      "Separate collection output"
+    ],
+    "antiPatterns": [
+      "'Normalize this data'",
+      "No extraction rules",
+      "No ID strategy",
+      "Single output structure"
+    ]
+  }
+}

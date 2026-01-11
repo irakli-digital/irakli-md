@@ -1,0 +1,103 @@
+{
+  "id": "S4-ARCHITECTURE-002",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "architecture",
+    "difficulty": 2,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S4-ARCHITECTURE-001"],
+    "tags": ["architecture", "scaling", "cost"]
+  },
+  "scenario": {
+    "title": "The Cost-Aware Architect",
+    "context": "Your AI feature is getting expensive at scale. You need to redesign the architecture to optimize costs while maintaining quality, including smart batching, tiered AI usage, and efficient caching.",
+    "goal": "Write a prompt that redesigns an AI architecture for cost efficiency, including batching strategies, tiered processing, and cost monitoring.",
+    "constraints": [
+      "Reduce AI API costs by 60%",
+      "Maintain response quality for premium users",
+      "Implement request batching where possible",
+      "Add cost monitoring and alerting"
+    ],
+    "exampleInput": "Current: Every search calls Claude ($0.003/req). 1M searches/day = $3000/day. Target: $1200/day max. Ideas: cache common queries, batch similar requests, use cheaper model for simple queries.",
+    "hints": [
+      "Identify which requests truly need AI",
+      "Design batching windows",
+      "Create model selection logic"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "cost-analysis",
+        "name": "Cost Analysis",
+        "weight": 25,
+        "description": "Is current vs target cost analyzed?",
+        "scoringGuide": {
+          "excellent": "Detailed cost breakdown with savings plan",
+          "good": "Cost analysis present",
+          "adequate": "Some cost awareness",
+          "poor": "No cost analysis"
+        }
+      },
+      {
+        "id": "optimization-strategies",
+        "name": "Optimization Strategies",
+        "weight": 30,
+        "description": "Are multiple optimization strategies defined?",
+        "scoringGuide": {
+          "excellent": "3+ strategies with implementation details",
+          "good": "Strategies defined",
+          "adequate": "Some optimization",
+          "poor": "No strategies"
+        }
+      },
+      {
+        "id": "tiered-processing",
+        "name": "Tiered Processing",
+        "weight": 25,
+        "description": "Is tiered AI usage implemented?",
+        "scoringGuide": {
+          "excellent": "Clear tiers with routing logic",
+          "good": "Tiers defined",
+          "adequate": "Some differentiation",
+          "poor": "No tiering"
+        }
+      },
+      {
+        "id": "monitoring",
+        "name": "Cost Monitoring",
+        "weight": 20,
+        "description": "Is cost monitoring/alerting included?",
+        "scoringGuide": {
+          "excellent": "Real-time monitoring with alerts",
+          "good": "Monitoring present",
+          "adequate": "Some tracking",
+          "poor": "No monitoring"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a cost-optimized AI search architecture:\n\nCOST OPTIMIZATION: AI Search Redesign\n\n---\n\nCURRENT STATE ANALYSIS:\n\n```json\n{\n  \"current_costs\": {\n    \"daily_requests\": 1000000,\n    \"ai_calls_per_request\": 1,\n    \"cost_per_ai_call\": 0.003,\n    \"daily_ai_cost\": 3000,\n    \"monthly_ai_cost\": 90000,\n    \"cache_hit_rate\": 0.15,\n    \"effective_ai_calls\": 850000\n  },\n  \"target\": {\n    \"daily_ai_cost\": 1200,\n    \"reduction_needed\": 0.60\n  }\n}\n```\n\n---\n\nOPTIMIZATION STRATEGY 1: Smart Caching\n\n```json\n{\n  \"strategy\": \"enhanced_caching\",\n  \"expected_savings\": \"40%\",\n  \"implementation\": {\n    \"query_normalization\": {\n      \"description\": \"Normalize queries before cache lookup\",\n      \"rules\": [\n        \"Lowercase all text\",\n        \"Remove extra whitespace\",\n        \"Sort filter keys alphabetically\",\n        \"Stem common words\"\n      ],\n      \"example\": {\n        \"input\": \"Red Running SHOES under $100\",\n        \"normalized\": \"red run shoe price:100\"\n      }\n    },\n    \"semantic_cache\": {\n      \"description\": \"Cache by query intent, not exact text\",\n      \"embedding_model\": \"text-embedding-3-small\",\n      \"similarity_threshold\": 0.95,\n      \"example\": {\n        \"query_1\": \"red running shoes\",\n        \"query_2\": \"running shoes in red\",\n        \"similarity\": 0.97,\n        \"cache_hit\": true\n      }\n    },\n    \"cache_layers\": [\n      {\n        \"level\": 1,\n        \"type\": \"exact_match\",\n        \"storage\": \"Redis\",\n        \"ttl\": \"1hour\",\n        \"expected_hit_rate\": 0.35\n      },\n      {\n        \"level\": 2,\n        \"type\": \"semantic_similarity\",\n        \"storage\": \"Vector DB\",\n        \"ttl\": \"6hours\",\n        \"expected_hit_rate\": 0.25\n      }\n    ],\n    \"total_expected_hit_rate\": 0.60\n  }\n}\n```\n\n---\n\nOPTIMIZATION STRATEGY 2: Request Tiering\n\n```json\n{\n  \"strategy\": \"tiered_processing\",\n  \"expected_savings\": \"30%\",\n  \"tiers\": [\n    {\n      \"tier\": \"no_ai\",\n      \"description\": \"Simple queries that don't need AI\",\n      \"routing_criteria\": [\n        \"Query matches exact product name\",\n        \"Query is single category (e.g., 'laptops')\",\n        \"Query has explicit filters only\"\n      ],\n      \"percentage_of_traffic\": 0.20,\n      \"cost_per_request\": 0,\n      \"processing\": \"Direct Elasticsearch query\"\n    },\n    {\n      \"tier\": \"lightweight_ai\",\n      \"description\": \"Use smaller, cheaper model\",\n      \"routing_criteria\": [\n        \"Query complexity score < 3\",\n        \"Free tier users\",\n        \"Non-peak hours\"\n      ],\n      \"percentage_of_traffic\": 0.50,\n      \"cost_per_request\": 0.0005,\n      \"model\": \"claude-3-haiku\",\n      \"processing\": \"Basic intent extraction\"\n    },\n    {\n      \"tier\": \"full_ai\",\n      \"description\": \"Premium AI processing\",\n      \"routing_criteria\": [\n        \"Complex natural language queries\",\n        \"Premium/paid users\",\n        \"Query complexity score >= 3\"\n      ],\n      \"percentage_of_traffic\": 0.30,\n      \"cost_per_request\": 0.003,\n      \"model\": \"claude-3-5-sonnet\",\n      \"processing\": \"Full enhancement + ranking\"\n    }\n  ],\n  \"complexity_scoring\": {\n    \"factors\": [\n      {\"factor\": \"word_count\", \"threshold\": 5, \"points\": 1},\n      {\"factor\": \"has_comparison\", \"keywords\": [\"vs\", \"compare\", \"better\"], \"points\": 2},\n      {\"factor\": \"has_subjective\", \"keywords\": [\"best\", \"good\", \"recommend\"], \"points\": 2},\n      {\"factor\": \"has_context\", \"keywords\": [\"for\", \"like\", \"similar to\"], \"points\": 1}\n    ],\n    \"example\": {\n      \"query\": \"best laptop for video editing under $1500\",\n      \"score\": 5,\n      \"tier\": \"full_ai\"\n    }\n  }\n}\n```\n\n---\n\nOPTIMIZATION STRATEGY 3: Request Batching\n\n```json\n{\n  \"strategy\": \"smart_batching\",\n  \"expected_savings\": \"15%\",\n  \"implementation\": {\n    \"batch_window\": \"100ms\",\n    \"max_batch_size\": 10,\n    \"batching_criteria\": {\n      \"same_category\": true,\n      \"similar_complexity\": true\n    },\n    \"batch_prompt_template\": \"Process these {{batch_size}} search queries together. Return results in same order.\\n\\nQueries:\\n{{queries_list}}\",\n    \"cost_reduction\": {\n      \"individual_calls\": 10,\n      \"batched_calls\": 1,\n      \"tokens_overhead\": 1.3,\n      \"effective_cost\": 0.13\n    }\n  },\n  \"async_batching\": {\n    \"description\": \"For non-blocking requests (autocomplete, related products)\",\n    \"batch_window\": \"500ms\",\n    \"max_batch_size\": 50\n  }\n}\n```\n\n---\n\nNEW ARCHITECTURE:\n\n```\n                    ┌─────────────────┐\n                    │  Request Router │\n                    │ (Tier Decision) │\n                    └────────┬────────┘\n                             │\n         ┌───────────────────┼───────────────────┐\n         ▼                   ▼                   ▼\n   ┌──────────┐       ┌──────────┐       ┌──────────┐\n   │ No AI    │       │ Haiku    │       │ Sonnet   │\n   │ (20%)    │       │ (50%)    │       │ (30%)    │\n   │ $0/req   │       │ $0.0005  │       │ $0.003   │\n   └────┬─────┘       └────┬─────┘       └────┬─────┘\n        │                  │                  │\n        │            ┌─────▼─────┐            │\n        │            │ Batch     │            │\n        │            │ Aggregator│            │\n        │            └─────┬─────┘            │\n        │                  │                  │\n        └──────────────────┼──────────────────┘\n                           ▼\n                    ┌─────────────┐\n                    │   Cache     │\n                    │  (60% hit)  │\n                    └─────────────┘\n```\n\n---\n\nPROJECTED COST CALCULATION:\n\n```json\n{\n  \"new_costs\": {\n    \"daily_requests\": 1000000,\n    \"after_cache\": {\n      \"cache_hit_rate\": 0.60,\n      \"requests_to_process\": 400000\n    },\n    \"tier_breakdown\": {\n      \"no_ai\": {\n        \"requests\": 80000,\n        \"cost_per\": 0,\n        \"daily_cost\": 0\n      },\n      \"lightweight_ai\": {\n        \"requests\": 200000,\n        \"cost_per\": 0.0005,\n        \"daily_cost\": 100\n      },\n      \"full_ai\": {\n        \"requests\": 120000,\n        \"batching_factor\": 0.7,\n        \"effective_requests\": 84000,\n        \"cost_per\": 0.003,\n        \"daily_cost\": 252\n      }\n    },\n    \"total_daily_cost\": 352,\n    \"buffer_and_overhead\": 1.2,\n    \"projected_daily_cost\": 422,\n    \"savings_vs_current\": \"86%\",\n    \"under_budget\": true\n  }\n}\n```\n\n---\n\nCOST MONITORING:\n\n```json\n{\n  \"monitoring\": {\n    \"metrics\": [\n      {\n        \"name\": \"ai_cost_per_hour\",\n        \"calculation\": \"sum(request_cost) per hour\",\n        \"alert_threshold\": 75,\n        \"action\": \"page_oncall\"\n      },\n      {\n        \"name\": \"ai_cost_per_day\",\n        \"calculation\": \"sum(request_cost) per day\",\n        \"warning_threshold\": 1000,\n        \"critical_threshold\": 1200,\n        \"action\": \"reduce_full_ai_percentage\"\n      },\n      {\n        \"name\": \"cache_hit_rate\",\n        \"target\": 0.60,\n        \"alert_if_below\": 0.50\n      },\n      {\n        \"name\": \"tier_distribution\",\n        \"expected\": {\"no_ai\": 0.20, \"lightweight\": 0.50, \"full\": 0.30},\n        \"alert_if_full_ai_exceeds\": 0.40\n      }\n    ],\n    \"dashboard\": \"grafana/ai-cost-dashboard\",\n    \"daily_report\": true,\n    \"budget_enforcement\": {\n      \"enabled\": true,\n      \"daily_limit\": 1200,\n      \"action_at_80%\": \"shift_traffic_to_lightweight\",\n      \"action_at_100%\": \"disable_full_ai_for_free_users\"\n    }\n  }\n}\n```",
+    "commonMistakes": [
+      "No cost breakdown",
+      "Single optimization approach",
+      "No tiering strategy",
+      "Missing cost monitoring"
+    ],
+    "keyElements": [
+      "Current vs target cost analysis",
+      "Multiple optimization strategies",
+      "Tiered processing with routing",
+      "Real-time cost monitoring"
+    ],
+    "antiPatterns": [
+      "'Reduce AI costs'",
+      "No specific savings targets",
+      "One-size-fits-all approach",
+      "No budget enforcement"
+    ]
+  }
+}

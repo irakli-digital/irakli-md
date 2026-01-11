@@ -1,0 +1,103 @@
+{
+  "id": "S4-CODE-GENERATION-003",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "code-generation",
+    "difficulty": 3,
+    "estimatedMinutes": 10,
+    "prerequisites": ["S4-CODE-GENERATION-002"],
+    "tags": ["code-generation", "complex", "multi-file"]
+  },
+  "scenario": {
+    "title": "The Full Feature Generator",
+    "context": "You need AI to generate a complete feature across multiple files: backend API, database, frontend components, tests, and documentation - all working together.",
+    "goal": "Write a prompt that orchestrates AI to generate a complete cross-cutting feature with proper integration between all layers.",
+    "constraints": [
+      "Generate all layers (DB, API, UI, tests)",
+      "Ensure integration points are correct",
+      "Include migration scripts",
+      "Generate both happy path and error handling"
+    ],
+    "exampleInput": "Build complete 'Team Invitations' feature: invite by email, accept/decline, role assignment, expiration. Needs: DB schema, API endpoints, React components, email templates, tests, and API documentation.",
+    "hints": [
+      "Define the data model first",
+      "Specify API contracts explicitly",
+      "Define the user flows end-to-end"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "data-model",
+        "name": "Data Model",
+        "weight": 25,
+        "description": "Is the data model clearly defined?",
+        "scoringGuide": {
+          "excellent": "Complete schema with relationships and constraints",
+          "good": "Schema defined",
+          "adequate": "Basic model",
+          "poor": "No data model"
+        }
+      },
+      {
+        "id": "api-contracts",
+        "name": "API Contracts",
+        "weight": 25,
+        "description": "Are API contracts specified?",
+        "scoringGuide": {
+          "excellent": "Full REST/GraphQL specs with examples",
+          "good": "Endpoints defined",
+          "adequate": "Some APIs mentioned",
+          "poor": "No API specs"
+        }
+      },
+      {
+        "id": "user-flows",
+        "name": "User Flows",
+        "weight": 25,
+        "description": "Are user flows documented?",
+        "scoringGuide": {
+          "excellent": "Step-by-step flows with edge cases",
+          "good": "Main flows described",
+          "adequate": "Basic flow",
+          "poor": "No user flows"
+        }
+      },
+      {
+        "id": "integration",
+        "name": "Integration Points",
+        "weight": 25,
+        "description": "Are layer integrations specified?",
+        "scoringGuide": {
+          "excellent": "Clear integration with type sharing",
+          "good": "Integration mentioned",
+          "adequate": "Some awareness",
+          "poor": "No integration guidance"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Guide AI to generate complete Team Invitations feature:\n\nFEATURE: Team Invitations\n\n---\n\nDATA MODEL:\n\n```sql\n-- Database schema (Drizzle/PostgreSQL)\n\nCREATE TYPE invitation_status AS ENUM ('pending', 'accepted', 'declined', 'expired');\nCREATE TYPE team_role AS ENUM ('owner', 'admin', 'member', 'viewer');\n\nCREATE TABLE team_invitations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,\n  \n  -- Invitee info\n  email VARCHAR(255) NOT NULL,\n  role team_role NOT NULL DEFAULT 'member',\n  \n  -- Invitation metadata\n  token VARCHAR(64) UNIQUE NOT NULL,  -- Secure random token for accept link\n  status invitation_status NOT NULL DEFAULT 'pending',\n  message TEXT,  -- Optional personal message\n  \n  -- Tracking\n  invited_by UUID NOT NULL REFERENCES users(id),\n  expires_at TIMESTAMP NOT NULL,  -- Default: 7 days from creation\n  \n  -- Lifecycle\n  created_at TIMESTAMP DEFAULT NOW(),\n  responded_at TIMESTAMP,  -- When accepted/declined\n  \n  -- Constraints\n  CONSTRAINT unique_pending_invitation UNIQUE (team_id, email, status)\n    WHERE status = 'pending'\n);\n\nCREATE INDEX idx_invitations_email ON team_invitations(email);\nCREATE INDEX idx_invitations_token ON team_invitations(token);\nCREATE INDEX idx_invitations_expires ON team_invitations(expires_at) \n  WHERE status = 'pending';\n```\n\n```typescript\n// Drizzle schema equivalent (lib/db/schema.ts)\nexport const teamInvitations = pgTable('team_invitations', {\n  id: uuid('id').defaultRandom().primaryKey(),\n  teamId: uuid('team_id').notNull().references(() => teams.id, { onDelete: 'cascade' }),\n  email: varchar('email', { length: 255 }).notNull(),\n  role: teamRoleEnum('role').notNull().default('member'),\n  token: varchar('token', { length: 64 }).unique().notNull(),\n  status: invitationStatusEnum('status').notNull().default('pending'),\n  message: text('message'),\n  invitedBy: uuid('invited_by').notNull().references(() => users.id),\n  expiresAt: timestamp('expires_at').notNull(),\n  createdAt: timestamp('created_at').defaultNow(),\n  respondedAt: timestamp('responded_at'),\n});\n```\n\n---\n\nAPI CONTRACTS:\n\n```yaml\nendpoints:\n\n  # Create invitation\n  POST /api/teams/:teamId/invitations:\n    auth: required (must be team admin+)\n    body:\n      email: string (valid email, required)\n      role: 'admin' | 'member' | 'viewer' (default: 'member')\n      message: string (optional, max 500 chars)\n    response:\n      201:\n        invitation: InvitationType\n      400:\n        error: 'INVALID_EMAIL' | 'USER_ALREADY_MEMBER' | 'INVITATION_EXISTS'\n      403:\n        error: 'INSUFFICIENT_PERMISSIONS'\n    side_effects:\n      - Send invitation email\n      - Create activity log entry\n\n  # List team invitations\n  GET /api/teams/:teamId/invitations:\n    auth: required (team member+)\n    query:\n      status: 'pending' | 'accepted' | 'declined' | 'expired' | 'all'\n    response:\n      200:\n        invitations: InvitationType[]\n        total: number\n\n  # Resend invitation\n  POST /api/teams/:teamId/invitations/:id/resend:\n    auth: required (must be team admin+)\n    response:\n      200:\n        invitation: InvitationType (with new expires_at)\n      400:\n        error: 'INVITATION_NOT_PENDING'\n    side_effects:\n      - Extend expiration by 7 days\n      - Resend email\n\n  # Revoke invitation\n  DELETE /api/teams/:teamId/invitations/:id:\n    auth: required (must be team admin+ OR original inviter)\n    response:\n      204: (no content)\n      404:\n        error: 'INVITATION_NOT_FOUND'\n\n  # Accept invitation (public route with token)\n  POST /api/invitations/accept:\n    auth: optional (will create account or link to existing)\n    body:\n      token: string (required)\n    response:\n      200:\n        team: TeamType\n        role: string\n      400:\n        error: 'INVALID_TOKEN' | 'INVITATION_EXPIRED' | 'INVITATION_ALREADY_RESPONDED'\n    side_effects:\n      - Add user to team\n      - Update invitation status\n      - Send confirmation to inviter\n      - Create account if needed\n\n  # Decline invitation (public route with token)\n  POST /api/invitations/decline:\n    body:\n      token: string\n    response:\n      200:\n        message: 'Invitation declined'\n    side_effects:\n      - Update invitation status\n      - Notify inviter (optional)\n\n  # Get pending invitations for current user (by email)\n  GET /api/user/invitations:\n    auth: required\n    response:\n      200:\n        invitations: InvitationType[] (with team info)\n```\n\n---\n\nTYPE DEFINITIONS:\n\n```typescript\n// types/invitations.ts\n\nexport interface Invitation {\n  id: string;\n  teamId: string;\n  email: string;\n  role: 'admin' | 'member' | 'viewer';\n  status: 'pending' | 'accepted' | 'declined' | 'expired';\n  message: string | null;\n  invitedBy: string;\n  inviterName: string;  // Joined from users\n  expiresAt: Date;\n  createdAt: Date;\n  respondedAt: Date | null;\n  team?: {\n    id: string;\n    name: string;\n    avatar: string | null;\n  };\n}\n\nexport interface CreateInvitationInput {\n  email: string;\n  role?: 'admin' | 'member' | 'viewer';\n  message?: string;\n}\n\nexport interface InvitationResponse {\n  token: string;\n}\n```\n\n---\n\nUSER FLOWS:\n\n```yaml\nflow_1_invite_member:\n  steps:\n    1. Admin opens team settings\n    2. Clicks \"Invite Member\"\n    3. Enters email, selects role, optional message\n    4. Clicks \"Send Invitation\"\n    5. System validates email not already member\n    6. System creates invitation with secure token\n    7. System sends email with accept link\n    8. UI shows success message and new pending invitation\n  \n  edge_cases:\n    - Email already team member → Show error\n    - Pending invitation exists → Ask to resend\n    - Invalid email format → Inline validation\n    - Rate limit (10 invites/hour) → Show limit message\n\nflow_2_accept_invitation:\n  steps:\n    1. Recipient gets email\n    2. Clicks \"Accept Invitation\" link\n    3. If logged in as different email → Warning + option to switch\n    4. If not logged in → Sign in/up flow (email pre-filled)\n    5. System validates token not expired\n    6. System adds user to team with role\n    7. Redirect to team dashboard\n    8. Show welcome message\n  \n  edge_cases:\n    - Token expired → Show expiry message + contact admin\n    - Token invalid → Show error\n    - Already accepted → Redirect to team (idempotent)\n    - User has conflicting account → Merge guidance\n\nflow_3_manage_invitations:\n  steps:\n    1. Admin views pending invitations list\n    2. Can resend (extend expiry + new email)\n    3. Can revoke (soft delete)\n    4. Can see who invited whom and when\n  \n  edge_cases:\n    - Resend limit (3 per invitation) → Show message\n    - Invitation accepted between load and action → Refresh state\n```\n\n---\n\nFILES TO GENERATE:\n\n```yaml\nbackend:\n  - lib/db/schema.ts (add invitation tables)\n  - lib/validations/invitations.ts (Zod schemas)\n  - server/routers/invitations.ts (tRPC router)\n  - lib/email/templates/invitation.tsx (React Email template)\n  - lib/services/invitations.ts (business logic)\n\nfrontend:\n  - components/team/InviteMemberModal.tsx\n  - components/team/InvitationsList.tsx\n  - components/team/PendingInvitationBanner.tsx\n  - app/invitations/[token]/page.tsx (accept/decline page)\n  - hooks/useInvitations.ts\n\ntests:\n  - tests/api/invitations.test.ts (API integration)\n  - tests/services/invitations.test.ts (unit)\n  - tests/components/InviteMemberModal.test.tsx (component)\n\nmigrations:\n  - drizzle/migrations/XXXX_add_invitations.sql\n\ndocs:\n  - docs/api/invitations.md (API reference)\n```\n\n---\n\nINTEGRATION REQUIREMENTS:\n\n```yaml\nshared_types:\n  - Export types from types/invitations.ts\n  - Import in both frontend and backend\n  - Use same Zod schemas for validation (client + server)\n\nemail_integration:\n  - Use existing email service (lib/email/send.ts)\n  - Template must include: team name, inviter name, role, message, accept/decline buttons\n  - Accept URL format: {{APP_URL}}/invitations/{{token}}\n\nauth_integration:\n  - Accept endpoint handles: logged in, logged out, wrong account\n  - New user sign-up preserves invitation context\n\nactivity_log:\n  - Log: invitation_sent, invitation_accepted, invitation_declined, invitation_revoked\n```",
+    "commonMistakes": [
+      "Incomplete data model",
+      "Missing API contracts",
+      "No user flow documentation",
+      "Disconnected layers"
+    ],
+    "keyElements": [
+      "Complete data model with constraints",
+      "Full API specifications",
+      "Step-by-step user flows",
+      "Cross-layer integration plan"
+    ],
+    "antiPatterns": [
+      "'Build team invitations'",
+      "Single layer focus",
+      "No edge cases",
+      "No integration guidance"
+    ]
+  }
+}

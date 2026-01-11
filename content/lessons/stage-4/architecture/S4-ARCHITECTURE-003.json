@@ -1,0 +1,103 @@
+{
+  "id": "S4-ARCHITECTURE-003",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "architecture",
+    "difficulty": 3,
+    "estimatedMinutes": 10,
+    "prerequisites": ["S4-ARCHITECTURE-002"],
+    "tags": ["architecture", "mvp", "iteration"]
+  },
+  "scenario": {
+    "title": "The MVP Scoper",
+    "context": "You have a big vision for an AI product but limited time and resources. You need to scope an MVP that proves value while identifying what to defer, what to fake, and what's truly essential.",
+    "goal": "Write a prompt that scopes an AI product MVP, distinguishing essential features from nice-to-haves, and designing pragmatic shortcuts.",
+    "constraints": [
+      "2-week development timeline",
+      "Single developer",
+      "Must prove core value proposition",
+      "Identify what can be manually handled initially"
+    ],
+    "exampleInput": "AI writing assistant: Full vision includes personalization, style learning, multi-language, collaboration, templates, plagiarism check, SEO, integrations. 2 weeks to MVP that proves people will pay for AI writing help.",
+    "hints": [
+      "What single feature proves the core value?",
+      "What can be a 'Wizard of Oz' (manual) initially?",
+      "What's genuinely essential vs impressive?"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "core-identification",
+        "name": "Core Feature Identification",
+        "weight": 30,
+        "description": "Is the core value proposition identified?",
+        "scoringGuide": {
+          "excellent": "Clear core feature with value justification",
+          "good": "Core feature identified",
+          "adequate": "Some prioritization",
+          "poor": "No core identified"
+        }
+      },
+      {
+        "id": "cut-decisions",
+        "name": "Cut Decisions",
+        "weight": 25,
+        "description": "Are deferral decisions clear and justified?",
+        "scoringGuide": {
+          "excellent": "Clear cut/defer with reasoning",
+          "good": "Cuts identified",
+          "adequate": "Some cuts",
+          "poor": "No prioritization"
+        }
+      },
+      {
+        "id": "shortcuts",
+        "name": "Pragmatic Shortcuts",
+        "weight": 25,
+        "description": "Are manual/fake solutions designed?",
+        "scoringGuide": {
+          "excellent": "Smart shortcuts with upgrade path",
+          "good": "Shortcuts defined",
+          "adequate": "Some simplifications",
+          "poor": "No shortcuts"
+        }
+      },
+      {
+        "id": "timeline",
+        "name": "Timeline Realism",
+        "weight": 20,
+        "description": "Is the scope achievable in timeline?",
+        "scoringGuide": {
+          "excellent": "Detailed timeline with buffer",
+          "good": "Timeline provided",
+          "adequate": "Some time awareness",
+          "poor": "Unrealistic scope"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Scope an MVP for AI Writing Assistant:\n\nMVP SCOPING: AI Writing Assistant\n\n---\n\nCORE VALUE PROPOSITION:\n\n```json\n{\n  \"hypothesis\": \"Writers will pay for AI that helps them write better content faster\",\n  \"core_job_to_be_done\": \"Help me write a first draft I can edit\",\n  \"proof_of_value\": \"User completes a piece of writing they wouldn't have without the tool\",\n  \"minimum_viable_feature\": \"AI-powered draft generation from outline/notes\"\n}\n```\n\n---\n\nFEATURE TRIAGE:\n\n```json\n{\n  \"mvp_essential\": [\n    {\n      \"feature\": \"Basic document editor\",\n      \"why_essential\": \"Users need somewhere to write\",\n      \"scope\": \"Simple textarea with basic formatting (bold, italic, headers)\",\n      \"build_time\": \"2 days\"\n    },\n    {\n      \"feature\": \"AI draft generation\",\n      \"why_essential\": \"THIS IS THE PRODUCT\",\n      \"scope\": \"User provides topic/outline → AI generates full draft\",\n      \"build_time\": \"3 days\"\n    },\n    {\n      \"feature\": \"AI rewrite/improve\",\n      \"why_essential\": \"Core value - make writing better\",\n      \"scope\": \"Select text → 'Make better' button → AI improves\",\n      \"build_time\": \"2 days\"\n    },\n    {\n      \"feature\": \"User authentication\",\n      \"why_essential\": \"Save work, charge money\",\n      \"scope\": \"Email/password login, no OAuth\",\n      \"build_time\": \"1 day\"\n    },\n    {\n      \"feature\": \"Payment integration\",\n      \"why_essential\": \"Prove willingness to pay\",\n      \"scope\": \"Stripe checkout, single plan, no free tier\",\n      \"build_time\": \"1 day\"\n    }\n  ],\n  \"deferred_to_v2\": [\n    {\n      \"feature\": \"Multi-language support\",\n      \"reason\": \"English market big enough for validation\",\n      \"when\": \"After 100 paying users\"\n    },\n    {\n      \"feature\": \"Collaboration/sharing\",\n      \"reason\": \"Solo writers first, teams later\",\n      \"when\": \"After product-market fit\"\n    },\n    {\n      \"feature\": \"Template library\",\n      \"reason\": \"Nice-to-have, not core value\",\n      \"when\": \"After onboarding friction identified\"\n    },\n    {\n      \"feature\": \"Browser extension\",\n      \"reason\": \"Distribution channel, not core product\",\n      \"when\": \"After retention proven\"\n    }\n  ],\n  \"cut_entirely\": [\n    {\n      \"feature\": \"Plagiarism check\",\n      \"reason\": \"Users can use existing tools (Copyscape), not our value prop\"\n    },\n    {\n      \"feature\": \"SEO optimization\",\n      \"reason\": \"Specific use case, not general writing help\"\n    },\n    {\n      \"feature\": \"Style learning/personalization\",\n      \"reason\": \"Requires lots of data, AI already decent at style\"\n    }\n  ]\n}\n```\n\n---\n\nPRAGMATIC SHORTCUTS:\n\n```json\n{\n  \"wizard_of_oz\": [\n    {\n      \"feature\": \"Content organization\",\n      \"full_implementation\": \"Folders, tags, search\",\n      \"mvp_shortcut\": \"Single list sorted by date\",\n      \"manual_fallback\": \"If users complain, manually help them organize\",\n      \"upgrade_trigger\": \">20 documents per user average\"\n    },\n    {\n      \"feature\": \"Customer support\",\n      \"full_implementation\": \"Help center, chatbot, ticket system\",\n      \"mvp_shortcut\": \"Email link in footer\",\n      \"manual_fallback\": \"Founder handles all support personally\",\n      \"upgrade_trigger\": \">2 hours/day on support\"\n    },\n    {\n      \"feature\": \"Usage analytics\",\n      \"full_implementation\": \"Dashboard with charts\",\n      \"mvp_shortcut\": \"Simple Postgres queries\",\n      \"manual_fallback\": \"Weekly manual data export\",\n      \"upgrade_trigger\": \"Need for self-service metrics\"\n    }\n  ],\n  \"fake_it\": [\n    {\n      \"feature\": \"AI model selection\",\n      \"full_implementation\": \"User chooses tone (professional, casual, creative)\",\n      \"mvp_shortcut\": \"Backend picks based on content type\",\n      \"appearance\": \"Works automatically\",\n      \"upgrade_trigger\": \"Users ask for more control\"\n    },\n    {\n      \"feature\": \"Writing history/versions\",\n      \"full_implementation\": \"Full version control with diff\",\n      \"mvp_shortcut\": \"Auto-save last 5 versions, no UI\",\n      \"appearance\": \"Your work is auto-saved\",\n      \"manual_recovery\": \"Founder can restore from DB if needed\"\n    }\n  ],\n  \"technical_debt_accepted\": [\n    {\n      \"area\": \"No mobile responsive\",\n      \"reason\": \"Writers use desktop, validate first\",\n      \"risk\": \"Low - can check analytics\"\n    },\n    {\n      \"area\": \"No rate limiting\",\n      \"reason\": \"Small user base initially\",\n      \"risk\": \"Medium - add before launch if worried\"\n    },\n    {\n      \"area\": \"Hardcoded AI prompts\",\n      \"reason\": \"Move fast, iterate based on feedback\",\n      \"risk\": \"Low - easy to change\"\n    }\n  ]\n}\n```\n\n---\n\n2-WEEK TIMELINE:\n\n```json\n{\n  \"week_1\": {\n    \"day_1_2\": {\n      \"tasks\": [\n        \"Project setup (Next.js, DB, auth)\",\n        \"Basic page layout and navigation\",\n        \"User authentication (signup/login)\"\n      ],\n      \"deliverable\": \"User can sign up and see empty dashboard\"\n    },\n    \"day_3_4\": {\n      \"tasks\": [\n        \"Document editor component\",\n        \"Basic formatting (markdown)\",\n        \"Auto-save to database\"\n      ],\n      \"deliverable\": \"User can create and edit documents\"\n    },\n    \"day_5\": {\n      \"tasks\": [\n        \"AI integration (Claude API)\",\n        \"'Generate draft' feature\",\n        \"Loading states and error handling\"\n      ],\n      \"deliverable\": \"User can generate AI draft from prompt\"\n    }\n  },\n  \"week_2\": {\n    \"day_6_7\": {\n      \"tasks\": [\n        \"AI 'improve' feature on text selection\",\n        \"Prompt optimization for quality\",\n        \"Usage tracking (for limits)\"\n      ],\n      \"deliverable\": \"Core AI features working\"\n    },\n    \"day_8\": {\n      \"tasks\": [\n        \"Stripe integration\",\n        \"Subscription checkout flow\",\n        \"Access gating for paid features\"\n      ],\n      \"deliverable\": \"Users can pay and access product\"\n    },\n    \"day_9\": {\n      \"tasks\": [\n        \"Landing page\",\n        \"Basic SEO\",\n        \"Error tracking (Sentry)\"\n      ],\n      \"deliverable\": \"Can send traffic to site\"\n    },\n    \"day_10\": {\n      \"tasks\": [\n        \"Testing all flows\",\n        \"Bug fixes\",\n        \"Deploy to production\"\n      ],\n      \"deliverable\": \"MVP LIVE\"\n    }\n  },\n  \"buffer\": \"Built-in to day estimates (80% capacity)\"\n}\n```\n\n---\n\nSUCCESS METRICS FOR MVP:\n\n```json\n{\n  \"validation_targets\": {\n    \"week_1_post_launch\": {\n      \"signups\": 100,\n      \"documents_created\": 200,\n      \"paid_conversions\": 5\n    },\n    \"validation_achieved_if\": {\n      \"paying_users\": \">= 10 in first month\",\n      \"retention\": \">30% weekly active\",\n      \"feedback\": \"Users ask for more features (not complaining about core)\"\n    },\n    \"kill_criteria\": {\n      \"condition\": \"<3 paid users in 30 days despite 500 signups\",\n      \"action\": \"Pivot or abandon\"\n    }\n  }\n}\n```",
+    "commonMistakes": [
+      "Too many 'essential' features",
+      "No pragmatic shortcuts",
+      "Unrealistic timeline",
+      "No success metrics"
+    ],
+    "keyElements": [
+      "Clear core value identified",
+      "Explicit cut/defer decisions",
+      "Wizard of Oz shortcuts",
+      "Realistic timeline with buffer"
+    ],
+    "antiPatterns": [
+      "'Build everything smaller'",
+      "Everything is essential",
+      "No manual fallbacks",
+      "No validation metrics"
+    ]
+  }
+}

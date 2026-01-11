@@ -1,0 +1,103 @@
+{
+  "id": "S2-JSON-OUTPUT-001",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "json-output",
+    "difficulty": 1,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S1-OUTPUT-SHAPING-003"],
+    "tags": ["json", "structured-output", "beginner"]
+  },
+  "scenario": {
+    "title": "The Contact Extractor",
+    "context": "You're building an email processing system. When users forward business cards or contact information to your app, you need to extract the data into a consistent JSON format that your CRM can import.",
+    "goal": "Write a prompt that extracts contact information from unstructured text and outputs valid JSON with specific fields.",
+    "constraints": [
+      "Output must be valid JSON (parseable)",
+      "Must include fields: name, email, phone, company, title",
+      "Missing fields should be null, not omitted",
+      "Phone numbers should be normalized to digits only"
+    ],
+    "exampleInput": "Business card text: 'Sarah Chen | VP of Engineering | TechCorp Inc. | sarah.chen@techcorp.com | Mobile: (555) 123-4567'",
+    "hints": [
+      "Specify the exact JSON structure you expect",
+      "Tell the AI what to do with missing information",
+      "Include an example of the expected output format"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "json-validity",
+        "name": "JSON Structure",
+        "weight": 30,
+        "description": "Does the prompt clearly specify valid JSON output?",
+        "scoringGuide": {
+          "excellent": "Explicitly requests JSON with example structure shown",
+          "good": "Requests JSON with field list",
+          "adequate": "Mentions JSON but structure unclear",
+          "poor": "No JSON specification"
+        }
+      },
+      {
+        "id": "field-specification",
+        "name": "Field Specification",
+        "weight": 25,
+        "description": "Are all required fields clearly defined?",
+        "scoringGuide": {
+          "excellent": "All fields listed with types and examples",
+          "good": "Fields listed but types not specified",
+          "adequate": "Some fields mentioned",
+          "poor": "No field specification"
+        }
+      },
+      {
+        "id": "null-handling",
+        "name": "Missing Data Handling",
+        "weight": 25,
+        "description": "Does the prompt specify how to handle missing data?",
+        "scoringGuide": {
+          "excellent": "Explicit null handling with consistent approach",
+          "good": "Mentions handling missing data",
+          "adequate": "Implies handling needed",
+          "poor": "No consideration of missing data"
+        }
+      },
+      {
+        "id": "normalization",
+        "name": "Data Normalization",
+        "weight": 20,
+        "description": "Does the prompt specify data formatting rules?",
+        "scoringGuide": {
+          "excellent": "Clear normalization rules for phone, etc.",
+          "good": "Some formatting guidance",
+          "adequate": "General consistency mentioned",
+          "poor": "No normalization rules"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Extract contact information from the following text and return ONLY valid JSON (no other text).\n\nRequired JSON structure:\n```json\n{\n  \"name\": \"Full Name\",\n  \"email\": \"email@example.com\",\n  \"phone\": \"5551234567\",\n  \"company\": \"Company Name\",\n  \"title\": \"Job Title\"\n}\n```\n\nRules:\n- All fields are required in the output\n- If a field is not found, use null\n- Phone numbers: digits only, no formatting (e.g., \"5551234567\")\n- Email: lowercase\n- Name: Title Case\n\nText to process:\nSarah Chen | VP of Engineering | TechCorp Inc. | sarah.chen@techcorp.com | Mobile: (555) 123-4567",
+    "commonMistakes": [
+      "Not specifying JSON-only output (AI adds explanation)",
+      "Forgetting to handle missing fields",
+      "No example of expected structure",
+      "Not specifying normalization rules"
+    ],
+    "keyElements": [
+      "Explicit JSON-only output request",
+      "Example structure provided",
+      "Null handling for missing fields",
+      "Normalization rules specified"
+    ],
+    "antiPatterns": [
+      "'Extract the contact info'",
+      "No output format specified",
+      "No handling of missing data",
+      "No example structure"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "S4-DEBUGGING-001",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "debugging",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S4-CODE-GENERATION-001"],
+    "tags": ["debugging", "errors", "troubleshooting"]
+  },
+  "scenario": {
+    "title": "The Error Investigator",
+    "context": "Your application is throwing an error in production. You have the error message, stack trace, and some logs. You need AI to help diagnose the root cause and suggest fixes.",
+    "goal": "Write a prompt that provides AI with enough context to diagnose an error and suggest targeted fixes.",
+    "constraints": [
+      "Include full error message and stack trace",
+      "Provide relevant code context",
+      "Share recent changes that might be related",
+      "Describe what was expected vs what happened"
+    ],
+    "exampleInput": "TypeError: Cannot read property 'map' of undefined at PostsList.tsx:42. Started happening after deploying yesterday. Works in dev. User reports: blank screen on dashboard.",
+    "hints": [
+      "Include the actual error and stack trace",
+      "Show the code around the error line",
+      "Mention what changed recently"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "error-details",
+        "name": "Error Details",
+        "weight": 30,
+        "description": "Is the full error provided?",
+        "scoringGuide": {
+          "excellent": "Full error message, stack trace, and context",
+          "good": "Error message with some context",
+          "adequate": "Basic error info",
+          "poor": "Vague description only"
+        }
+      },
+      {
+        "id": "code-context",
+        "name": "Code Context",
+        "weight": 25,
+        "description": "Is relevant code shown?",
+        "scoringGuide": {
+          "excellent": "Error location code plus related files",
+          "good": "Error location code",
+          "adequate": "Some code",
+          "poor": "No code"
+        }
+      },
+      {
+        "id": "change-history",
+        "name": "Change History",
+        "weight": 25,
+        "description": "Are recent changes mentioned?",
+        "scoringGuide": {
+          "excellent": "Recent commits/changes with diffs",
+          "good": "Changes mentioned",
+          "adequate": "Deployment mentioned",
+          "poor": "No history"
+        }
+      },
+      {
+        "id": "reproduction",
+        "name": "Reproduction Info",
+        "weight": 20,
+        "description": "Is reproduction context provided?",
+        "scoringGuide": {
+          "excellent": "Steps to reproduce + env differences",
+          "good": "Basic reproduction info",
+          "adequate": "Some context",
+          "poor": "No reproduction info"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Help diagnose this production error:\n\nDEBUGGING REQUEST: Dashboard Blank Screen\n\n---\n\nERROR DETAILS:\n\n```\nTypeError: Cannot read properties of undefined (reading 'map')\n    at PostsList (webpack://_N_E/./components/PostsList.tsx:42:23)\n    at renderWithHooks (webpack://_N_E/./node_modules/react-dom/...)\n    at mountIndeterminateComponent (...)\n    at beginWork (...)\n    at HTMLUnknownElement.callCallback (...)\n```\n\nFrom browser console (production):\n```\nUncaught Error: Minified React error #185\nSee https://reactjs.org/docs/error-decoder.html?invariant=185\n```\n\nFrom error monitoring (Sentry):\n```json\n{\n  \"error_type\": \"TypeError\",\n  \"message\": \"Cannot read properties of undefined (reading 'map')\",\n  \"file\": \"PostsList.tsx\",\n  \"line\": 42,\n  \"column\": 23,\n  \"browser\": \"Chrome 120\",\n  \"os\": \"Windows 10\",\n  \"user_id\": \"user-456\",\n  \"url\": \"/dashboard\",\n  \"occurred_at\": \"2024-01-15T14:30:00Z\",\n  \"occurrences\": 47,\n  \"users_affected\": 12\n}\n```\n\n---\n\nRELEVANT CODE:\n\n```typescript\n// components/PostsList.tsx\nimport { api } from '@/lib/api';\n\nexport function PostsList() {\n  const { data, isLoading, error } = api.posts.list.useQuery();\n\n  if (isLoading) return <Spinner />;\n  if (error) return <ErrorMessage error={error} />;\n\n  // LINE 42 - THE ERROR LINE\n  return (\n    <ul>\n      {data.posts.map((post) => (  // <-- ERROR HERE\n        <PostCard key={post.id} post={post} />\n      ))}\n    </ul>\n  );\n}\n```\n\n```typescript\n// server/routers/posts.ts - API endpoint\nexport const postsRouter = router({\n  list: protectedProcedure.query(async ({ ctx }) => {\n    const posts = await ctx.db\n      .select()\n      .from(postsTable)\n      .where(eq(postsTable.userId, ctx.session.user.id));\n    \n    return { posts };  // Should return { posts: Post[] }\n  }),\n});\n```\n\n---\n\nRECENT CHANGES (deployed yesterday):\n\n```diff\n// Commit: \"Optimize posts query\" - Jan 14\n\n// server/routers/posts.ts\nexport const postsRouter = router({\n  list: protectedProcedure.query(async ({ ctx }) => {\n-   const posts = await ctx.db\n-     .select()\n-     .from(postsTable)\n-     .where(eq(postsTable.userId, ctx.session.user.id));\n-   return { posts };\n+   // Added caching\n+   const cached = await redis.get(`posts:${ctx.session.user.id}`);\n+   if (cached) return JSON.parse(cached);\n+   \n+   const posts = await ctx.db\n+     .select()\n+     .from(postsTable)\n+     .where(eq(postsTable.userId, ctx.session.user.id));\n+   \n+   await redis.set(`posts:${ctx.session.user.id}`, JSON.stringify(posts), 'EX', 300);\n+   return posts;  // <-- SUSPICIOUS: returns array directly, not { posts }\n  }),\n});\n```\n\n---\n\nENVIRONMENT INFO:\n\n- Works in development: YES (dev doesn't use Redis cache)\n- Works in staging: UNTESTED (staging has different Redis config)\n- Production only: YES\n- Affects all users: NO (only 12 of ~500 active users)\n\nPattern observed:\n- Users with cached data: ERROR\n- Users with fresh data (cache miss): WORKS\n\n---\n\nWHAT I'VE TRIED:\n\n1. Cleared my local cache → Works for me now\n2. Restarted server → Some users still affected\n3. Checked Redis keys → Old format data exists\n\n---\n\nQUESTIONS:\n\n1. What is the root cause?\n2. How do I fix it without downtime?\n3. How do I prevent this in the future?",
+    "commonMistakes": [
+      "Vague error description",
+      "No code shown",
+      "Missing change history",
+      "No environment context"
+    ],
+    "keyElements": [
+      "Full error with stack trace",
+      "Code around error location",
+      "Recent relevant changes",
+      "Environment differences noted"
+    ],
+    "antiPatterns": [
+      "'Page is broken'",
+      "No error message",
+      "No code context",
+      "No change history"
+    ]
+  }
+}

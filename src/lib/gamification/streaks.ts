@@ -25,7 +25,7 @@ export function calculateStreak(activityDates: (Date | string)[]): {
 
   // Calculate current streak
   let currentStreak = 0;
-  let checkDate = isActiveToday ? today : yesterday;
+  const checkDate = isActiveToday ? today : yesterday;
 
   for (const date of sortedDates) {
     const activityDate = new Date(date);

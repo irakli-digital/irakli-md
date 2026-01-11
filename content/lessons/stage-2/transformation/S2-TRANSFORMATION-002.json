@@ -1,0 +1,103 @@
+{
+  "id": "S2-TRANSFORMATION-002",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "transformation",
+    "difficulty": 2,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S2-TRANSFORMATION-001"],
+    "tags": ["transformation", "aggregation", "restructuring"]
+  },
+  "scenario": {
+    "title": "The Data Aggregator",
+    "context": "Your analytics system receives raw event data and needs to transform it into aggregated summaries. The AI must group, count, and restructure flat data into hierarchical reports.",
+    "goal": "Write a prompt that transforms flat event data into aggregated summaries with grouping and calculations.",
+    "constraints": [
+      "Group events by category and date",
+      "Calculate totals, averages, and counts per group",
+      "Restructure from flat array to nested hierarchy",
+      "Include both detail and summary levels"
+    ],
+    "exampleInput": "Events: [{type: 'purchase', category: 'electronics', amount: 299, date: '2024-01-15'}, {type: 'purchase', category: 'electronics', amount: 149, date: '2024-01-15'}, {type: 'purchase', category: 'clothing', amount: 79, date: '2024-01-15'}, {type: 'purchase', category: 'electronics', amount: 599, date: '2024-01-16'}]",
+    "hints": [
+      "Define grouping hierarchy (by date, then category)",
+      "Specify aggregation functions for each metric",
+      "Show both grouped and summary structure"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "grouping-logic",
+        "name": "Grouping Logic",
+        "weight": 30,
+        "description": "Is the grouping hierarchy defined?",
+        "scoringGuide": {
+          "excellent": "Clear grouping hierarchy with nesting order",
+          "good": "Grouping fields specified",
+          "adequate": "Grouping mentioned",
+          "poor": "No grouping logic"
+        }
+      },
+      {
+        "id": "aggregations",
+        "name": "Aggregation Functions",
+        "weight": 25,
+        "description": "Are aggregation calculations specified?",
+        "scoringGuide": {
+          "excellent": "All aggregations with formulas defined",
+          "good": "Aggregations listed",
+          "adequate": "Some aggregations mentioned",
+          "poor": "No aggregations"
+        }
+      },
+      {
+        "id": "structure-change",
+        "name": "Structure Transformation",
+        "weight": 25,
+        "description": "Is the flat→hierarchical transformation clear?",
+        "scoringGuide": {
+          "excellent": "Before/after structures with nesting shown",
+          "good": "Nesting structure specified",
+          "adequate": "Hierarchy implied",
+          "poor": "No structural transformation"
+        }
+      },
+      {
+        "id": "summary-detail",
+        "name": "Summary & Detail",
+        "weight": 20,
+        "description": "Are both summary and detail levels included?",
+        "scoringGuide": {
+          "excellent": "Clear summary and detail separation",
+          "good": "Both levels present",
+          "adequate": "One level clear",
+          "poor": "No level distinction"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Transform this flat event array into an aggregated report.\n\nGrouping Hierarchy:\n1. First level: group by date\n2. Second level: group by category within each date\n\nAggregations to calculate:\n- count: Number of events in group\n- total_amount: Sum of amount field\n- average_amount: Mean of amount field (rounded to 2 decimals)\n- min_amount: Lowest amount in group\n- max_amount: Highest amount in group\n\nOutput Structure:\n```json\n{\n  \"summary\": {\n    \"total_events\": 4,\n    \"total_amount\": 1126,\n    \"date_range\": {\n      \"start\": \"2024-01-15\",\n      \"end\": \"2024-01-16\"\n    },\n    \"categories\": [\"electronics\", \"clothing\"]\n  },\n  \"by_date\": [\n    {\n      \"date\": \"2024-01-15\",\n      \"totals\": {\n        \"count\": 3,\n        \"total_amount\": 527,\n        \"average_amount\": 175.67\n      },\n      \"by_category\": [\n        {\n          \"category\": \"electronics\",\n          \"count\": 2,\n          \"total_amount\": 448,\n          \"average_amount\": 224,\n          \"min_amount\": 149,\n          \"max_amount\": 299,\n          \"events\": [/* original events */]\n        },\n        {\n          \"category\": \"clothing\",\n          \"count\": 1,\n          \"total_amount\": 79,\n          \"average_amount\": 79,\n          \"min_amount\": 79,\n          \"max_amount\": 79,\n          \"events\": [/* original events */]\n        }\n      ]\n    }\n  ]\n}\n```\n\nRules:\n- Sort dates ascending\n- Sort categories alphabetically within each date\n- Include original events in lowest level for drill-down\n- Round averages to 2 decimal places\n- Summary level aggregates across all groups\n\nInput events:\n[events array here]\n\nReturn the aggregated JSON.",
+    "commonMistakes": [
+      "No clear grouping hierarchy",
+      "Missing aggregation formulas",
+      "No structural transformation",
+      "Missing summary level"
+    ],
+    "keyElements": [
+      "Clear grouping hierarchy",
+      "Aggregation functions defined",
+      "Flat→nested transformation shown",
+      "Summary and detail levels"
+    ],
+    "antiPatterns": [
+      "'Aggregate these events'",
+      "No grouping specified",
+      "No aggregation details",
+      "Flat output only"
+    ]
+  }
+}

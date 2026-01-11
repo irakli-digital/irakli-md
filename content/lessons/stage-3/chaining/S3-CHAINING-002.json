@@ -1,0 +1,103 @@
+{
+  "id": "S3-CHAINING-002",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "chaining",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-CHAINING-001"],
+    "tags": ["chaining", "refinement", "iterative"]
+  },
+  "scenario": {
+    "title": "The Refinement Loop",
+    "context": "You're building a content generation system that uses iterative refinement - each AI call improves on the previous output based on specific criteria until quality thresholds are met.",
+    "goal": "Write a prompt that implements iterative refinement with clear improvement criteria and termination conditions.",
+    "constraints": [
+      "Define initial generation prompt",
+      "Specify refinement criteria and scoring",
+      "Include termination conditions",
+      "Limit maximum iterations"
+    ],
+    "exampleInput": "Generate marketing copy, then iteratively refine: Check tone (professional but engaging), length (150-200 words), call-to-action strength, SEO keyword density. Refine until score >85 or max 3 iterations.",
+    "hints": [
+      "Define quality metrics to evaluate",
+      "Create refinement prompt that addresses weaknesses",
+      "Specify when to stop iterating"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "initial-generation",
+        "name": "Initial Generation",
+        "weight": 20,
+        "description": "Is the initial generation prompt defined?",
+        "scoringGuide": {
+          "excellent": "Clear initial prompt with requirements",
+          "good": "Initial step present",
+          "adequate": "Starting point implied",
+          "poor": "No initial generation"
+        }
+      },
+      {
+        "id": "refinement-criteria",
+        "name": "Refinement Criteria",
+        "weight": 30,
+        "description": "Are improvement criteria specified?",
+        "scoringGuide": {
+          "excellent": "Specific scoring rubric with thresholds",
+          "good": "Criteria listed",
+          "adequate": "Some quality measures",
+          "poor": "No criteria"
+        }
+      },
+      {
+        "id": "refinement-prompt",
+        "name": "Refinement Prompt",
+        "weight": 25,
+        "description": "Is the refinement prompt designed?",
+        "scoringGuide": {
+          "excellent": "Prompt addresses specific weaknesses",
+          "good": "Refinement approach defined",
+          "adequate": "Improvement mentioned",
+          "poor": "No refinement prompt"
+        }
+      },
+      {
+        "id": "termination",
+        "name": "Termination Conditions",
+        "weight": 25,
+        "description": "Are stop conditions defined?",
+        "scoringGuide": {
+          "excellent": "Quality threshold AND max iterations",
+          "good": "Stop conditions present",
+          "adequate": "Some limit implied",
+          "poor": "No termination conditions"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design an iterative refinement chain for marketing copy:\n\nREFINEMENT CHAIN: Marketing Copy Generator\n\nTermination Conditions:\n- Quality score >= 85 (success)\n- Max iterations = 3 (fallback)\n- No improvement for 2 consecutive iterations (stagnation)\n\n---\n\nSTEP 1: Initial Generation\n\nPrompt:\n```\nWrite marketing copy for a SaaS project management tool.\n\nRequirements:\n- Target audience: Small business owners\n- Tone: Professional but approachable\n- Length: 150-200 words\n- Must include: Problem statement, solution, key benefits, call-to-action\n- SEO keywords to include: \"project management\", \"team collaboration\", \"productivity\"\n\nReturn the copy only, no explanation.\n```\n\nOutput → Store as `current_draft`\n\n---\n\nSTEP 2: Evaluate Quality\n\nPrompt:\n```\nEvaluate this marketing copy against these criteria:\n\nCopy to evaluate:\n\"{{current_draft}}\"\n\nScoring rubric (0-100 per criterion):\n\n1. TONE (weight: 25%)\n   - 90-100: Perfect professional-yet-engaging balance\n   - 70-89: Good tone with minor issues\n   - 50-69: Tone inconsistent or too formal/casual\n   - 0-49: Inappropriate tone\n\n2. LENGTH (weight: 15%)\n   - 100: Within 150-200 words\n   - 80: Within 130-220 words\n   - 50: Outside range but usable\n   - 0: Severely over/under\n\n3. CTA_STRENGTH (weight: 25%)\n   - 90-100: Compelling, clear, urgent CTA\n   - 70-89: Good CTA, could be stronger\n   - 50-69: Weak or unclear CTA\n   - 0-49: Missing or ineffective CTA\n\n4. SEO_KEYWORDS (weight: 20%)\n   - 100: All 3 keywords, natural placement\n   - 80: All keywords but forced\n   - 60: 2 of 3 keywords\n   - 40: 1 keyword\n   - 0: No keywords\n\n5. STRUCTURE (weight: 15%)\n   - 90-100: All elements present, logical flow\n   - 70-89: Most elements, good flow\n   - 50-69: Missing elements or poor flow\n   - 0-49: Disorganized\n\nReturn JSON:\n{\n  \"scores\": {\n    \"tone\": {\"score\": 75, \"feedback\": \"Good but slightly too formal\"},\n    \"length\": {\"score\": 100, \"feedback\": \"165 words, within range\"},\n    \"cta_strength\": {\"score\": 60, \"feedback\": \"CTA is generic, needs urgency\"},\n    \"seo_keywords\": {\"score\": 80, \"feedback\": \"All keywords present but 'productivity' feels forced\"},\n    \"structure\": {\"score\": 85, \"feedback\": \"Good flow, benefits could be clearer\"}\n  },\n  \"weighted_total\": 76,\n  \"weakest_areas\": [\"cta_strength\", \"tone\"],\n  \"specific_improvements\": [\n    \"Add urgency to CTA (limited time offer, 'Start today')\",\n    \"Use more conversational language in opening\",\n    \"Make 'productivity' keyword more natural\"\n  ]\n}\n```\n\n---\n\nSTEP 3: Refine (if score < 85)\n\nPrompt:\n```\nImprove this marketing copy based on the feedback:\n\nCurrent draft:\n\"{{current_draft}}\"\n\nAreas to improve:\n{{specific_improvements from evaluation}}\n\nScores to improve:\n- CTA Strength: Currently 60, needs 85+\n- Tone: Currently 75, needs 85+\n\nInstructions:\n1. Keep what's working (length is good, structure is good)\n2. Rewrite the opening to be more conversational\n3. Strengthen the CTA with urgency and specific action\n4. Make 'productivity' keyword flow more naturally\n\nReturn ONLY the improved copy, no explanation.\n```\n\nOutput → Update `current_draft`\n→ Return to STEP 2 (evaluate again)\n\n---\n\nITERATION TRACKING:\n```json\n{\n  \"iteration\": 2,\n  \"history\": [\n    {\n      \"iteration\": 1,\n      \"score\": 76,\n      \"weakest\": [\"cta_strength\", \"tone\"],\n      \"draft_version\": \"v1\"\n    },\n    {\n      \"iteration\": 2,\n      \"score\": 88,\n      \"weakest\": [],\n      \"draft_version\": \"v2\"\n    }\n  ],\n  \"termination_reason\": \"score_threshold_met\",\n  \"final_score\": 88\n}\n```\n\n---\n\nFINAL OUTPUT:\n```json\n{\n  \"final_copy\": \"Refined marketing copy text...\",\n  \"quality_score\": 88,\n  \"iterations_used\": 2,\n  \"score_progression\": [76, 88],\n  \"criteria_breakdown\": {\n    \"tone\": 88,\n    \"length\": 100,\n    \"cta_strength\": 85,\n    \"seo_keywords\": 85,\n    \"structure\": 90\n  }\n}\n```",
+    "commonMistakes": [
+      "No evaluation criteria",
+      "Refinement prompt doesn't address weaknesses",
+      "Missing termination conditions",
+      "No iteration limit"
+    ],
+    "keyElements": [
+      "Clear initial generation",
+      "Scoring rubric with weights",
+      "Targeted refinement prompt",
+      "Multiple termination conditions"
+    ],
+    "antiPatterns": [
+      "'Generate and improve until good'",
+      "Vague quality assessment",
+      "Generic refinement requests",
+      "No stop conditions"
+    ]
+  }
+}

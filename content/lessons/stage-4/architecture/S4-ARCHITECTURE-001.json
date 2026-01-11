@@ -1,0 +1,103 @@
+{
+  "id": "S4-ARCHITECTURE-001",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "architecture",
+    "difficulty": 1,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-003"],
+    "tags": ["architecture", "planning", "ai-products"]
+  },
+  "scenario": {
+    "title": "The Feature Architect",
+    "context": "You're adding an AI-powered feature to an existing web application. Before writing code, you need to plan the architecture including where AI fits, what APIs are needed, and how components interact.",
+    "goal": "Write a prompt that designs the architecture for an AI feature, including system components, data flow, and integration points.",
+    "constraints": [
+      "Define all system components involved",
+      "Map data flow from user action to AI to response",
+      "Identify API endpoints needed",
+      "Consider caching, rate limiting, and fallbacks"
+    ],
+    "exampleInput": "Add AI-powered search to e-commerce site. User types query → AI understands intent and extracts filters → search executes → AI ranks and explains results. Must handle 1000 req/min, respond in <2s.",
+    "hints": [
+      "Draw the component diagram first",
+      "Trace a request through the entire system",
+      "Identify where AI adds latency"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "component-design",
+        "name": "Component Design",
+        "weight": 30,
+        "description": "Are all components clearly defined?",
+        "scoringGuide": {
+          "excellent": "All components with responsibilities and interfaces",
+          "good": "Components identified",
+          "adequate": "Basic structure",
+          "poor": "No component breakdown"
+        }
+      },
+      {
+        "id": "data-flow",
+        "name": "Data Flow",
+        "weight": 25,
+        "description": "Is the data flow mapped end-to-end?",
+        "scoringGuide": {
+          "excellent": "Complete flow with data shapes at each step",
+          "good": "Flow defined",
+          "adequate": "Partial flow",
+          "poor": "No data flow"
+        }
+      },
+      {
+        "id": "api-design",
+        "name": "API Design",
+        "weight": 25,
+        "description": "Are API contracts defined?",
+        "scoringGuide": {
+          "excellent": "Full API specs with request/response",
+          "good": "APIs outlined",
+          "adequate": "Some endpoints mentioned",
+          "poor": "No API design"
+        }
+      },
+      {
+        "id": "non-functional",
+        "name": "Non-Functional Requirements",
+        "weight": 20,
+        "description": "Are performance, caching, fallbacks addressed?",
+        "scoringGuide": {
+          "excellent": "Comprehensive NFR handling",
+          "good": "Key NFRs addressed",
+          "adequate": "Some awareness",
+          "poor": "No NFR consideration"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design the architecture for AI-powered e-commerce search:\n\nARCHITECTURE: AI-Enhanced Product Search\n\n---\n\nSYSTEM OVERVIEW:\n\n```\n┌─────────────────────────────────────────────────────────────┐\n│                      Client (Browser)                        │\n└─────────────────────────┬───────────────────────────────────┘\n                          │ HTTP\n┌─────────────────────────▼───────────────────────────────────┐\n│                    API Gateway                               │\n│              (Rate Limiting, Auth, Routing)                  │\n└─────────────────────────┬───────────────────────────────────┘\n                          │\n┌─────────────────────────▼───────────────────────────────────┐\n│                   Search Service                             │\n│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │\n│  │Query Parser │→ │AI Enhancer  │→ │Search Executor      │  │\n│  │             │  │             │  │                     │  │\n│  └─────────────┘  └──────┬──────┘  └─────────┬───────────┘  │\n│                          │                    │              │\n│                   ┌──────▼──────┐      ┌─────▼─────┐       │\n│                   │Claude API   │      │Elasticsearch│      │\n│                   │(Intent/NLU) │      │(Products)   │      │\n│                   └─────────────┘      └───────────┘       │\n└─────────────────────────────────────────────────────────────┘\n```\n\n---\n\nCOMPONENT SPECIFICATIONS:\n\n```json\n{\n  \"components\": [\n    {\n      \"name\": \"API Gateway\",\n      \"responsibility\": \"Entry point, rate limiting, authentication, request routing\",\n      \"technology\": \"Kong / AWS API Gateway\",\n      \"config\": {\n        \"rate_limit\": \"1000 req/min per user\",\n        \"global_limit\": \"10000 req/min\",\n        \"auth\": \"JWT validation\",\n        \"timeout\": \"5s\"\n      }\n    },\n    {\n      \"name\": \"Query Parser\",\n      \"responsibility\": \"Parse raw query, extract explicit filters, sanitize input\",\n      \"technology\": \"Node.js service\",\n      \"latency_budget\": \"50ms\",\n      \"caching\": \"LRU cache for common queries\"\n    },\n    {\n      \"name\": \"AI Enhancer\",\n      \"responsibility\": \"Understand intent, extract implicit filters, expand synonyms\",\n      \"technology\": \"Claude API integration\",\n      \"latency_budget\": \"800ms\",\n      \"fallback\": \"Return parsed query without enhancement\"\n    },\n    {\n      \"name\": \"Search Executor\",\n      \"responsibility\": \"Build ES query, execute search, format results\",\n      \"technology\": \"Elasticsearch client\",\n      \"latency_budget\": \"300ms\"\n    },\n    {\n      \"name\": \"Result Ranker\",\n      \"responsibility\": \"AI-powered result ranking and explanation\",\n      \"technology\": \"Optional Claude call for top results\",\n      \"latency_budget\": \"500ms\",\n      \"condition\": \"Only for <50 results, else skip\"\n    }\n  ]\n}\n```\n\n---\n\nDATA FLOW:\n\n```json\n{\n  \"request_flow\": [\n    {\n      \"step\": 1,\n      \"from\": \"Client\",\n      \"to\": \"API Gateway\",\n      \"data\": {\n        \"method\": \"POST\",\n        \"path\": \"/api/search\",\n        \"body\": {\n          \"query\": \"red running shoes under $100\",\n          \"page\": 1,\n          \"limit\": 20\n        }\n      }\n    },\n    {\n      \"step\": 2,\n      \"from\": \"API Gateway\",\n      \"to\": \"Query Parser\",\n      \"data\": {\n        \"raw_query\": \"red running shoes under $100\",\n        \"user_id\": \"user-123\",\n        \"session_id\": \"sess-456\"\n      },\n      \"output\": {\n        \"tokens\": [\"red\", \"running\", \"shoes\"],\n        \"explicit_filters\": {\n          \"price_max\": 100\n        },\n        \"needs_ai_enhancement\": true\n      }\n    },\n    {\n      \"step\": 3,\n      \"from\": \"Query Parser\",\n      \"to\": \"AI Enhancer\",\n      \"data\": {\n        \"parsed_query\": \"{{step_2_output}}\",\n        \"context\": {\n          \"user_history\": [\"viewed athletic wear\"],\n          \"available_categories\": [\"footwear\", \"apparel\"]\n        }\n      },\n      \"output\": {\n        \"intent\": \"product_search\",\n        \"enhanced_filters\": {\n          \"category\": \"athletic_footwear\",\n          \"color\": \"red\",\n          \"use_case\": \"running\",\n          \"price_range\": {\"max\": 100}\n        },\n        \"synonyms\": [\"sneakers\", \"trainers\"],\n        \"confidence\": 0.92\n      }\n    },\n    {\n      \"step\": 4,\n      \"from\": \"AI Enhancer\",\n      \"to\": \"Search Executor\",\n      \"data\": {\n        \"elasticsearch_query\": {\n          \"bool\": {\n            \"must\": [\n              {\"multi_match\": {\"query\": \"running shoes\", \"fields\": [\"name\", \"description\"]}}\n            ],\n            \"filter\": [\n              {\"term\": {\"category\": \"athletic_footwear\"}},\n              {\"term\": {\"color\": \"red\"}},\n              {\"range\": {\"price\": {\"lte\": 100}}}\n            ]\n          }\n        }\n      },\n      \"output\": {\n        \"hits\": [{\"id\": \"prod-1\", \"name\": \"Nike Air Zoom\", \"price\": 89.99}],\n        \"total\": 45\n      }\n    }\n  ]\n}\n```\n\n---\n\nAPI SPECIFICATION:\n\n```yaml\nopenapi: 3.0.0\npaths:\n  /api/search:\n    post:\n      summary: AI-enhanced product search\n      requestBody:\n        content:\n          application/json:\n            schema:\n              type: object\n              required: [query]\n              properties:\n                query:\n                  type: string\n                  maxLength: 500\n                page:\n                  type: integer\n                  default: 1\n                limit:\n                  type: integer\n                  default: 20\n                  maximum: 100\n                filters:\n                  type: object\n                  description: Explicit filters to apply\n      responses:\n        200:\n          content:\n            application/json:\n              schema:\n                type: object\n                properties:\n                  results:\n                    type: array\n                    items:\n                      $ref: '#/components/schemas/Product'\n                  total:\n                    type: integer\n                  ai_insights:\n                    type: object\n                    properties:\n                      interpreted_query: string\n                      applied_filters: object\n                      suggestions: array\n                  meta:\n                    type: object\n                    properties:\n                      search_time_ms: integer\n                      ai_enhanced: boolean\n```\n\n---\n\nNON-FUNCTIONAL REQUIREMENTS:\n\n```json\n{\n  \"performance\": {\n    \"target_latency_p95\": \"2000ms\",\n    \"latency_budget\": {\n      \"gateway\": \"50ms\",\n      \"query_parser\": \"50ms\",\n      \"ai_enhancer\": \"800ms\",\n      \"search_executor\": \"300ms\",\n      \"result_ranker\": \"500ms\",\n      \"serialization\": \"100ms\",\n      \"buffer\": \"200ms\"\n    }\n  },\n  \"caching\": {\n    \"query_cache\": {\n      \"type\": \"Redis\",\n      \"key\": \"hash(normalized_query + filters)\",\n      \"ttl\": \"5min\",\n      \"invalidation\": \"on product update\"\n    },\n    \"ai_enhancement_cache\": {\n      \"type\": \"Redis\",\n      \"key\": \"hash(raw_query)\",\n      \"ttl\": \"1hour\",\n      \"purpose\": \"Avoid repeated AI calls for same query\"\n    }\n  },\n  \"fallbacks\": {\n    \"ai_enhancer_timeout\": {\n      \"threshold\": \"1000ms\",\n      \"action\": \"use_basic_query_parser_output\",\n      \"log\": true\n    },\n    \"ai_enhancer_error\": {\n      \"action\": \"use_basic_query_parser_output\",\n      \"alert_if_rate\": \">5% in 5min\"\n    }\n  },\n  \"rate_limiting\": {\n    \"per_user\": \"100 req/min\",\n    \"global\": \"10000 req/min\",\n    \"ai_calls\": \"5000 req/min (cost control)\"\n  }\n}\n```",
+    "commonMistakes": [
+      "Missing component breakdown",
+      "No data flow mapping",
+      "Undefined APIs",
+      "Ignoring performance requirements"
+    ],
+    "keyElements": [
+      "Clear component diagram",
+      "Data flow with shapes",
+      "API specifications",
+      "Caching and fallback strategies"
+    ],
+    "antiPatterns": [
+      "'Add AI search'",
+      "No architecture diagram",
+      "Vague component descriptions",
+      "Missing latency budget"
+    ]
+  }
+}

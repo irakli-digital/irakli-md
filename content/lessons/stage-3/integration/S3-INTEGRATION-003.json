@@ -1,0 +1,103 @@
+{
+  "id": "S3-INTEGRATION-003",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "integration",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S3-INTEGRATION-002"],
+    "tags": ["integration", "orchestration", "multi-system"]
+  },
+  "scenario": {
+    "title": "The Multi-System Orchestrator",
+    "context": "Your AI-powered workflow needs to coordinate actions across multiple systems (CRM, email, calendar, project management) in a specific sequence with proper error handling and compensation.",
+    "goal": "Write a prompt that orchestrates multi-system integrations with saga pattern for distributed transactions.",
+    "constraints": [
+      "Coordinate 3+ system integrations",
+      "Define execution order and dependencies",
+      "Implement saga pattern for rollback/compensation",
+      "Handle partial failure gracefully"
+    ],
+    "exampleInput": "New deal closed: 1) Update CRM deal status, 2) Create onboarding project in Asana, 3) Schedule kickoff meeting in Calendar, 4) Send welcome email. If any fails, compensate previous steps.",
+    "hints": [
+      "Define execution DAG (order and dependencies)",
+      "Specify compensation action for each step",
+      "Include idempotency for retries"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "system-coordination",
+        "name": "System Coordination",
+        "weight": 25,
+        "description": "Are multiple systems properly coordinated?",
+        "scoringGuide": {
+          "excellent": "Clear DAG with 3+ systems and dependencies",
+          "good": "Multiple systems coordinated",
+          "adequate": "Some coordination",
+          "poor": "Single system only"
+        }
+      },
+      {
+        "id": "saga-pattern",
+        "name": "Saga Pattern",
+        "weight": 30,
+        "description": "Is compensation/rollback implemented?",
+        "scoringGuide": {
+          "excellent": "Full saga with compensation per step",
+          "good": "Compensation present",
+          "adequate": "Some rollback",
+          "poor": "No saga pattern"
+        }
+      },
+      {
+        "id": "partial-failure",
+        "name": "Partial Failure Handling",
+        "weight": 25,
+        "description": "Are partial failures handled?",
+        "scoringGuide": {
+          "excellent": "Comprehensive failure scenarios",
+          "good": "Failure handling present",
+          "adequate": "Some failure awareness",
+          "poor": "No failure handling"
+        }
+      },
+      {
+        "id": "idempotency",
+        "name": "Idempotency",
+        "weight": 20,
+        "description": "Are operations idempotent?",
+        "scoringGuide": {
+          "excellent": "Idempotency keys and duplicate handling",
+          "good": "Idempotency mentioned",
+          "adequate": "Some retry safety",
+          "poor": "No idempotency"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a multi-system orchestration for deal closure:\n\nORCHESTRATION: Deal Closure Workflow\n\n---\n\nWORKFLOW TRIGGER:\n```json\n{\n  \"trigger\": \"deal_closed_won\",\n  \"source\": \"crm_webhook\",\n  \"payload\": {\n    \"deal_id\": \"deal-123\",\n    \"customer\": {\n      \"id\": \"cust-456\",\n      \"name\": \"Acme Corp\",\n      \"email\": \"contact@acme.com\",\n      \"owner\": \"sarah@company.com\"\n    },\n    \"deal_value\": 50000,\n    \"products\": [\"enterprise_plan\"],\n    \"closed_at\": \"2024-01-15T10:00:00Z\"\n  },\n  \"idempotency_key\": \"deal-123-closure-v1\"\n}\n```\n\n---\n\nEXECUTION DAG:\n\n```\n    [1. Update CRM]\n          |\n    [2. Create Project] ──────┐\n          |                    |\n    [3. Schedule Meeting]      |\n          |                    |\n    [4. Send Welcome Email] <──┘\n          |\n       [Complete]\n```\n\n```json\n{\n  \"execution_plan\": {\n    \"steps\": [\n      {\n        \"id\": \"step_1\",\n        \"name\": \"update_crm_status\",\n        \"system\": \"salesforce\",\n        \"depends_on\": [],\n        \"can_run_parallel\": false\n      },\n      {\n        \"id\": \"step_2\",\n        \"name\": \"create_onboarding_project\",\n        \"system\": \"asana\",\n        \"depends_on\": [\"step_1\"],\n        \"can_run_parallel\": false\n      },\n      {\n        \"id\": \"step_3\",\n        \"name\": \"schedule_kickoff_meeting\",\n        \"system\": \"google_calendar\",\n        \"depends_on\": [\"step_2\"],\n        \"can_run_parallel\": false\n      },\n      {\n        \"id\": \"step_4\",\n        \"name\": \"send_welcome_email\",\n        \"system\": \"sendgrid\",\n        \"depends_on\": [\"step_2\", \"step_3\"],\n        \"can_run_parallel\": false\n      }\n    ]\n  }\n}\n```\n\n---\n\nSAGA DEFINITION:\n\n```json\n{\n  \"saga\": {\n    \"saga_id\": \"{{idempotency_key}}\",\n    \"steps\": [\n      {\n        \"step_id\": \"step_1\",\n        \"action\": {\n          \"system\": \"salesforce\",\n          \"operation\": \"update_deal\",\n          \"endpoint\": \"PATCH /services/data/v58.0/sobjects/Opportunity/{{deal_id}}\",\n          \"payload\": {\n            \"StageName\": \"Closed Won\",\n            \"CloseDate\": \"{{closed_at}}\",\n            \"Onboarding_Status__c\": \"In Progress\"\n          },\n          \"idempotency\": {\n            \"key\": \"{{saga_id}}-crm-update\",\n            \"check_before\": \"SELECT StageName FROM Opportunity WHERE Id = '{{deal_id}}'\",\n            \"skip_if\": \"StageName == 'Closed Won'\"\n          }\n        },\n        \"compensation\": {\n          \"operation\": \"revert_deal_status\",\n          \"endpoint\": \"PATCH /services/data/v58.0/sobjects/Opportunity/{{deal_id}}\",\n          \"payload\": {\n            \"StageName\": \"Negotiation\",\n            \"Onboarding_Status__c\": \"Not Started\"\n          }\n        },\n        \"timeout_ms\": 10000,\n        \"retry\": {\"max_attempts\": 3, \"backoff\": \"exponential\"}\n      },\n      {\n        \"step_id\": \"step_2\",\n        \"action\": {\n          \"system\": \"asana\",\n          \"operation\": \"create_project\",\n          \"endpoint\": \"POST /projects\",\n          \"payload\": {\n            \"name\": \"Onboarding: {{customer.name}}\",\n            \"workspace\": \"{{ASANA_WORKSPACE_ID}}\",\n            \"team\": \"{{ASANA_ONBOARDING_TEAM_ID}}\",\n            \"notes\": \"Deal: {{deal_id}}\\nValue: ${{deal_value}}\\nOwner: {{customer.owner}}\",\n            \"custom_fields\": {\n              \"customer_id\": \"{{customer.id}}\",\n              \"deal_id\": \"{{deal_id}}\"\n            }\n          },\n          \"idempotency\": {\n            \"key\": \"{{saga_id}}-project-create\",\n            \"check_before\": \"GET /projects?workspace={{workspace}}&custom_field_deal_id={{deal_id}}\",\n            \"skip_if\": \"results.length > 0\",\n            \"use_existing\": \"results[0].gid\"\n          },\n          \"store_result\": \"project_id\"\n        },\n        \"compensation\": {\n          \"operation\": \"archive_project\",\n          \"endpoint\": \"PUT /projects/{{project_id}}\",\n          \"payload\": {\"archived\": true},\n          \"condition\": \"project_id != null\"\n        },\n        \"timeout_ms\": 15000,\n        \"retry\": {\"max_attempts\": 2, \"backoff\": \"linear\"}\n      },\n      {\n        \"step_id\": \"step_3\",\n        \"action\": {\n          \"system\": \"google_calendar\",\n          \"operation\": \"create_event\",\n          \"endpoint\": \"POST /calendar/v3/calendars/primary/events\",\n          \"payload\": {\n            \"summary\": \"Kickoff: {{customer.name}} Onboarding\",\n            \"description\": \"Project: {{project_id}}\\nDeal: {{deal_id}}\",\n            \"start\": {\n              \"dateTime\": \"{{next_business_day}}T10:00:00\",\n              \"timeZone\": \"America/New_York\"\n            },\n            \"end\": {\n              \"dateTime\": \"{{next_business_day}}T11:00:00\",\n              \"timeZone\": \"America/New_York\"\n            },\n            \"attendees\": [\n              {\"email\": \"{{customer.email}}\"},\n              {\"email\": \"{{customer.owner}}\"},\n              {\"email\": \"onboarding@company.com\"}\n            ],\n            \"extendedProperties\": {\n              \"private\": {\n                \"saga_id\": \"{{saga_id}}\",\n                \"deal_id\": \"{{deal_id}}\"\n              }\n            }\n          },\n          \"store_result\": \"meeting_id\"\n        },\n        \"compensation\": {\n          \"operation\": \"delete_event\",\n          \"endpoint\": \"DELETE /calendar/v3/calendars/primary/events/{{meeting_id}}\",\n          \"condition\": \"meeting_id != null\"\n        },\n        \"timeout_ms\": 10000\n      },\n      {\n        \"step_id\": \"step_4\",\n        \"action\": {\n          \"system\": \"sendgrid\",\n          \"operation\": \"send_email\",\n          \"endpoint\": \"POST /v3/mail/send\",\n          \"payload\": {\n            \"personalizations\": [{\n              \"to\": [{\"email\": \"{{customer.email}}\", \"name\": \"{{customer.name}}\"}],\n              \"dynamic_template_data\": {\n                \"customer_name\": \"{{customer.name}}\",\n                \"project_link\": \"https://app.asana.com/0/{{project_id}}\",\n                \"meeting_time\": \"{{meeting_time}}\",\n                \"owner_name\": \"{{owner_first_name}}\"\n              }\n            }],\n            \"from\": {\"email\": \"onboarding@company.com\"},\n            \"template_id\": \"d-welcome-template-id\",\n            \"custom_args\": {\n              \"saga_id\": \"{{saga_id}}\"\n            }\n          }\n        },\n        \"compensation\": {\n          \"operation\": \"send_cancellation_email\",\n          \"note\": \"Cannot unsend email, send apology/correction instead\",\n          \"endpoint\": \"POST /v3/mail/send\",\n          \"payload\": {\n            \"template_id\": \"d-cancellation-template-id\"\n          },\n          \"condition\": \"compensation_reason != 'email_failed'\"\n        },\n        \"timeout_ms\": 5000\n      }\n    ]\n  }\n}\n```\n\n---\n\nFAILURE SCENARIOS & COMPENSATION:\n\n```json\n{\n  \"failure_handling\": {\n    \"scenario_1\": {\n      \"failure_point\": \"step_3 (calendar)\",\n      \"steps_completed\": [\"step_1\", \"step_2\"],\n      \"compensation_order\": [\"step_2\", \"step_1\"],\n      \"actions\": [\n        \"Archive Asana project\",\n        \"Revert CRM deal status to Negotiation\"\n      ],\n      \"final_state\": \"rolled_back\",\n      \"alert\": \"ops_team\"\n    },\n    \"scenario_2\": {\n      \"failure_point\": \"step_4 (email)\",\n      \"steps_completed\": [\"step_1\", \"step_2\", \"step_3\"],\n      \"compensation_strategy\": \"partial_complete\",\n      \"actions\": [\n        \"Mark workflow as 'email_failed'\",\n        \"Queue for manual email send\",\n        \"Do NOT rollback project/meeting\"\n      ],\n      \"reason\": \"Project and meeting are valuable even without welcome email\"\n    },\n    \"scenario_3\": {\n      \"failure_point\": \"step_2 (asana) after retries\",\n      \"steps_completed\": [\"step_1\"],\n      \"compensation_order\": [\"step_1\"],\n      \"fallback\": {\n        \"action\": \"create_manual_task\",\n        \"system\": \"internal_queue\",\n        \"payload\": {\n          \"type\": \"manual_onboarding_setup\",\n          \"deal_id\": \"{{deal_id}}\",\n          \"reason\": \"Asana integration failed\"\n        }\n      }\n    }\n  }\n}\n```\n\n---\n\nORCHESTRATION STATE TRACKING:\n\n```json\n{\n  \"state\": {\n    \"saga_id\": \"deal-123-closure-v1\",\n    \"status\": \"in_progress\" | \"completed\" | \"compensating\" | \"rolled_back\" | \"partial_complete\",\n    \"current_step\": \"step_3\",\n    \"steps_status\": {\n      \"step_1\": {\"status\": \"completed\", \"result\": {\"sf_id\": \"001xxx\"}},\n      \"step_2\": {\"status\": \"completed\", \"result\": {\"project_id\": \"123xxx\"}},\n      \"step_3\": {\"status\": \"in_progress\", \"attempt\": 2},\n      \"step_4\": {\"status\": \"pending\"}\n    },\n    \"compensation_log\": [],\n    \"started_at\": \"2024-01-15T10:00:00Z\",\n    \"updated_at\": \"2024-01-15T10:00:15Z\"\n  }\n}\n```",
+    "commonMistakes": [
+      "No execution order defined",
+      "Missing compensation actions",
+      "All-or-nothing failure handling",
+      "No idempotency"
+    ],
+    "keyElements": [
+      "Execution DAG with dependencies",
+      "Compensation per step",
+      "Partial failure strategies",
+      "Idempotency keys"
+    ],
+    "antiPatterns": [
+      "'Update all systems'",
+      "No rollback plan",
+      "Sequential without dependencies",
+      "No state tracking"
+    ]
+  }
+}

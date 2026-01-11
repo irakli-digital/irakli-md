@@ -1,0 +1,103 @@
+{
+  "id": "S4-DEPLOYMENT-002",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "deployment",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S4-DEPLOYMENT-001"],
+    "tags": ["deployment", "ci-cd", "github-actions", "automation"]
+  },
+  "scenario": {
+    "title": "The CI/CD Pipeline Builder",
+    "context": "You want to automate your deployment process with CI/CD. You need AI to help create a pipeline that runs tests, builds, and deploys automatically with proper safeguards.",
+    "goal": "Write a prompt that guides AI to create a complete CI/CD pipeline configuration with testing, building, and deployment stages.",
+    "constraints": [
+      "Include test, build, and deploy stages",
+      "Add quality gates between stages",
+      "Configure environment-specific deployments",
+      "Include notification and alerting"
+    ],
+    "exampleInput": "Create GitHub Actions workflow for a TypeScript monorepo. Run tests on all PRs, deploy to staging on merge to develop, deploy to production on merge to main. Notify Slack on failures.",
+    "hints": [
+      "Specify your CI/CD platform and repository structure",
+      "Define what triggers each pipeline stage",
+      "Think about what conditions should block deployment"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "pipeline-structure",
+        "name": "Pipeline Structure",
+        "weight": 30,
+        "description": "Is the pipeline structure complete?",
+        "scoringGuide": {
+          "excellent": "All stages with dependencies and conditions",
+          "good": "Main stages defined",
+          "adequate": "Basic pipeline",
+          "poor": "No structure"
+        }
+      },
+      {
+        "id": "quality-gates",
+        "name": "Quality Gates",
+        "weight": 25,
+        "description": "Are quality gates between stages defined?",
+        "scoringGuide": {
+          "excellent": "Tests, linting, security checks as gates",
+          "good": "Some quality checks",
+          "adequate": "Basic tests",
+          "poor": "No quality gates"
+        }
+      },
+      {
+        "id": "environment-handling",
+        "name": "Environment Handling",
+        "weight": 25,
+        "description": "Are different environments handled correctly?",
+        "scoringGuide": {
+          "excellent": "Staging, production with different triggers",
+          "good": "Multiple environments",
+          "adequate": "Some environment awareness",
+          "poor": "Single environment only"
+        }
+      },
+      {
+        "id": "notifications",
+        "name": "Notifications & Monitoring",
+        "weight": 20,
+        "description": "Are notifications and monitoring configured?",
+        "scoringGuide": {
+          "excellent": "Failure alerts, success notifications, status badges",
+          "good": "Failure notifications",
+          "adequate": "Some alerting",
+          "poor": "No notifications"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Create a CI/CD pipeline for this project:\n\nCI/CD PIPELINE: TypeScript Monorepo\n\n---\n\nREPOSITORY STRUCTURE:\n\n```\nmonorepo/\n├── apps/\n│   ├── web/          # Next.js frontend\n│   └── api/          # Express API\n├── packages/\n│   ├── shared/       # Shared types/utils\n│   └── ui/           # Component library\n├── .github/\n│   └── workflows/    # CI/CD configs\n├── package.json      # Root workspace\n└── turbo.json        # Turborepo config\n```\n\n---\n\nPIPELINE OVERVIEW:\n\n```yaml\ntriggers:\n  pull_request:\n    - Run tests, lint, type-check\n    - Build all packages\n    - Comment status on PR\n    \n  push_to_develop:\n    - All PR checks\n    - Deploy to staging\n    - Run E2E tests against staging\n    - Notify Slack\n    \n  push_to_main:\n    - All checks\n    - Deploy to production\n    - Smoke tests\n    - Notify Slack + create release\n```\n\n---\n\nGITHUB ACTIONS WORKFLOW:\n\n```yaml\n# .github/workflows/ci.yml\nname: CI/CD Pipeline\n\non:\n  pull_request:\n    branches: [develop, main]\n  push:\n    branches: [develop, main]\n\nenv:\n  NODE_VERSION: '20'\n  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}\n  TURBO_TEAM: ${{ vars.TURBO_TEAM }}\n\njobs:\n  # ============================================\n  # STAGE 1: Quality Checks (always runs)\n  # ============================================\n  quality:\n    name: Quality Checks\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          fetch-depth: 2  # For turbo to detect changes\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: ${{ env.NODE_VERSION }}\n          cache: 'npm'\n\n      - name: Install dependencies\n        run: npm ci\n\n      - name: Lint\n        run: npx turbo lint\n\n      - name: Type check\n        run: npx turbo type-check\n\n      - name: Unit tests\n        run: npx turbo test -- --coverage\n\n      - name: Upload coverage\n        uses: codecov/codecov-action@v3\n        if: github.event_name == 'pull_request'\n\n  # ============================================\n  # STAGE 2: Build (requires quality)\n  # ============================================\n  build:\n    name: Build\n    needs: quality\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: ${{ env.NODE_VERSION }}\n          cache: 'npm'\n\n      - name: Install dependencies\n        run: npm ci\n\n      - name: Build all packages\n        run: npx turbo build\n\n      - name: Upload build artifacts\n        uses: actions/upload-artifact@v4\n        with:\n          name: build-output\n          path: |\n            apps/web/.next\n            apps/api/dist\n          retention-days: 1\n\n  # ============================================\n  # STAGE 3: Deploy Staging (develop branch only)\n  # ============================================\n  deploy-staging:\n    name: Deploy to Staging\n    needs: build\n    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'\n    runs-on: ubuntu-latest\n    environment:\n      name: staging\n      url: https://staging.myapp.com\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Download build artifacts\n        uses: actions/download-artifact@v4\n        with:\n          name: build-output\n\n      - name: Deploy Web to Vercel (Staging)\n        uses: amondnet/vercel-action@v25\n        with:\n          vercel-token: ${{ secrets.VERCEL_TOKEN }}\n          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}\n          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}\n          working-directory: apps/web\n          alias-domains: staging.myapp.com\n\n      - name: Deploy API to Railway (Staging)\n        uses: bervProject/railway-deploy@v1\n        with:\n          railway-token: ${{ secrets.RAILWAY_TOKEN }}\n          service: api-staging\n\n      - name: Run database migrations\n        run: |\n          npx supabase db push --db-url ${{ secrets.STAGING_DATABASE_URL }}\n\n  # ============================================\n  # STAGE 4: E2E Tests (after staging deploy)\n  # ============================================\n  e2e-staging:\n    name: E2E Tests (Staging)\n    needs: deploy-staging\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - uses: actions/setup-node@v4\n        with:\n          node-version: ${{ env.NODE_VERSION }}\n          cache: 'npm'\n\n      - name: Install Playwright\n        run: npx playwright install --with-deps\n\n      - name: Run E2E tests\n        run: npx playwright test\n        env:\n          BASE_URL: https://staging.myapp.com\n\n      - name: Upload test results\n        uses: actions/upload-artifact@v4\n        if: failure()\n        with:\n          name: playwright-report\n          path: playwright-report/\n\n  # ============================================\n  # STAGE 5: Deploy Production (main branch only)\n  # ============================================\n  deploy-production:\n    name: Deploy to Production\n    needs: build\n    if: github.ref == 'refs/heads/main' && github.event_name == 'push'\n    runs-on: ubuntu-latest\n    environment:\n      name: production\n      url: https://myapp.com\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Download build artifacts\n        uses: actions/download-artifact@v4\n        with:\n          name: build-output\n\n      - name: Deploy Web to Vercel (Production)\n        uses: amondnet/vercel-action@v25\n        with:\n          vercel-token: ${{ secrets.VERCEL_TOKEN }}\n          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}\n          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}\n          vercel-args: '--prod'\n          working-directory: apps/web\n\n      - name: Deploy API to Railway (Production)\n        uses: bervProject/railway-deploy@v1\n        with:\n          railway-token: ${{ secrets.RAILWAY_TOKEN }}\n          service: api-production\n\n      - name: Run database migrations\n        run: |\n          npx supabase db push --db-url ${{ secrets.PRODUCTION_DATABASE_URL }}\n\n  # ============================================\n  # STAGE 6: Smoke Tests (after production deploy)\n  # ============================================\n  smoke-tests:\n    name: Production Smoke Tests\n    needs: deploy-production\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n\n      - name: Health check\n        run: |\n          curl -f https://myapp.com/api/health || exit 1\n          curl -f https://api.myapp.com/health || exit 1\n\n      - name: Critical path test\n        run: |\n          npx playwright test tests/smoke.spec.ts\n        env:\n          BASE_URL: https://myapp.com\n\n  # ============================================\n  # NOTIFICATIONS\n  # ============================================\n  notify-success:\n    name: Notify Success\n    needs: [deploy-production, smoke-tests]\n    if: success()\n    runs-on: ubuntu-latest\n    steps:\n      - name: Slack notification\n        uses: slackapi/slack-github-action@v1\n        with:\n          payload: |\n            {\n              \"text\": \"✅ Production deployment successful\",\n              \"blocks\": [\n                {\n                  \"type\": \"section\",\n                  \"text\": {\n                    \"type\": \"mrkdwn\",\n                    \"text\": \"*Production Deployed* \\n Commit: ${{ github.sha }}\"\n                  }\n                }\n              ]\n            }\n        env:\n          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}\n\n  notify-failure:\n    name: Notify Failure\n    needs: [quality, build, deploy-staging, deploy-production]\n    if: failure()\n    runs-on: ubuntu-latest\n    steps:\n      - name: Slack notification\n        uses: slackapi/slack-github-action@v1\n        with:\n          payload: |\n            {\n              \"text\": \"❌ Pipeline failed\",\n              \"blocks\": [\n                {\n                  \"type\": \"section\",\n                  \"text\": {\n                    \"type\": \"mrkdwn\",\n                    \"text\": \"*Pipeline Failed* \\n <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View logs>\"\n                  }\n                }\n              ]\n            }\n        env:\n          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}\n```\n\n---\n\nQUALITY GATES:\n\n```yaml\ngate_1_code_quality:\n  blocks: build\n  checks:\n    - ESLint passes (zero errors)\n    - TypeScript compiles (zero errors)\n    - All unit tests pass\n    - Coverage above threshold (80%)\n\ngate_2_build:\n  blocks: deploy\n  checks:\n    - Build completes successfully\n    - Bundle size within limits\n    - No security vulnerabilities\n\ngate_3_staging:\n  blocks: production (recommended)\n  checks:\n    - E2E tests pass on staging\n    - No console errors\n    - Performance within thresholds\n\ngate_4_smoke:\n  blocks: release notification\n  checks:\n    - Health endpoints respond\n    - Critical user journeys work\n```\n\n---\n\nSECRETS CONFIGURATION:\n\n```yaml\nrepository_secrets:\n  - VERCEL_TOKEN\n  - VERCEL_ORG_ID\n  - VERCEL_PROJECT_ID\n  - RAILWAY_TOKEN\n  - SLACK_WEBHOOK\n  - TURBO_TOKEN\n\nenvironment_secrets:\n  staging:\n    - STAGING_DATABASE_URL\n  production:\n    - PRODUCTION_DATABASE_URL\n```",
+    "commonMistakes": [
+      "No stage dependencies",
+      "Missing quality gates",
+      "Same config for all environments",
+      "No failure notifications"
+    ],
+    "keyElements": [
+      "Multi-stage pipeline",
+      "Quality gates between stages",
+      "Environment-specific deployments",
+      "Success and failure notifications"
+    ],
+    "antiPatterns": [
+      "'Run tests and deploy'",
+      "No conditions between stages",
+      "No environment separation",
+      "No alerting"
+    ]
+  }
+}

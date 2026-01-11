@@ -1,0 +1,103 @@
+{
+  "id": "S3-WORKFLOW-DESIGN-002",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "workflow-design",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-001"],
+    "tags": ["workflow", "parallel", "orchestration"]
+  },
+  "scenario": {
+    "title": "The Content Pipeline",
+    "context": "You're designing a content enrichment pipeline that processes articles. Multiple AI tasks can run in parallel (summarization, tagging, translation) before a final merge step.",
+    "goal": "Write a prompt that defines a workflow with parallel execution branches and synchronization points.",
+    "constraints": [
+      "Include at least 2 parallel branches",
+      "Define synchronization/merge point",
+      "Specify timeout handling for slow branches",
+      "Handle partial failure (some branches succeed, some fail)"
+    ],
+    "exampleInput": "Content pipeline: Article input → parallel: [summarize, extract tags, translate to Spanish, sentiment analysis] → merge results → publish. Handle if translation times out.",
+    "hints": [
+      "Show parallel branches explicitly",
+      "Define what happens at the merge point",
+      "Specify fallbacks for failed branches"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "parallel-branches",
+        "name": "Parallel Execution",
+        "weight": 30,
+        "description": "Are parallel branches clearly defined?",
+        "scoringGuide": {
+          "excellent": "Parallel branches with explicit fork/join",
+          "good": "Parallel execution shown",
+          "adequate": "Multiple tasks mentioned",
+          "poor": "Sequential only"
+        }
+      },
+      {
+        "id": "synchronization",
+        "name": "Synchronization",
+        "weight": 25,
+        "description": "Is the merge/sync point defined?",
+        "scoringGuide": {
+          "excellent": "Clear sync point with merge logic",
+          "good": "Sync mentioned",
+          "adequate": "Implied merging",
+          "poor": "No synchronization"
+        }
+      },
+      {
+        "id": "timeout-handling",
+        "name": "Timeout Handling",
+        "weight": 25,
+        "description": "Are timeouts addressed?",
+        "scoringGuide": {
+          "excellent": "Per-branch timeouts with fallback behavior",
+          "good": "Timeout handling mentioned",
+          "adequate": "Some timeout awareness",
+          "poor": "No timeout handling"
+        }
+      },
+      {
+        "id": "partial-failure",
+        "name": "Partial Failure",
+        "weight": 20,
+        "description": "Is partial failure handled?",
+        "scoringGuide": {
+          "excellent": "Clear policy for mixed success/failure",
+          "good": "Failure handling mentioned",
+          "adequate": "Some failure awareness",
+          "poor": "No failure handling"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a parallel content enrichment workflow:\n\nWORKFLOW: Content Enrichment Pipeline\n\nTrigger: New article submitted\nCompletion: Enriched article published or queued for review\n\n---\n\nSTEP 1: Input Validation\nInput:\n```json\n{\n  \"article_id\": \"art-123\",\n  \"title\": \"Article Title\",\n  \"body\": \"Full article text\",\n  \"language\": \"en\"\n}\n```\nAction: Validate article meets minimum requirements\nOutput: Validated article or error\nNext: → FORK (parallel execution)\n\n---\n\nFORK: Parallel Processing\nExecute ALL branches simultaneously:\n\n  BRANCH A: Summarization (timeout: 10s)\n  Input: Article body\n  AI Task: Generate 2-3 sentence summary\n  Output:\n  ```json\n  {\n    \"summary\": \"Brief summary text\",\n    \"key_points\": [\"point1\", \"point2\"]\n  }\n  ```\n  Fallback on timeout: {\"summary\": null, \"error\": \"timeout\"}\n\n  BRANCH B: Tag Extraction (timeout: 5s)\n  Input: Article body + title\n  AI Task: Extract relevant tags\n  Output:\n  ```json\n  {\n    \"tags\": [\"technology\", \"AI\", \"automation\"],\n    \"primary_category\": \"technology\"\n  }\n  ```\n  Fallback: {\"tags\": [], \"error\": \"timeout\"}\n\n  BRANCH C: Translation (timeout: 15s)\n  Input: Article body + title\n  AI Task: Translate to Spanish\n  Output:\n  ```json\n  {\n    \"translated_title\": \"Título\",\n    \"translated_body\": \"Cuerpo traducido\",\n    \"target_language\": \"es\"\n  }\n  ```\n  Fallback: {\"translation\": null, \"error\": \"timeout\"}\n\n  BRANCH D: Sentiment Analysis (timeout: 5s)\n  Input: Article body\n  AI Task: Analyze sentiment and tone\n  Output:\n  ```json\n  {\n    \"sentiment\": \"positive\" | \"neutral\" | \"negative\",\n    \"tone\": \"informative\" | \"persuasive\" | \"casual\",\n    \"confidence\": 0.85\n  }\n  ```\n  Fallback: {\"sentiment\": \"neutral\", \"confidence\": 0}\n\n---\n\nJOIN: Result Merge (wait max 20s for all branches)\n\nMerge Policy:\n- Wait for all branches OR global timeout (20s)\n- Required branches: A (summary), B (tags)\n- Optional branches: C (translation), D (sentiment)\n\nPartial Failure Handling:\n```\nIF required branch failed:\n  → route to manual_review queue\nELSE IF optional branch failed:\n  → continue with available data, flag missing enrichments\nELSE:\n  → full success, proceed to publish\n```\n\nMerged Output:\n```json\n{\n  \"article_id\": \"art-123\",\n  \"enrichments\": {\n    \"summary\": {...},\n    \"tags\": {...},\n    \"translation\": {...} or null,\n    \"sentiment\": {...}\n  },\n  \"status\": \"complete\" | \"partial\" | \"failed\",\n  \"missing\": [\"translation\"],\n  \"ready_for_publish\": true/false\n}\n```\nNext: → STEP 3\n\n---\n\nSTEP 3: Publish Decision\nInput: Merged enrichments + status\nLogic:\n- status=complete → auto-publish\n- status=partial + required present → auto-publish with warning\n- status=failed → queue for manual review\n\n---\n\nTIMEOUT CONFIGURATION:\n- Per-branch timeouts defined above\n- Global workflow timeout: 30s\n- On global timeout: save progress, queue for retry",
+    "commonMistakes": [
+      "No explicit parallel branches",
+      "Missing merge/sync logic",
+      "No timeout per branch",
+      "All-or-nothing failure handling"
+    ],
+    "keyElements": [
+      "Fork/join pattern explicit",
+      "Branch-specific timeouts",
+      "Merge logic defined",
+      "Partial failure policy"
+    ],
+    "antiPatterns": [
+      "'Run these tasks in parallel'",
+      "No sync point defined",
+      "Missing timeout handling",
+      "No partial failure strategy"
+    ]
+  }
+}

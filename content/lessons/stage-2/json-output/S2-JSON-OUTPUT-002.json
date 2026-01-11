@@ -1,0 +1,103 @@
+{
+  "id": "S2-JSON-OUTPUT-002",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "json-output",
+    "difficulty": 2,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S2-JSON-OUTPUT-001"],
+    "tags": ["json", "arrays", "nested"]
+  },
+  "scenario": {
+    "title": "The Product Catalog Parser",
+    "context": "Your e-commerce platform receives product descriptions from suppliers in various formats (email, PDF text, spreadsheet exports). You need to standardize them into a JSON array that your inventory system can process.",
+    "goal": "Write a prompt that extracts multiple products from unstructured text and outputs a JSON array with nested objects for variants.",
+    "constraints": [
+      "Output must be a JSON array of product objects",
+      "Each product needs: name, sku, price, category, variants[]",
+      "Variants are nested objects with: size, color, stock",
+      "Prices must be numbers (not strings)"
+    ],
+    "exampleInput": "New arrivals: Classic T-Shirt (SKU: TSH-001) - $29.99, Category: Apparel. Available in S/M/L, colors: Black (10 in stock), White (5 in stock). Also: Denim Jeans (SKU: JNS-002) - $79.99, Category: Apparel. Sizes 30/32/34, Blue only, 8 each.",
+    "hints": [
+      "Show the nested structure with an example",
+      "Specify that price should be a number type",
+      "Define how to handle variants (combinations vs separate)"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "array-structure",
+        "name": "Array Structure",
+        "weight": 25,
+        "description": "Is the array of objects structure clearly defined?",
+        "scoringGuide": {
+          "excellent": "Clear array specification with multiple item handling",
+          "good": "Array mentioned with object structure",
+          "adequate": "Multiple items implied",
+          "poor": "No array structure"
+        }
+      },
+      {
+        "id": "nested-objects",
+        "name": "Nested Objects",
+        "weight": 30,
+        "description": "Are nested variant objects properly specified?",
+        "scoringGuide": {
+          "excellent": "Nested structure shown with example and all fields",
+          "good": "Nesting mentioned with field list",
+          "adequate": "Some nesting implied",
+          "poor": "Flat structure only"
+        }
+      },
+      {
+        "id": "type-specification",
+        "name": "Data Types",
+        "weight": 25,
+        "description": "Are data types specified (number vs string)?",
+        "scoringGuide": {
+          "excellent": "Types explicitly defined for all fields",
+          "good": "Key types mentioned (price as number)",
+          "adequate": "Types implied by example",
+          "poor": "No type specification"
+        }
+      },
+      {
+        "id": "completeness",
+        "name": "Specification Completeness",
+        "weight": 20,
+        "description": "Is the full structure comprehensive?",
+        "scoringGuide": {
+          "excellent": "All fields, types, and edge cases covered",
+          "good": "Main fields covered",
+          "adequate": "Basic structure present",
+          "poor": "Incomplete specification"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Parse the following product description and return a JSON array of products.\n\nRequired structure:\n```json\n[\n  {\n    \"name\": \"Product Name\",\n    \"sku\": \"SKU-001\",\n    \"price\": 29.99,\n    \"category\": \"Category\",\n    \"variants\": [\n      {\n        \"size\": \"M\",\n        \"color\": \"Black\",\n        \"stock\": 10\n      }\n    ]\n  }\n]\n```\n\nType requirements:\n- price: number (not string) - e.g., 29.99 not \"29.99\"\n- stock: integer\n- All other fields: string\n\nVariant rules:\n- Create one variant object for each size+color combination\n- If stock is per-size (not per color), distribute evenly or use the stated amount\n\nReturn ONLY the JSON array, no additional text.\n\nInput text:\n[product description here]",
+    "commonMistakes": [
+      "Not showing nested array structure",
+      "Forgetting to specify price as number type",
+      "Unclear variant combination rules",
+      "No example of expected output"
+    ],
+    "keyElements": [
+      "JSON array structure shown",
+      "Nested variants object defined",
+      "Data types specified (number for price)",
+      "Clear variant handling rules"
+    ],
+    "antiPatterns": [
+      "'Parse these products'",
+      "No nested structure example",
+      "Types not specified",
+      "Ambiguous variant handling"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "S4-DEBUGGING-002",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "debugging",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S4-DEBUGGING-001"],
+    "tags": ["debugging", "performance", "profiling"]
+  },
+  "scenario": {
+    "title": "The Performance Detective",
+    "context": "Your application is slow but not crashing. You need AI to help analyze performance data, identify bottlenecks, and suggest optimizations.",
+    "goal": "Write a prompt that provides AI with performance metrics and context to identify and fix performance issues.",
+    "constraints": [
+      "Include measurable performance metrics",
+      "Provide profiling data if available",
+      "Compare before/after or expected vs actual",
+      "Identify the specific user journey affected"
+    ],
+    "exampleInput": "Dashboard takes 8 seconds to load, used to be 2s. Page load metrics: TTFB 200ms, LCP 6.5s, main API call 5.2s. Started after adding analytics tracking last week.",
+    "hints": [
+      "Include specific metrics with units",
+      "Show waterfall/timeline if available",
+      "Identify what changed when it got slow"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "metrics",
+        "name": "Performance Metrics",
+        "weight": 30,
+        "description": "Are specific metrics provided?",
+        "scoringGuide": {
+          "excellent": "Comprehensive metrics with baselines",
+          "good": "Key metrics included",
+          "adequate": "Some numbers",
+          "poor": "Just 'it's slow'"
+        }
+      },
+      {
+        "id": "profiling-data",
+        "name": "Profiling Data",
+        "weight": 25,
+        "description": "Is profiling/trace data included?",
+        "scoringGuide": {
+          "excellent": "Detailed traces with time breakdowns",
+          "good": "Some profiling data",
+          "adequate": "Basic timing info",
+          "poor": "No profiling"
+        }
+      },
+      {
+        "id": "comparison",
+        "name": "Before/After Comparison",
+        "weight": 25,
+        "description": "Is there baseline comparison?",
+        "scoringGuide": {
+          "excellent": "Clear before/after with delta",
+          "good": "Comparison provided",
+          "adequate": "Expected mentioned",
+          "poor": "No baseline"
+        }
+      },
+      {
+        "id": "user-impact",
+        "name": "User Impact",
+        "weight": 20,
+        "description": "Is user impact quantified?",
+        "scoringGuide": {
+          "excellent": "Affected users, journeys, and business impact",
+          "good": "User impact mentioned",
+          "adequate": "Some impact noted",
+          "poor": "No user context"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Help identify and fix this performance issue:\n\nPERFORMANCE DEBUGGING: Slow Dashboard Load\n\n---\n\nPROBLEM SUMMARY:\n\n- Page: /dashboard\n- Current load time: 8.2s (p95)\n- Expected load time: <2s\n- Regression started: ~Jan 10, 2024\n- Users affected: All users loading dashboard\n\n---\n\nPERFORMANCE METRICS:\n\n```yaml\nCurrent (Jan 15):\n  TTFB: 180ms\n  FCP: 420ms\n  LCP: 6,540ms  # THIS IS THE PROBLEM\n  CLS: 0.02\n  TTI: 7,800ms\n  Total blocking time: 890ms\n\nBaseline (Jan 8 - before regression):\n  TTFB: 165ms\n  FCP: 380ms\n  LCP: 1,200ms  # Was acceptable\n  CLS: 0.02\n  TTI: 1,800ms\n  Total blocking time: 220ms\n\nDelta:\n  LCP: +5,340ms (+445%)\n  TTI: +6,000ms (+333%)\n  Blocking time: +670ms (+304%)\n```\n\n---\n\nWATERFALL ANALYSIS:\n\n```\nTimeline (ms):\n0     200   400   600   800  1000  2000  3000  4000  5000  6000  7000\n|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|\n[HTML------] 180ms\n    [CSS---] 95ms\n    [JS bundle-----------] 340ms\n        [Hydration--] 180ms\n            [API: /dashboard-data-----------------------------] 5,240ms  <<<\n                                                              [Render--] 280ms\n                                                              [Analytics tracking----] 890ms <<<\n```\n\n---\n\nAPI RESPONSE ANALYSIS:\n\n```json\n// GET /api/dashboard-data\n{\n  \"response_time_ms\": 5240,\n  \"breakdown\": {\n    \"auth_check\": 45,\n    \"user_query\": 120,\n    \"posts_query\": 180,\n    \"analytics_aggregation\": 4650,  // <<< BOTTLENECK\n    \"notifications_query\": 95,\n    \"serialization\": 150\n  }\n}\n```\n\nDatabase query analysis (from pg_stat_statements):\n```sql\n-- This query takes 4.5 seconds!\nSELECT \n  date_trunc('day', created_at) as day,\n  COUNT(*) as count,\n  SUM(duration) as total_duration\nFROM user_events\nWHERE user_id = $1\n  AND created_at > NOW() - INTERVAL '30 days'\nGROUP BY date_trunc('day', created_at)\nORDER BY day;\n\n-- EXPLAIN ANALYZE output:\nSort  (cost=89234.12..89234.45 rows=132 width=48) (actual time=4523.123..4523.456 rows=30 loops=1)\n  Sort Key: (date_trunc('day', created_at))\n  ->  HashAggregate  (cost=89220.00..89233.00 rows=132 width=48) (actual time=4520.100..4522.300 rows=30 loops=1)\n        Group Key: date_trunc('day', created_at)\n        ->  Seq Scan on user_events  (cost=0.00..78500.00 rows=2144000 width=16)\n              Filter: ((user_id = $1) AND (created_at > ...))\n              Rows Removed by Filter: 45000000\n```\n\n---\n\nRECENT CHANGES:\n\n```yaml\nJan 9 deployment:\n  - Added analytics dashboard widget\n  - Widget shows 30-day activity chart\n  - Fetches from user_events table (47M rows)\n  - No index on (user_id, created_at)\n  \nJan 10 (regression start):\n  - First full day of analytics widget live\n  - user_events table hit by all dashboard loads\n```\n\n---\n\nCODE CONTEXT:\n\n```typescript\n// server/routers/dashboard.ts\nexport const dashboardRouter = router({\n  getData: protectedProcedure.query(async ({ ctx }) => {\n    const [user, posts, analytics, notifications] = await Promise.all([\n      getUser(ctx.db, ctx.session.user.id),\n      getPosts(ctx.db, ctx.session.user.id),\n      getAnalytics(ctx.db, ctx.session.user.id),  // <<< THIS IS SLOW\n      getNotifications(ctx.db, ctx.session.user.id),\n    ]);\n    return { user, posts, analytics, notifications };\n  }),\n});\n\n// lib/analytics.ts\nexport async function getAnalytics(db, userId) {\n  // This query is not optimized\n  return db.execute(sql`\n    SELECT date_trunc('day', created_at) as day, COUNT(*), SUM(duration)\n    FROM user_events\n    WHERE user_id = ${userId}\n      AND created_at > NOW() - INTERVAL '30 days'\n    GROUP BY 1 ORDER BY 1\n  `);\n}\n```\n\n---\n\nQUESTIONS:\n\n1. What's the root cause of the slowdown?\n2. What's the immediate fix to get under 2s?\n3. What's the long-term architectural fix?\n4. How do I prevent similar issues?",
+    "commonMistakes": [
+      "Just saying 'it's slow'",
+      "No specific metrics",
+      "Missing trace data",
+      "No baseline comparison"
+    ],
+    "keyElements": [
+      "Specific metrics with units",
+      "Waterfall/timeline breakdown",
+      "Before/after comparison",
+      "Identified bottleneck area"
+    ],
+    "antiPatterns": [
+      "'Dashboard is slow'",
+      "No numbers",
+      "No profiling data",
+      "No baseline"
+    ]
+  }
+}

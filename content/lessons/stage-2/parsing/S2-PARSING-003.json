@@ -1,0 +1,103 @@
+{
+  "id": "S2-PARSING-003",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "parsing",
+    "difficulty": 3,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S2-PARSING-002"],
+    "tags": ["parsing", "multi-document", "deduplication"]
+  },
+  "scenario": {
+    "title": "The Multi-Source Aggregator",
+    "context": "Your data pipeline receives customer information from multiple sources (CRM export, email signatures, LinkedIn). The AI needs to merge these into a single canonical record, handling conflicts and deduplication.",
+    "goal": "Write a prompt that merges data from multiple sources, resolving conflicts with priority rules and identifying duplicates.",
+    "constraints": [
+      "Define source priority: CRM > LinkedIn > Email signature",
+      "Handle conflicting data (different phone numbers, titles)",
+      "Identify and flag potential duplicates",
+      "Track data provenance (which source each field came from)"
+    ],
+    "exampleInput": "Source 1 (CRM): {name: 'Sarah Chen', email: 's.chen@techcorp.com', phone: '555-1234', title: 'VP Engineering'}\\nSource 2 (LinkedIn): {name: 'Sarah Chen', title: 'VP of Engineering', company: 'TechCorp', location: 'San Francisco'}\\nSource 3 (Email sig): {name: 'Sarah', email: 's.chen@techcorp.com', phone: '555-5678', title: 'VP Eng'}",
+    "hints": [
+      "Define merge strategy for each field type",
+      "Specify how to handle conflicts",
+      "Include provenance tracking in output"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "priority-rules",
+        "name": "Source Priority",
+        "weight": 30,
+        "description": "Are source priority rules clearly defined?",
+        "scoringGuide": {
+          "excellent": "Clear priority hierarchy with rationale and per-field rules",
+          "good": "Priority order specified",
+          "adequate": "Priority mentioned",
+          "poor": "No priority rules"
+        }
+      },
+      {
+        "id": "conflict-resolution",
+        "name": "Conflict Resolution",
+        "weight": 25,
+        "description": "Is conflict resolution logic defined?",
+        "scoringGuide": {
+          "excellent": "Detailed conflict rules with examples",
+          "good": "Conflict handling mentioned",
+          "adequate": "Some conflict awareness",
+          "poor": "No conflict handling"
+        }
+      },
+      {
+        "id": "provenance",
+        "name": "Data Provenance",
+        "weight": 25,
+        "description": "Is provenance tracking included?",
+        "scoringGuide": {
+          "excellent": "Full provenance per field with confidence",
+          "good": "Source tracking included",
+          "adequate": "Source mentioned",
+          "poor": "No provenance"
+        }
+      },
+      {
+        "id": "duplicate-handling",
+        "name": "Duplicate Detection",
+        "weight": 20,
+        "description": "Is duplicate detection addressed?",
+        "scoringGuide": {
+          "excellent": "Matching rules and confidence scoring",
+          "good": "Duplicate detection mentioned",
+          "adequate": "Some awareness",
+          "poor": "No duplicate handling"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Merge these data sources into a single canonical record.\n\nSource priority (highest to lowest):\n1. CRM - authoritative for contact details\n2. LinkedIn - authoritative for job title/company\n3. Email signature - supplementary only\n\nOutput schema:\n```json\n{\n  \"canonical\": {\n    \"name\": \"Sarah Chen\",\n    \"email\": \"s.chen@techcorp.com\",\n    \"phone\": \"5551234\",\n    \"title\": \"VP of Engineering\",\n    \"company\": \"TechCorp\",\n    \"location\": \"San Francisco\"\n  },\n  \"provenance\": {\n    \"name\": {\"value\": \"Sarah Chen\", \"source\": \"crm\", \"confidence\": \"high\"},\n    \"email\": {\"value\": \"s.chen@techcorp.com\", \"source\": \"crm\", \"confidence\": \"high\"},\n    \"phone\": {\"value\": \"5551234\", \"source\": \"crm\", \"confidence\": \"high\", \"conflict\": \"email_sig:5555678\"},\n    \"title\": {\"value\": \"VP of Engineering\", \"source\": \"linkedin\", \"confidence\": \"high\"},\n    \"company\": {\"value\": \"TechCorp\", \"source\": \"linkedin\", \"confidence\": \"high\"},\n    \"location\": {\"value\": \"San Francisco\", \"source\": \"linkedin\", \"confidence\": \"medium\"}\n  },\n  \"conflicts\": [\n    {\n      \"field\": \"phone\",\n      \"values\": [{\"source\": \"crm\", \"value\": \"555-1234\"}, {\"source\": \"email_sig\", \"value\": \"555-5678\"}],\n      \"resolution\": \"Used CRM value (higher priority)\"\n    },\n    {\n      \"field\": \"title\",\n      \"values\": [{\"source\": \"crm\", \"value\": \"VP Engineering\"}, {\"source\": \"linkedin\", \"value\": \"VP of Engineering\"}],\n      \"resolution\": \"Used LinkedIn value (more complete)\"\n    }\n  ],\n  \"match_confidence\": \"high\",\n  \"match_reason\": \"Email exact match across sources\"\n}\n```\n\nMerge rules:\n- name: Use most complete version from highest priority source\n- email: Highest priority source, normalize to lowercase\n- phone: Highest priority source, flag if conflict exists\n- title: Use most complete version (prefer 'VP of Engineering' over 'VP Eng')\n- For missing fields: use lower priority source if available\n\nMatch rules for duplicate detection:\n- Exact email match → high confidence\n- Name + company match → medium confidence\n- Partial name + same domain → low confidence\n\nReturn ONLY the JSON.",
+    "commonMistakes": [
+      "No source priority defined",
+      "Missing conflict resolution logic",
+      "No provenance tracking",
+      "Ignoring duplicate detection"
+    ],
+    "keyElements": [
+      "Clear source priority hierarchy",
+      "Field-level conflict resolution",
+      "Provenance tracking per field",
+      "Match confidence scoring"
+    ],
+    "antiPatterns": [
+      "'Merge these records'",
+      "No priority rules",
+      "Ignoring conflicts",
+      "No source tracking"
+    ]
+  }
+}

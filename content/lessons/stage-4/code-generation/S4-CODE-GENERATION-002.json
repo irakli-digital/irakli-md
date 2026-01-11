@@ -1,0 +1,103 @@
+{
+  "id": "S4-CODE-GENERATION-002",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "code-generation",
+    "difficulty": 2,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S4-CODE-GENERATION-001"],
+    "tags": ["code-generation", "refactoring", "iteration"]
+  },
+  "scenario": {
+    "title": "The Code Refactorer",
+    "context": "You have working but messy code. You need AI to refactor it while maintaining functionality, improving structure, and following best practices.",
+    "goal": "Write a prompt that guides AI to refactor existing code with clear improvement goals while preserving behavior.",
+    "constraints": [
+      "Preserve all existing functionality",
+      "Define specific refactoring goals",
+      "Maintain backward compatibility",
+      "Add tests to verify behavior preservation"
+    ],
+    "exampleInput": "Refactor this 200-line React component into smaller components with custom hooks. Currently: all state in one component, mixed concerns, no reuse. Goals: extract logic to hooks, split into 3-4 components, add TypeScript types.",
+    "hints": [
+      "Show the problematic code",
+      "List specific issues to fix",
+      "Define what good looks like"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "code-provision",
+        "name": "Original Code",
+        "weight": 25,
+        "description": "Is the code to refactor provided?",
+        "scoringGuide": {
+          "excellent": "Full code with problem areas annotated",
+          "good": "Code provided",
+          "adequate": "Partial code",
+          "poor": "No code shown"
+        }
+      },
+      {
+        "id": "refactoring-goals",
+        "name": "Refactoring Goals",
+        "weight": 30,
+        "description": "Are improvement goals specific?",
+        "scoringGuide": {
+          "excellent": "Prioritized goals with success criteria",
+          "good": "Goals listed",
+          "adequate": "General improvements",
+          "poor": "Vague 'make better'"
+        }
+      },
+      {
+        "id": "behavior-preservation",
+        "name": "Behavior Preservation",
+        "weight": 25,
+        "description": "Is functionality preservation emphasized?",
+        "scoringGuide": {
+          "excellent": "Test requirements and API contracts defined",
+          "good": "Behavior preservation mentioned",
+          "adequate": "Some awareness",
+          "poor": "No consideration"
+        }
+      },
+      {
+        "id": "target-structure",
+        "name": "Target Structure",
+        "weight": 20,
+        "description": "Is desired end structure defined?",
+        "scoringGuide": {
+          "excellent": "Component/file structure sketched",
+          "good": "Structure mentioned",
+          "adequate": "Some organization goals",
+          "poor": "No target structure"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Guide AI to refactor a messy React component:\n\nREFACTORING REQUEST: UserDashboard Component\n\n---\n\nCURRENT PROBLEMATIC CODE:\n\n```typescript\n// components/UserDashboard.tsx - 200+ lines, needs refactoring\n// PROBLEMS ANNOTATED WITH [ISSUE]\n\nimport { useState, useEffect } from 'react';\n\nexport function UserDashboard({ userId }: { userId: string }) {\n  // [ISSUE: Too many state variables in one component]\n  const [user, setUser] = useState(null);\n  const [posts, setPosts] = useState([]);\n  const [notifications, setNotifications] = useState([]);\n  const [isLoadingUser, setIsLoadingUser] = useState(true);\n  const [isLoadingPosts, setIsLoadingPosts] = useState(true);\n  const [isLoadingNotifications, setIsLoadingNotifications] = useState(true);\n  const [error, setError] = useState(null);\n  const [selectedTab, setSelectedTab] = useState('posts');\n  const [isEditing, setIsEditing] = useState(false);\n  const [formData, setFormData] = useState({});\n\n  // [ISSUE: Mixed data fetching with business logic]\n  useEffect(() => {\n    async function loadUser() {\n      try {\n        setIsLoadingUser(true);\n        const res = await fetch(`/api/users/${userId}`);\n        const data = await res.json();\n        setUser(data);\n        setFormData({ name: data.name, bio: data.bio });\n      } catch (e) {\n        setError(e.message);\n      } finally {\n        setIsLoadingUser(false);\n      }\n    }\n    loadUser();\n  }, [userId]);\n\n  // [ISSUE: Similar pattern repeated - should be abstracted]\n  useEffect(() => {\n    async function loadPosts() {\n      try {\n        setIsLoadingPosts(true);\n        const res = await fetch(`/api/users/${userId}/posts`);\n        setPosts(await res.json());\n      } catch (e) {\n        setError(e.message);\n      } finally {\n        setIsLoadingPosts(false);\n      }\n    }\n    loadPosts();\n  }, [userId]);\n\n  // [ISSUE: Another repeated pattern]\n  useEffect(() => {\n    // ... same pattern for notifications\n  }, [userId]);\n\n  // [ISSUE: Complex handler mixed with UI logic]\n  const handleUpdateProfile = async () => {\n    try {\n      setIsLoadingUser(true);\n      await fetch(`/api/users/${userId}`, {\n        method: 'PATCH',\n        body: JSON.stringify(formData),\n      });\n      setUser({ ...user, ...formData });\n      setIsEditing(false);\n    } catch (e) {\n      setError(e.message);\n    } finally {\n      setIsLoadingUser(false);\n    }\n  };\n\n  // [ISSUE: Giant render with too many responsibilities]\n  return (\n    <div className=\"dashboard\">\n      {/* 100+ lines of mixed rendering logic */}\n      {isLoadingUser ? (\n        <Spinner />\n      ) : (\n        <div className=\"user-card\">\n          {/* Profile section - should be its own component */}\n          {isEditing ? (\n            <form>\n              {/* Edit form - should be its own component */}\n            </form>\n          ) : (\n            <div>{/* Profile display */}</div>\n          )}\n        </div>\n      )}\n      \n      <div className=\"tabs\">\n        {/* Tab navigation - should be extracted */}\n        <button onClick={() => setSelectedTab('posts')}>Posts</button>\n        <button onClick={() => setSelectedTab('notifications')}>Notifications</button>\n      </div>\n\n      {selectedTab === 'posts' && (\n        <div>{/* Posts list - should be component */}</div>\n      )}\n\n      {selectedTab === 'notifications' && (\n        <div>{/* Notifications - should be component */}</div>\n      )}\n    </div>\n  );\n}\n```\n\n---\n\nREFACTORING GOALS (Priority Order):\n\n```yaml\npriority_1_extract_hooks:\n  - Create useUser(userId) hook for user data + mutations\n  - Create usePosts(userId) hook for posts data\n  - Create useNotifications(userId) hook for notifications\n  - Hooks should return: { data, isLoading, error, refetch }\n  - Use React Query pattern internally if possible\n\npriority_2_split_components:\n  - UserProfile: Display user info\n  - UserProfileForm: Edit form (only when editing)\n  - PostsList: Render posts with loading state\n  - NotificationsList: Render notifications\n  - DashboardTabs: Tab navigation logic\n\npriority_3_add_types:\n  - Define User, Post, Notification interfaces\n  - Type all props and state\n  - Type hook return values\n\npriority_4_improve_patterns:\n  - Replace useState+useEffect with React Query or custom hook\n  - Use proper error boundaries\n  - Add loading skeletons instead of spinners\n```\n\n---\n\nTARGET FILE STRUCTURE:\n\n```\ncomponents/dashboard/\n  UserDashboard.tsx        # Main container (< 50 lines)\n  UserProfile.tsx          # Profile display\n  UserProfileForm.tsx      # Edit form\n  PostsList.tsx            # Posts rendering\n  NotificationsList.tsx    # Notifications rendering\n  DashboardTabs.tsx        # Tab navigation\n\nhooks/\n  useUser.ts               # User data hook\n  usePosts.ts              # Posts data hook  \n  useNotifications.ts      # Notifications hook\n\ntypes/\n  dashboard.ts             # All dashboard-related types\n```\n\n---\n\nBEHAVIOR PRESERVATION REQUIREMENTS:\n\n```yaml\nmust_preserve:\n  - User data loads on mount\n  - Posts and notifications load in parallel\n  - Tab switching works without data refetch\n  - Profile edit form pre-populates with current data\n  - Save updates UI optimistically\n  - Errors display to user\n\napi_contract_unchanged:\n  - GET /api/users/:id\n  - GET /api/users/:id/posts\n  - GET /api/users/:id/notifications\n  - PATCH /api/users/:id\n\ntest_requirements:\n  - Unit tests for each hook (mock API)\n  - Component render tests (mock hooks)\n  - Integration test: edit profile flow\n```\n\n---\n\nGENERATION REQUEST:\n\n1. First, generate the TypeScript interfaces\n2. Then, generate the custom hooks (useUser, usePosts, useNotifications)\n3. Then, generate the sub-components\n4. Finally, generate the refactored UserDashboard that composes them\n5. Include one test file demonstrating hook testing\n\nMaintain exact same external behavior - only internal structure changes.",
+    "commonMistakes": [
+      "No original code provided",
+      "Vague refactoring goals",
+      "No behavior preservation plan",
+      "No target structure"
+    ],
+    "keyElements": [
+      "Annotated problematic code",
+      "Prioritized refactoring goals",
+      "Behavior preservation requirements",
+      "Clear target structure"
+    ],
+    "antiPatterns": [
+      "'Refactor this code'",
+      "No specific issues identified",
+      "No mention of preserving behavior",
+      "No test requirements"
+    ]
+  }
+}

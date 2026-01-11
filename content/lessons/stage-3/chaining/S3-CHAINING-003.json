@@ -1,0 +1,103 @@
+{
+  "id": "S3-CHAINING-003",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "chaining",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S3-CHAINING-002"],
+    "tags": ["chaining", "map-reduce", "aggregation"]
+  },
+  "scenario": {
+    "title": "The Map-Reduce Analyzer",
+    "context": "You're processing a large document by splitting it into chunks, processing each chunk in parallel (map), and then combining results (reduce). This pattern enables processing of content that exceeds AI context limits.",
+    "goal": "Write a prompt that implements a map-reduce pattern for large content processing with proper chunking, parallel processing, and result aggregation.",
+    "constraints": [
+      "Define chunking strategy",
+      "Specify map function (per-chunk processing)",
+      "Design reduce function (result combination)",
+      "Handle cross-chunk context (overlapping or references)"
+    ],
+    "exampleInput": "Analyze a 50-page report: Chunk into ~5 page sections, extract key points from each (map), then synthesize into executive summary (reduce). Handle entities that span chunks.",
+    "hints": [
+      "Define how to split the content",
+      "Specify what each map operation extracts",
+      "Design how to merge potentially conflicting results"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "chunking-strategy",
+        "name": "Chunking Strategy",
+        "weight": 25,
+        "description": "Is the chunking approach defined?",
+        "scoringGuide": {
+          "excellent": "Clear strategy with overlap and boundaries",
+          "good": "Chunking method specified",
+          "adequate": "Splitting mentioned",
+          "poor": "No chunking strategy"
+        }
+      },
+      {
+        "id": "map-function",
+        "name": "Map Function",
+        "weight": 25,
+        "description": "Is the per-chunk processing defined?",
+        "scoringGuide": {
+          "excellent": "Complete map prompt with output schema",
+          "good": "Map processing defined",
+          "adequate": "Per-chunk work implied",
+          "poor": "No map function"
+        }
+      },
+      {
+        "id": "reduce-function",
+        "name": "Reduce Function",
+        "weight": 25,
+        "description": "Is the result combination defined?",
+        "scoringGuide": {
+          "excellent": "Reduce logic with conflict resolution",
+          "good": "Combination approach defined",
+          "adequate": "Merging implied",
+          "poor": "No reduce function"
+        }
+      },
+      {
+        "id": "cross-chunk",
+        "name": "Cross-Chunk Handling",
+        "weight": 25,
+        "description": "Is cross-chunk context handled?",
+        "scoringGuide": {
+          "excellent": "Overlap strategy and deduplication",
+          "good": "Cross-chunk awareness",
+          "adequate": "Some consideration",
+          "poor": "No cross-chunk handling"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a map-reduce pattern for large document analysis:\n\nPATTERN: Map-Reduce Document Analyzer\nUse case: Process documents exceeding AI context limits\n\n---\n\nSTEP 1: CHUNKING STRATEGY\n\n```json\n{\n  \"chunking\": {\n    \"method\": \"semantic_sections\",\n    \"target_chunk_size\": 4000,\n    \"max_chunk_size\": 5000,\n    \"overlap_tokens\": 200,\n    \"boundary_rules\": [\n      \"Prefer section/chapter breaks\",\n      \"Never split mid-paragraph\",\n      \"Never split mid-sentence\"\n    ]\n  }\n}\n```\n\nChunk Output:\n```json\n{\n  \"document_id\": \"doc-123\",\n  \"total_tokens\": 45000,\n  \"chunks\": [\n    {\n      \"chunk_id\": \"chunk-1\",\n      \"position\": 1,\n      \"start_token\": 0,\n      \"end_token\": 4200,\n      \"overlap_with_next\": 200,\n      \"section_title\": \"Executive Summary\",\n      \"content\": \"...\"\n    },\n    {\n      \"chunk_id\": \"chunk-2\",\n      \"position\": 2,\n      \"start_token\": 4000,\n      \"end_token\": 8200,\n      \"overlap_with_previous\": 200,\n      \"overlap_with_next\": 200,\n      \"section_title\": \"Market Analysis\",\n      \"content\": \"...\"\n    }\n  ],\n  \"total_chunks\": 12\n}\n```\n\n---\n\nSTEP 2: MAP FUNCTION (per chunk, parallel)\n\nPrompt for each chunk:\n```\nAnalyze this section of a larger document.\n\nContext:\n- Document: Q4 Business Report\n- This is chunk {{position}} of {{total_chunks}}\n- Section: {{section_title}}\n- Previous chunk ended with: \"{{last_100_chars_of_previous}}\"\n- Next chunk starts with: \"{{first_100_chars_of_next}}\"\n\nExtract:\n1. Key points (max 5 bullet points)\n2. Named entities (people, orgs, numbers)\n3. Decisions or action items mentioned\n4. Risks or concerns raised\n5. References to other sections\n\nReturn JSON:\n{\n  \"chunk_id\": \"{{chunk_id}}\",\n  \"key_points\": [\n    {\n      \"point\": \"Revenue grew 15% YoY\",\n      \"importance\": \"high\",\n      \"quote\": \"actual quote from text\"\n    }\n  ],\n  \"entities\": [\n    {\n      \"text\": \"John Smith\",\n      \"type\": \"PERSON\",\n      \"context\": \"CEO, mentioned 3 times\",\n      \"first_mention_position\": 150\n    }\n  ],\n  \"action_items\": [\n    {\n      \"action\": \"Review Q1 budget\",\n      \"owner\": \"Finance team\",\n      \"deadline\": \"Jan 15\"\n    }\n  ],\n  \"risks\": [\n    {\n      \"risk\": \"Supply chain delays\",\n      \"severity\": \"medium\",\n      \"mitigation\": \"Diversifying suppliers\"\n    }\n  ],\n  \"cross_references\": [\n    {\n      \"reference\": \"See Appendix B\",\n      \"type\": \"internal\"\n    }\n  ],\n  \"continues_entity\": [\n    {\n      \"entity\": \"John Smith\",\n      \"continues_from_previous\": true\n    }\n  ]\n}\n\nChunk content:\n[chunk text here]\n```\n\nMap Output Collection:\n```json\n{\n  \"map_results\": [\n    {\"chunk_id\": \"chunk-1\", \"result\": {...}},\n    {\"chunk_id\": \"chunk-2\", \"result\": {...}}\n  ],\n  \"map_duration_ms\": 4500,\n  \"parallel_factor\": 4\n}\n```\n\n---\n\nSTEP 3: REDUCE FUNCTION (combine results)\n\nPrompt:\n```\nSynthesize analysis results from {{total_chunks}} document sections into a cohesive summary.\n\nChunk analyses:\n{{JSON array of all map results}}\n\nTasks:\n\n1. DEDUPLICATE ENTITIES\n   - Merge entities that appear in multiple chunks\n   - Keep highest mention count\n   - Note: entities at chunk boundaries may be duplicated due to overlap\n\n2. CONSOLIDATE KEY POINTS\n   - Remove duplicate points (same meaning, different wording)\n   - Rank by importance across all chunks\n   - Keep top 10 most significant points\n\n3. MERGE ACTION ITEMS\n   - Combine action items, resolve duplicates\n   - Order by deadline\n\n4. AGGREGATE RISKS\n   - Combine risks, note frequency of mention\n   - Higher frequency = higher organizational concern\n\n5. GENERATE EXECUTIVE SUMMARY\n   - 3-4 sentence overview covering main themes\n   - Must reference the most important entities and points\n\nReturn JSON:\n{\n  \"executive_summary\": \"string\",\n  \"top_entities\": [\n    {\n      \"entity\": \"John Smith\",\n      \"type\": \"PERSON\",\n      \"mentions\": 12,\n      \"chunks_appeared\": [1, 2, 5, 8]\n    }\n  ],\n  \"consolidated_key_points\": [\n    {\n      \"point\": \"...\",\n      \"importance_rank\": 1,\n      \"supporting_chunks\": [1, 3]\n    }\n  ],\n  \"all_action_items\": [...],\n  \"risk_summary\": {\n    \"high\": [...],\n    \"medium\": [...],\n    \"low\": [...]\n  },\n  \"statistics\": {\n    \"total_entities_raw\": 45,\n    \"unique_entities\": 28,\n    \"duplicates_merged\": 17\n  }\n}\n```\n\n---\n\nCROSS-CHUNK CONTEXT HANDLING:\n\n```json\n{\n  \"deduplication_rules\": {\n    \"entities\": {\n      \"match_criteria\": \"exact_text_match OR fuzzy_match_score > 0.9\",\n      \"merge_strategy\": \"keep_first_occurrence, sum_counts\"\n    },\n    \"key_points\": {\n      \"match_criteria\": \"semantic_similarity > 0.85\",\n      \"merge_strategy\": \"keep_highest_importance, combine_quotes\"\n    },\n    \"overlap_handling\": {\n      \"entity_in_overlap_zone\": \"attribute_to_earlier_chunk\",\n      \"duplicate_detection_window\": \"overlap_size * 2\"\n    }\n  }\n}\n```\n\n---\n\nFINAL OUTPUT:\n```json\n{\n  \"document_id\": \"doc-123\",\n  \"processing\": {\n    \"total_chunks\": 12,\n    \"map_duration_ms\": 4500,\n    \"reduce_duration_ms\": 2000,\n    \"total_duration_ms\": 6500\n  },\n  \"analysis\": {\n    \"executive_summary\": \"...\",\n    \"key_points\": [...],\n    \"entities\": [...],\n    \"action_items\": [...],\n    \"risks\": [...]\n  }\n}\n```",
+    "commonMistakes": [
+      "No chunking strategy",
+      "Map output not structured for merging",
+      "No deduplication in reduce",
+      "Ignoring chunk boundaries"
+    ],
+    "keyElements": [
+      "Semantic chunking with overlap",
+      "Structured map output schema",
+      "Reduce with deduplication logic",
+      "Cross-chunk context handling"
+    ],
+    "antiPatterns": [
+      "'Split and process separately'",
+      "No overlap handling",
+      "Simple concatenation in reduce",
+      "No duplicate detection"
+    ]
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "id": "S2-SCHEMA-DESIGN-002",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "schema-design",
+    "difficulty": 2,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S2-SCHEMA-DESIGN-001"],
+    "tags": ["schema", "relationships", "references"]
+  },
+  "scenario": {
+    "title": "The Order System Schema",
+    "context": "You're designing a schema for an AI that processes order confirmations from emails. The system needs to handle orders with multiple items, shipping addresses, and proper relationships between entities.",
+    "goal": "Write a prompt that produces order data with proper entity relationships, including customer, items, and address as related objects.",
+    "constraints": [
+      "Order must reference customer by ID",
+      "Line items must include product references and quantities",
+      "Address must be a nested object with standardized fields",
+      "Totals must be calculated fields matching item sum"
+    ],
+    "exampleInput": "Order confirmation: Order #ORD-2024-1234 for John Smith (customer ID: CUST-789). Items: 2x Widget Pro ($29.99 each), 1x Cable ($9.99). Shipping to: 123 Main St, Apt 4B, New York, NY 10001. Subtotal: $69.97, Tax: $6.12, Total: $76.09.",
+    "hints": [
+      "Define entity relationships clearly (customer_id vs embedded customer)",
+      "Show line item structure with references",
+      "Specify how calculated fields should work"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "entity-relationships",
+        "name": "Entity Relationships",
+        "weight": 30,
+        "description": "Are relationships between entities properly defined?",
+        "scoringGuide": {
+          "excellent": "Clear ID references with relationship type explained",
+          "good": "References shown but relationship type implied",
+          "adequate": "Some relationships present",
+          "poor": "No entity relationships"
+        }
+      },
+      {
+        "id": "nested-structure",
+        "name": "Nested Objects",
+        "weight": 25,
+        "description": "Are nested objects (address, items) properly structured?",
+        "scoringGuide": {
+          "excellent": "Full nested structure with all fields defined",
+          "good": "Nested structure shown",
+          "adequate": "Some nesting present",
+          "poor": "Flat structure only"
+        }
+      },
+      {
+        "id": "calculated-fields",
+        "name": "Calculated Fields",
+        "weight": 25,
+        "description": "Are calculated/derived fields properly specified?",
+        "scoringGuide": {
+          "excellent": "Calculation logic defined with validation rules",
+          "good": "Calculated fields identified",
+          "adequate": "Totals mentioned",
+          "poor": "No calculation handling"
+        }
+      },
+      {
+        "id": "address-schema",
+        "name": "Address Standardization",
+        "weight": 20,
+        "description": "Is the address schema properly standardized?",
+        "scoringGuide": {
+          "excellent": "Standardized address fields with format rules",
+          "good": "Address fields listed",
+          "adequate": "Address mentioned",
+          "poor": "No address structure"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Extract order information and return JSON with this relational structure:\n\n```json\n{\n  \"order_id\": \"ORD-2024-1234\",\n  \"customer_id\": \"CUST-789\",\n  \"customer_name\": \"John Smith\",\n  \"order_date\": \"2024-01-15T00:00:00Z\",\n  \"status\": \"confirmed\",\n  \"line_items\": [\n    {\n      \"product_name\": \"Widget Pro\",\n      \"quantity\": 2,\n      \"unit_price\": 29.99,\n      \"line_total\": 59.98\n    }\n  ],\n  \"shipping_address\": {\n    \"street_1\": \"123 Main St\",\n    \"street_2\": \"Apt 4B\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"postal_code\": \"10001\",\n    \"country\": \"US\"\n  },\n  \"totals\": {\n    \"subtotal\": 69.97,\n    \"tax\": 6.12,\n    \"shipping\": 0.00,\n    \"total\": 76.09\n  }\n}\n```\n\nRules:\n- customer_id is a reference (don't embed full customer object)\n- line_total = quantity * unit_price\n- totals.subtotal should equal sum of all line_totals\n- totals.total = subtotal + tax + shipping\n- All prices are numbers with 2 decimal precision\n- state: 2-letter code\n- postal_code: string (preserves leading zeros)\n- country: ISO 2-letter code, default 'US'\n\nReturn ONLY valid JSON.",
+    "commonMistakes": [
+      "Embedding full objects instead of references",
+      "Not specifying calculated field logic",
+      "Missing address standardization",
+      "No line item structure"
+    ],
+    "keyElements": [
+      "ID-based entity references",
+      "Nested line items array",
+      "Standardized address object",
+      "Calculated totals with rules"
+    ],
+    "antiPatterns": [
+      "'Extract order data'",
+      "Flat structure with no nesting",
+      "No relationship definitions",
+      "Missing calculated fields"
+    ]
+  }
+}

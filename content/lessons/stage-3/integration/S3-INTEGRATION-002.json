@@ -1,0 +1,103 @@
+{
+  "id": "S3-INTEGRATION-002",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "integration",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-INTEGRATION-001"],
+    "tags": ["integration", "database", "crud"]
+  },
+  "scenario": {
+    "title": "The Database Writer",
+    "context": "Your AI pipeline extracts data that needs to be persisted to a database. You need to design prompts that generate valid database operations with proper transaction handling.",
+    "goal": "Write a prompt that generates database operations (INSERT, UPDATE, UPSERT) from AI-extracted data with validation and transaction safety.",
+    "constraints": [
+      "Generate valid SQL or ORM operations",
+      "Handle upsert (insert or update) logic",
+      "Include transaction boundaries",
+      "Validate data before write"
+    ],
+    "exampleInput": "AI extracts customer data from emails. Need to: Check if customer exists (by email), update if exists, insert if new. Track extraction source. Use PostgreSQL with proper escaping.",
+    "hints": [
+      "Define the database schema",
+      "Specify upsert logic (conflict resolution)",
+      "Include validation before write"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "operation-generation",
+        "name": "Operation Generation",
+        "weight": 30,
+        "description": "Are valid database operations generated?",
+        "scoringGuide": {
+          "excellent": "Valid SQL/ORM with proper syntax",
+          "good": "Operations mostly correct",
+          "adequate": "Basic operations present",
+          "poor": "Invalid operations"
+        }
+      },
+      {
+        "id": "upsert-logic",
+        "name": "Upsert Logic",
+        "weight": 25,
+        "description": "Is insert/update handling defined?",
+        "scoringGuide": {
+          "excellent": "Complete upsert with conflict resolution",
+          "good": "Upsert logic present",
+          "adequate": "Some handling",
+          "poor": "No upsert logic"
+        }
+      },
+      {
+        "id": "transactions",
+        "name": "Transaction Handling",
+        "weight": 25,
+        "description": "Are transaction boundaries defined?",
+        "scoringGuide": {
+          "excellent": "Full transaction with rollback handling",
+          "good": "Transaction present",
+          "adequate": "Some atomicity",
+          "poor": "No transaction handling"
+        }
+      },
+      {
+        "id": "validation",
+        "name": "Pre-Write Validation",
+        "weight": 20,
+        "description": "Is data validated before write?",
+        "scoringGuide": {
+          "excellent": "Comprehensive validation rules",
+          "good": "Validation present",
+          "adequate": "Some checks",
+          "poor": "No validation"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a database write integration for AI-extracted customer data:\n\nINTEGRATION: Customer Data Persistence\n\n---\n\nDATABASE SCHEMA:\n```sql\nCREATE TABLE customers (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  name VARCHAR(255) NOT NULL,\n  company VARCHAR(255),\n  phone VARCHAR(50),\n  source VARCHAR(50) NOT NULL,\n  confidence_score DECIMAL(3,2),\n  raw_extraction JSONB,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW(),\n  created_by VARCHAR(100),\n  updated_by VARCHAR(100)\n);\n\nCREATE INDEX idx_customers_email ON customers(email);\nCREATE INDEX idx_customers_company ON customers(company);\n```\n\n---\n\nAI EXTRACTION OUTPUT:\n```json\n{\n  \"extraction_id\": \"ext-123\",\n  \"source\": \"email_signature\",\n  \"confidence\": 0.92,\n  \"data\": {\n    \"name\": \"Sarah Chen\",\n    \"email\": \"sarah.chen@techcorp.com\",\n    \"company\": \"TechCorp Inc.\",\n    \"phone\": \"555-123-4567\"\n  },\n  \"raw_text\": \"Sarah Chen | VP Engineering | TechCorp Inc...\"\n}\n```\n\n---\n\nPRE-WRITE VALIDATION PROMPT:\n\n```\nValidate this extracted customer data before database write.\n\nExtracted data:\n{{ai_extraction}}\n\nValidation rules:\n1. email: Required, valid format, lowercase\n2. name: Required, 1-255 chars, no special characters except . and -\n3. company: Optional, max 255 chars\n4. phone: Optional, normalize to digits only\n5. confidence: Must be >= 0.7 for auto-write\n\nReturn validation result:\n{\n  \"valid\": true/false,\n  \"normalized_data\": {\n    \"email\": \"lowercase normalized\",\n    \"name\": \"cleaned name\",\n    \"company\": \"cleaned or null\",\n    \"phone\": \"digits only or null\"\n  },\n  \"validation_errors\": [],\n  \"warnings\": [],\n  \"requires_review\": false,\n  \"write_allowed\": true\n}\n```\n\n---\n\nDATABASE OPERATION GENERATION PROMPT:\n\n```\nGenerate PostgreSQL upsert operation for this validated customer data.\n\nValidated data:\n{{validated_data}}\n\nExtraction metadata:\n- source: {{source}}\n- confidence: {{confidence}}\n- extraction_id: {{extraction_id}}\n\nRequirements:\n1. Use INSERT ... ON CONFLICT for upsert\n2. Conflict key: email\n3. On conflict: Update name, company, phone, updated_at\n4. Only update if new confidence >= existing confidence\n5. Store raw extraction in raw_extraction column\n6. Track source and extraction_id\n\nReturn JSON with:\n{\n  \"operation\": \"upsert\",\n  \"sql\": \"the SQL statement with $1, $2 placeholders\",\n  \"parameters\": [\"ordered parameter values\"],\n  \"expected_result\": \"insert\" | \"update\" | \"skip\"\n}\n```\n\n---\n\nGENERATED SQL:\n```json\n{\n  \"operation\": \"upsert\",\n  \"sql\": \"\n    INSERT INTO customers (\n      email, name, company, phone, source, \n      confidence_score, raw_extraction, created_by\n    ) VALUES (\n      $1, $2, $3, $4, $5, $6, $7, $8\n    )\n    ON CONFLICT (email) DO UPDATE SET\n      name = EXCLUDED.name,\n      company = EXCLUDED.company,\n      phone = EXCLUDED.phone,\n      source = EXCLUDED.source,\n      confidence_score = EXCLUDED.confidence_score,\n      raw_extraction = EXCLUDED.raw_extraction,\n      updated_at = NOW(),\n      updated_by = EXCLUDED.created_by\n    WHERE customers.confidence_score <= EXCLUDED.confidence_score\n    RETURNING id, \n      (xmax = 0) AS inserted,\n      (xmax != 0) AS updated\n  \",\n  \"parameters\": [\n    \"sarah.chen@techcorp.com\",\n    \"Sarah Chen\",\n    \"TechCorp Inc.\",\n    \"5551234567\",\n    \"email_signature\",\n    0.92,\n    {\"extraction_id\": \"ext-123\", \"raw_text\": \"...\"},\n    \"ai_extractor_v1\"\n  ]\n}\n```\n\n---\n\nTRANSACTION HANDLING:\n```json\n{\n  \"transaction\": {\n    \"enabled\": true,\n    \"isolation_level\": \"READ COMMITTED\",\n    \"operations\": [\n      {\n        \"step\": 1,\n        \"name\": \"validate_uniqueness\",\n        \"sql\": \"SELECT id, confidence_score FROM customers WHERE email = $1 FOR UPDATE\",\n        \"purpose\": \"Lock row if exists, check confidence\"\n      },\n      {\n        \"step\": 2,\n        \"name\": \"upsert_customer\",\n        \"sql\": \"{{upsert_sql}}\",\n        \"purpose\": \"Insert or update customer\"\n      },\n      {\n        \"step\": 3,\n        \"name\": \"log_extraction\",\n        \"sql\": \"INSERT INTO extraction_log (extraction_id, customer_id, result) VALUES ($1, $2, $3)\",\n        \"purpose\": \"Audit trail\"\n      }\n    ],\n    \"on_error\": {\n      \"action\": \"rollback\",\n      \"log\": true,\n      \"retry\": {\n        \"enabled\": true,\n        \"max_attempts\": 3,\n        \"retry_on\": [\"serialization_failure\", \"deadlock_detected\"]\n      }\n    },\n    \"on_success\": {\n      \"action\": \"commit\",\n      \"return\": \"customer_id\"\n    }\n  }\n}\n```\n\n---\n\nRESULT HANDLING:\n```json\n{\n  \"result_mapping\": {\n    \"inserted\": {\n      \"response\": {\"status\": \"created\", \"customer_id\": \"{{id}}\"},\n      \"next_action\": \"trigger_welcome_workflow\"\n    },\n    \"updated\": {\n      \"response\": {\"status\": \"updated\", \"customer_id\": \"{{id}}\"},\n      \"next_action\": \"log_profile_update\"\n    },\n    \"skipped\": {\n      \"response\": {\"status\": \"skipped\", \"reason\": \"lower_confidence\"},\n      \"next_action\": \"queue_for_review\"\n    },\n    \"error\": {\n      \"response\": {\"status\": \"error\", \"message\": \"{{error}}\"},\n      \"next_action\": \"alert_and_queue\"\n    }\n  }\n}\n```",
+    "commonMistakes": [
+      "SQL injection vulnerabilities",
+      "No upsert handling",
+      "Missing transaction safety",
+      "No pre-write validation"
+    ],
+    "keyElements": [
+      "Parameterized queries",
+      "Upsert with conflict resolution",
+      "Transaction boundaries",
+      "Validation before write"
+    ],
+    "antiPatterns": [
+      "'Save to database'",
+      "String concatenation SQL",
+      "No conflict handling",
+      "No transactions"
+    ]
+  }
+}

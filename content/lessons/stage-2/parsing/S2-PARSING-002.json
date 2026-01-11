@@ -1,0 +1,103 @@
+{
+  "id": "S2-PARSING-002",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "parsing",
+    "difficulty": 2,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S2-PARSING-001"],
+    "tags": ["parsing", "entities", "NER"]
+  },
+  "scenario": {
+    "title": "The Resume Parser",
+    "context": "Your HR platform needs to extract structured data from resumes uploaded as plain text. The AI needs to identify and categorize different types of information from unstructured resume text.",
+    "goal": "Write a prompt that performs named entity recognition on resume text, extracting categorized information into a structured format.",
+    "constraints": [
+      "Extract: contact info, work experience, education, skills",
+      "Work experience needs: company, title, dates, descriptions",
+      "Education needs: institution, degree, field, graduation date",
+      "Skills should be categorized (technical, soft, languages)"
+    ],
+    "exampleInput": "John Smith | john.smith@email.com | (555) 123-4567\\n\\nSenior Software Engineer at TechCorp (2020-Present)\\nBuilt scalable APIs serving 1M requests/day. Led team of 5 engineers.\\n\\nSoftware Engineer at StartupXYZ (2017-2020)\\nFull-stack development using React and Node.js.\\n\\nBS Computer Science, MIT, 2017\\n\\nSkills: Python, JavaScript, React, Node.js, AWS, Team Leadership, Agile",
+    "hints": [
+      "Define entity types and their attributes",
+      "Specify how to handle date ranges vs single dates",
+      "Consider how to categorize mixed skill lists"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "entity-types",
+        "name": "Entity Type Definition",
+        "weight": 30,
+        "description": "Are all entity types clearly defined?",
+        "scoringGuide": {
+          "excellent": "All entity types with attributes and examples",
+          "good": "Entity types listed with attributes",
+          "adequate": "Main entities mentioned",
+          "poor": "No entity definition"
+        }
+      },
+      {
+        "id": "nested-extraction",
+        "name": "Nested Data Extraction",
+        "weight": 25,
+        "description": "Are nested structures (experience, education) well-defined?",
+        "scoringGuide": {
+          "excellent": "Nested arrays with full attribute specs",
+          "good": "Nested structure shown",
+          "adequate": "Some nesting present",
+          "poor": "Flat extraction only"
+        }
+      },
+      {
+        "id": "categorization",
+        "name": "Skill Categorization",
+        "weight": 25,
+        "description": "Is skill categorization logic defined?",
+        "scoringGuide": {
+          "excellent": "Categories defined with classification rules",
+          "good": "Categories listed",
+          "adequate": "Categorization mentioned",
+          "poor": "No categorization"
+        }
+      },
+      {
+        "id": "date-handling",
+        "name": "Date Handling",
+        "weight": 20,
+        "description": "Are date formats and ranges handled?",
+        "scoringGuide": {
+          "excellent": "Date formats, ranges, and 'Present' handling specified",
+          "good": "Date handling mentioned",
+          "adequate": "Some date awareness",
+          "poor": "No date specification"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Parse this resume and extract structured data into the following JSON format:\n\n```json\n{\n  \"contact\": {\n    \"name\": \"Full Name\",\n    \"email\": \"email@example.com\",\n    \"phone\": \"5551234567\",\n    \"linkedin\": \"url or null\",\n    \"location\": \"City, State or null\"\n  },\n  \"work_experience\": [\n    {\n      \"company\": \"Company Name\",\n      \"title\": \"Job Title\",\n      \"start_date\": \"2020-01\",\n      \"end_date\": \"present\",\n      \"is_current\": true,\n      \"description\": [\"Achievement 1\", \"Achievement 2\"],\n      \"duration_months\": 48\n    }\n  ],\n  \"education\": [\n    {\n      \"institution\": \"University Name\",\n      \"degree\": \"BS\",\n      \"field\": \"Computer Science\",\n      \"graduation_date\": \"2017-05\",\n      \"gpa\": null\n    }\n  ],\n  \"skills\": {\n    \"technical\": [\"Python\", \"JavaScript\", \"AWS\"],\n    \"soft\": [\"Team Leadership\", \"Communication\"],\n    \"languages\": [\"English\", \"Spanish\"]\n  }\n}\n```\n\nRules:\n- Sort work_experience by start_date descending (most recent first)\n- Date format: YYYY-MM (use -01 if only year given)\n- \"Present\" or \"Current\" → end_date: \"present\", is_current: true\n- Calculate duration_months from date range\n- Phone: digits only\n- Skills categorization:\n  - technical: programming languages, frameworks, tools, platforms\n  - soft: leadership, communication, management skills\n  - languages: spoken/written languages (not programming)\n\nReturn ONLY the JSON.",
+    "commonMistakes": [
+      "Not defining all entity attributes",
+      "Missing date range handling",
+      "No skill categorization rules",
+      "Unclear nested structure"
+    ],
+    "keyElements": [
+      "All entity types with attributes",
+      "Nested arrays for experience/education",
+      "Skill categorization rules",
+      "Date range and 'Present' handling"
+    ],
+    "antiPatterns": [
+      "'Parse this resume'",
+      "No entity type definitions",
+      "Flat structure only",
+      "No categorization logic"
+    ]
+  }
+}

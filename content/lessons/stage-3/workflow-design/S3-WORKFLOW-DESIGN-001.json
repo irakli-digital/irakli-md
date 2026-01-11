@@ -1,0 +1,103 @@
+{
+  "id": "S3-WORKFLOW-DESIGN-001",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "workflow-design",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S2-JSON-OUTPUT-003"],
+    "tags": ["workflow", "automation", "beginner"]
+  },
+  "scenario": {
+    "title": "The Email Triage Bot",
+    "context": "You're designing an automated email processing workflow. Incoming emails need to be classified, prioritized, and routed to appropriate handlers - all orchestrated through AI calls.",
+    "goal": "Write a prompt that defines a multi-step workflow for email triage, specifying each step's input, output, and handoff.",
+    "constraints": [
+      "Define 3-5 sequential workflow steps",
+      "Specify input/output contract for each step",
+      "Include decision points for routing",
+      "Define the trigger and completion conditions"
+    ],
+    "exampleInput": "Workflow requirement: When email arrives → classify type (support/sales/spam) → extract priority → route to queue → send acknowledgment. Need to handle 1000 emails/hour.",
+    "hints": [
+      "Map out each step as a discrete AI call",
+      "Define what data flows between steps",
+      "Consider what happens at each decision point"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "step-definition",
+        "name": "Step Definition",
+        "weight": 30,
+        "description": "Are workflow steps clearly defined?",
+        "scoringGuide": {
+          "excellent": "All steps with clear purpose, input, output",
+          "good": "Steps listed with descriptions",
+          "adequate": "Basic steps present",
+          "poor": "No clear step definition"
+        }
+      },
+      {
+        "id": "data-flow",
+        "name": "Data Flow",
+        "weight": 25,
+        "description": "Is data flow between steps specified?",
+        "scoringGuide": {
+          "excellent": "Clear input/output contracts per step",
+          "good": "Data passing mentioned",
+          "adequate": "Some flow implied",
+          "poor": "No data flow definition"
+        }
+      },
+      {
+        "id": "decision-points",
+        "name": "Decision Points",
+        "weight": 25,
+        "description": "Are routing decisions defined?",
+        "scoringGuide": {
+          "excellent": "Clear decision criteria with all paths",
+          "good": "Decision points identified",
+          "adequate": "Some branching implied",
+          "poor": "No decision logic"
+        }
+      },
+      {
+        "id": "boundaries",
+        "name": "Workflow Boundaries",
+        "weight": 20,
+        "description": "Are trigger and completion defined?",
+        "scoringGuide": {
+          "excellent": "Clear start trigger and end conditions",
+          "good": "Boundaries mentioned",
+          "adequate": "Implied boundaries",
+          "poor": "No workflow boundaries"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design an email triage workflow with these specifications:\n\nWORKFLOW: Email Triage Bot\n\nTrigger: New email received in inbox\nCompletion: Email routed + acknowledgment sent (or marked spam)\n\n---\n\nSTEP 1: Classification\nInput:\n```json\n{\n  \"email_id\": \"string\",\n  \"from\": \"sender@example.com\",\n  \"subject\": \"Email subject\",\n  \"body\": \"Email body text (first 500 chars)\"\n}\n```\nAI Task: Classify email into category\nOutput:\n```json\n{\n  \"email_id\": \"string\",\n  \"category\": \"support\" | \"sales\" | \"spam\" | \"other\",\n  \"confidence\": 0.95,\n  \"reasoning\": \"Brief explanation\"\n}\n```\nNext: If spam → STEP 5 (end), else → STEP 2\n\n---\n\nSTEP 2: Priority Assessment\nInput: Step 1 output + full email body\nAI Task: Determine urgency and priority\nOutput:\n```json\n{\n  \"email_id\": \"string\",\n  \"priority\": \"urgent\" | \"high\" | \"normal\" | \"low\",\n  \"sentiment\": \"positive\" | \"neutral\" | \"negative\",\n  \"key_topics\": [\"billing\", \"cancellation\"],\n  \"requires_human\": true/false\n}\n```\nNext: → STEP 3\n\n---\n\nSTEP 3: Queue Routing\nInput: Steps 1+2 output\nLogic (no AI needed):\n- support + urgent → support_urgent_queue\n- support + other → support_normal_queue\n- sales → sales_queue\n- other → general_queue\nOutput:\n```json\n{\n  \"email_id\": \"string\",\n  \"assigned_queue\": \"support_urgent_queue\",\n  \"assigned_at\": \"2024-01-15T10:30:00Z\"\n}\n```\nNext: → STEP 4\n\n---\n\nSTEP 4: Acknowledgment Generation\nInput: Original email + routing info\nAI Task: Generate appropriate auto-reply\nOutput:\n```json\n{\n  \"email_id\": \"string\",\n  \"reply_subject\": \"Re: Your inquiry\",\n  \"reply_body\": \"Thank you for contacting us...\",\n  \"send_reply\": true/false\n}\n```\nNext: → END (workflow complete)\n\n---\n\nSTEP 5: Spam Handling (terminal)\nInput: Email ID\nAction: Move to spam folder, no reply\nOutput: {\"email_id\": \"...\", \"status\": \"spam_filtered\"}\nNext: → END\n\n---\n\nERROR HANDLING:\n- Classification confidence < 0.7 → route to 'review_queue'\n- AI step failure → retry 2x, then route to 'manual_review'\n- Timeout (>5s per step) → continue with defaults",
+    "commonMistakes": [
+      "Steps not clearly separated",
+      "No input/output contracts",
+      "Missing decision logic",
+      "No error handling"
+    ],
+    "keyElements": [
+      "Clear step-by-step structure",
+      "Input/output for each step",
+      "Decision points with criteria",
+      "Trigger and completion defined"
+    ],
+    "antiPatterns": [
+      "'Process emails automatically'",
+      "Vague step descriptions",
+      "No data contracts",
+      "Missing routing logic"
+    ]
+  }
+}

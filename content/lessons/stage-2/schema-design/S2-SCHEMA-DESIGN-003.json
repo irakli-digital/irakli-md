@@ -1,0 +1,103 @@
+{
+  "id": "S2-SCHEMA-DESIGN-003",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "schema-design",
+    "difficulty": 3,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S2-SCHEMA-DESIGN-002"],
+    "tags": ["schema", "polymorphic", "inheritance"]
+  },
+  "scenario": {
+    "title": "The Content Management Schema",
+    "context": "You're building a CMS that stores different content types (articles, videos, podcasts). Each type shares common fields but has type-specific attributes. The AI needs to output polymorphic content objects.",
+    "goal": "Write a prompt that produces content objects using a discriminated union pattern with shared base fields and type-specific extensions.",
+    "constraints": [
+      "All content has: id, title, author, published_at, type",
+      "Articles add: body, word_count, read_time_minutes",
+      "Videos add: url, duration_seconds, thumbnail_url",
+      "Podcasts add: audio_url, duration_seconds, transcript"
+    ],
+    "exampleInput": "Content item: 'Introduction to AI' by Sarah Chen, published Jan 15 2024. It's a 10-minute video available at youtube.com/watch?v=abc123 with thumbnail at cdn.example.com/thumb.jpg",
+    "hints": [
+      "Use a 'type' field as discriminator",
+      "Show base fields that all types share",
+      "Define type-specific fields for each content type"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "discriminator",
+        "name": "Type Discriminator",
+        "weight": 30,
+        "description": "Is the type discriminator pattern properly used?",
+        "scoringGuide": {
+          "excellent": "Clear discriminator field with enum values and type mapping",
+          "good": "Type field present with valid values",
+          "adequate": "Type mentioned",
+          "poor": "No type discrimination"
+        }
+      },
+      {
+        "id": "base-fields",
+        "name": "Base Fields",
+        "weight": 25,
+        "description": "Are shared base fields properly defined?",
+        "scoringGuide": {
+          "excellent": "All base fields defined with types, shown as common",
+          "good": "Base fields listed",
+          "adequate": "Some common fields present",
+          "poor": "No base field concept"
+        }
+      },
+      {
+        "id": "type-extensions",
+        "name": "Type Extensions",
+        "weight": 25,
+        "description": "Are type-specific fields properly defined?",
+        "scoringGuide": {
+          "excellent": "Each type's extensions clearly defined with examples",
+          "good": "Type-specific fields listed",
+          "adequate": "Some type differences present",
+          "poor": "No type-specific fields"
+        }
+      },
+      {
+        "id": "examples",
+        "name": "Type Examples",
+        "weight": 20,
+        "description": "Are examples provided for each type?",
+        "scoringGuide": {
+          "excellent": "Complete example for each content type",
+          "good": "At least two type examples",
+          "adequate": "One example",
+          "poor": "No examples"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Extract content information and return JSON using this polymorphic schema:\n\nBase fields (all content types):\n```json\n{\n  \"id\": \"generated-uuid\",\n  \"title\": \"Content Title\",\n  \"author\": \"Author Name\",\n  \"published_at\": \"2024-01-15T00:00:00Z\",\n  \"type\": \"article\" | \"video\" | \"podcast\"\n}\n```\n\nType-specific schemas:\n\ntype: \"article\"\n```json\n{\n  ...base_fields,\n  \"type\": \"article\",\n  \"body\": \"Full article text...\",\n  \"word_count\": 1500,\n  \"read_time_minutes\": 6\n}\n```\n\ntype: \"video\"\n```json\n{\n  ...base_fields,\n  \"type\": \"video\",\n  \"url\": \"https://youtube.com/watch?v=...\",\n  \"duration_seconds\": 600,\n  \"thumbnail_url\": \"https://...\"\n}\n```\n\ntype: \"podcast\"\n```json\n{\n  ...base_fields,\n  \"type\": \"podcast\",\n  \"audio_url\": \"https://...\",\n  \"duration_seconds\": 1800,\n  \"transcript\": \"Full transcript text or null\"\n}\n```\n\nRules:\n- Determine content type from context\n- Generate UUID for id field\n- Duration: convert minutes to seconds (10 min = 600 sec)\n- All URLs must be complete (add https:// if missing)\n- published_at: ISO 8601 UTC format\n\nReturn ONLY the JSON for the appropriate type.",
+    "commonMistakes": [
+      "Not using a type discriminator",
+      "Missing base field inheritance concept",
+      "No examples for different types",
+      "Unclear which fields apply to which type"
+    ],
+    "keyElements": [
+      "Type discriminator field",
+      "Shared base fields defined",
+      "Type-specific extensions shown",
+      "Examples for each type"
+    ],
+    "antiPatterns": [
+      "'Extract content info'",
+      "Single flat schema",
+      "No type differentiation",
+      "Missing type-specific fields"
+    ]
+  }
+}

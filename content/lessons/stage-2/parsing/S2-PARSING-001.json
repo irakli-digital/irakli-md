@@ -1,0 +1,103 @@
+{
+  "id": "S2-PARSING-001",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "parsing",
+    "difficulty": 1,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S2-JSON-OUTPUT-001"],
+    "tags": ["parsing", "extraction", "beginner"]
+  },
+  "scenario": {
+    "title": "The Receipt Parser",
+    "context": "You're building an expense tracking app. Users upload photos of receipts, and OCR extracts the text. Now you need AI to parse that messy OCR output into structured expense data.",
+    "goal": "Write a prompt that extracts expense data from noisy OCR text, handling common OCR errors and formatting variations.",
+    "constraints": [
+      "Handle common OCR errors (0/O, 1/l, S/5 confusion)",
+      "Extract: merchant, date, total, payment_method",
+      "Dates may appear in various formats",
+      "Totals may have various currency symbols or none"
+    ],
+    "exampleInput": "OCR text: 'STARBUOKS C0FFEE\\n123 Main St\\nJan 15, 2O24\\n\\nLatte Grande    4.95\\nMuffin          3.5O\\n\\nSubtota1       8.45\\nTax            O.74\\nT0TAL          $9.19\\n\\nVISA ****1234'",
+    "hints": [
+      "Acknowledge OCR noise and how to handle it",
+      "Specify how to interpret ambiguous characters",
+      "Define confidence levels for uncertain extractions"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "ocr-handling",
+        "name": "OCR Error Handling",
+        "weight": 30,
+        "description": "Does the prompt address OCR noise?",
+        "scoringGuide": {
+          "excellent": "Explicit OCR error patterns with correction rules",
+          "good": "Acknowledges OCR errors",
+          "adequate": "Mentions text may be noisy",
+          "poor": "No OCR consideration"
+        }
+      },
+      {
+        "id": "field-extraction",
+        "name": "Field Extraction",
+        "weight": 25,
+        "description": "Are extraction rules clear for each field?",
+        "scoringGuide": {
+          "excellent": "Clear extraction rules with fallbacks",
+          "good": "Fields defined with hints",
+          "adequate": "Fields listed",
+          "poor": "No extraction guidance"
+        }
+      },
+      {
+        "id": "format-variations",
+        "name": "Format Handling",
+        "weight": 25,
+        "description": "Does the prompt handle format variations?",
+        "scoringGuide": {
+          "excellent": "Multiple format examples with normalization rules",
+          "good": "Some format variations addressed",
+          "adequate": "Mentions formatting",
+          "poor": "No format handling"
+        }
+      },
+      {
+        "id": "output-structure",
+        "name": "Output Structure",
+        "weight": 20,
+        "description": "Is the output format clearly defined?",
+        "scoringGuide": {
+          "excellent": "Complete JSON schema with types",
+          "good": "JSON structure shown",
+          "adequate": "Output mentioned",
+          "poor": "No output specification"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Parse this OCR receipt text and extract expense data. The text may contain OCR errors - use context to correct them.\n\nCommon OCR corrections:\n- 0 ↔ O (zero vs letter O) - use context (prices use 0, names use O)\n- 1 ↔ l ↔ I - prices use 1, words use l/I\n- S ↔ 5 - prices use 5, words use S\n- 'STARBUOKS' → 'STARBUCKS' (correct obvious merchant names)\n\nExtract to this JSON format:\n```json\n{\n  \"merchant\": {\n    \"name\": \"Corrected merchant name\",\n    \"address\": \"Full address or null\"\n  },\n  \"date\": \"2024-01-15\",\n  \"items\": [\n    {\"description\": \"Item name\", \"amount\": 4.95}\n  ],\n  \"subtotal\": 8.45,\n  \"tax\": 0.74,\n  \"total\": 9.19,\n  \"payment_method\": \"VISA ending 1234\",\n  \"currency\": \"USD\",\n  \"confidence\": \"high\" | \"medium\" | \"low\"\n}\n```\n\nDate normalization:\n- Output format: YYYY-MM-DD\n- Handle: 'Jan 15, 2024', '01/15/24', '2024-01-15', '15 Jan 2024'\n- Correct OCR in year: '2O24' → '2024'\n\nSet confidence:\n- high: all fields clearly extracted\n- medium: some OCR corrections applied\n- low: significant ambiguity in extraction\n\nReturn ONLY the JSON.",
+    "commonMistakes": [
+      "Not addressing OCR errors",
+      "No date format normalization",
+      "Missing confidence indicator",
+      "No correction rules specified"
+    ],
+    "keyElements": [
+      "OCR error patterns listed",
+      "Correction logic defined",
+      "Multiple date formats handled",
+      "Confidence scoring included"
+    ],
+    "antiPatterns": [
+      "'Extract receipt data'",
+      "Assuming clean text input",
+      "No error handling",
+      "Single format expected"
+    ]
+  }
+}

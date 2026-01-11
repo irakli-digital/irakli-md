@@ -1,0 +1,103 @@
+{
+  "id": "S4-DEPLOYMENT-003",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "deployment",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S4-DEPLOYMENT-002"],
+    "tags": ["deployment", "monitoring", "observability", "production"]
+  },
+  "scenario": {
+    "title": "The Production Guardian",
+    "context": "Your app is in production and you need comprehensive monitoring, alerting, and incident response procedures. You need AI to help set up observability and create runbooks for common issues.",
+    "goal": "Write a prompt that guides AI to create a production monitoring strategy with alerting rules, dashboards, and incident response procedures.",
+    "constraints": [
+      "Cover application, infrastructure, and business metrics",
+      "Define alert thresholds and escalation",
+      "Create incident response runbooks",
+      "Include post-incident review process"
+    ],
+    "exampleInput": "Set up monitoring for a SaaS app: Next.js frontend, Node.js API, PostgreSQL. Key SLOs: 99.9% uptime, p95 latency < 200ms, error rate < 0.1%. Need alerts for on-call, runbooks for common issues.",
+    "hints": [
+      "Define what metrics matter for your app",
+      "Set clear thresholds for each alert level",
+      "Think about who gets alerted and when"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "metrics-coverage",
+        "name": "Metrics Coverage",
+        "weight": 25,
+        "description": "Are comprehensive metrics defined?",
+        "scoringGuide": {
+          "excellent": "Application, infra, and business metrics with SLOs",
+          "good": "Multiple metric categories",
+          "adequate": "Basic metrics",
+          "poor": "No metrics defined"
+        }
+      },
+      {
+        "id": "alerting-strategy",
+        "name": "Alerting Strategy",
+        "weight": 30,
+        "description": "Is the alerting strategy well-defined?",
+        "scoringGuide": {
+          "excellent": "Thresholds, severity levels, escalation paths",
+          "good": "Clear alert rules",
+          "adequate": "Some alerting",
+          "poor": "No alerting strategy"
+        }
+      },
+      {
+        "id": "runbooks",
+        "name": "Incident Runbooks",
+        "weight": 25,
+        "description": "Are incident response procedures defined?",
+        "scoringGuide": {
+          "excellent": "Step-by-step runbooks for common issues",
+          "good": "Some runbooks",
+          "adequate": "Basic procedures",
+          "poor": "No runbooks"
+        }
+      },
+      {
+        "id": "review-process",
+        "name": "Review Process",
+        "weight": 20,
+        "description": "Is post-incident review covered?",
+        "scoringGuide": {
+          "excellent": "Post-mortem template with improvement tracking",
+          "good": "Review process defined",
+          "adequate": "Some review mention",
+          "poor": "No review process"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Create a production monitoring strategy:\n\nPRODUCTION MONITORING: SaaS Application\n\n---\n\nSYSTEM ARCHITECTURE:\n\n```\n                    [CloudFlare CDN]\n                          |\n                    [Load Balancer]\n                     /          \\\n            [Next.js]            [Node.js API]\n            (Vercel)              (Railway)\n                                     |\n                              [PostgreSQL]\n                              (Supabase)\n```\n\n---\n\nSERVICE LEVEL OBJECTIVES (SLOs):\n\n```yaml\navailability:\n  target: 99.9%\n  measurement: Successful requests / Total requests\n  window: 30-day rolling\n  error_budget: 43.2 minutes/month\n\nlatency:\n  target: p95 < 200ms\n  measurement: Request duration at 95th percentile\n  window: 1-hour rolling\n  \nerror_rate:\n  target: < 0.1%\n  measurement: 5xx responses / Total responses\n  window: 1-hour rolling\n\napdex:\n  target: > 0.95\n  satisfied: < 100ms\n  tolerating: < 500ms\n```\n\n---\n\nMETRICS TO COLLECT:\n\n```yaml\napplication_metrics:\n  frontend:\n    - Core Web Vitals (LCP, FID, CLS)\n    - Page load time by route\n    - JavaScript errors\n    - Client-side API call latency\n    - User session duration\n\n  api:\n    - Request rate (RPM)\n    - Response time (p50, p95, p99)\n    - Error rate by endpoint\n    - Active connections\n    - Request queue depth\n\n  database:\n    - Query execution time\n    - Connection pool usage\n    - Slow query count (>100ms)\n    - Transaction rate\n    - Deadlock count\n\ninfrastructure_metrics:\n  compute:\n    - CPU utilization\n    - Memory usage\n    - Disk I/O\n    - Network throughput\n\n  containers:\n    - Container restarts\n    - OOM kills\n    - Resource limits hit\n\nbusiness_metrics:\n  - Active users (DAU, WAU, MAU)\n  - Signup conversion rate\n  - Payment success rate\n  - Feature usage by plan\n  - Churn indicators\n```\n\n---\n\nMONITORING STACK:\n\n```yaml\napplication_monitoring:\n  tool: Sentry\n  captures:\n    - Errors with stack traces\n    - Performance transactions\n    - User feedback\n    - Release tracking\n\ninfrastructure_monitoring:\n  tool: Datadog / Grafana Cloud\n  captures:\n    - Server metrics\n    - Container metrics\n    - Custom dashboards\n    - Log aggregation\n\nuptime_monitoring:\n  tool: Better Uptime / Checkly\n  captures:\n    - Endpoint availability\n    - SSL certificate expiry\n    - Response time trends\n    - Multi-region checks\n\nreal_user_monitoring:\n  tool: Vercel Analytics / PostHog\n  captures:\n    - Real user performance\n    - User journeys\n    - Feature flags impact\n```\n\n---\n\nALERTING RULES:\n\n```yaml\ncritical_alerts:\n  immediate_page:\n    - name: \"Site Down\"\n      condition: uptime_check_failed for 2 minutes\n      action: Page on-call, auto-create incident\n      \n    - name: \"Error Rate Spike\"\n      condition: error_rate > 5% for 5 minutes\n      action: Page on-call\n      \n    - name: \"Database Unreachable\"\n      condition: db_connection_failures > 0 for 1 minute\n      action: Page on-call + DBA\n\n    - name: \"Payment Processing Down\"\n      condition: payment_success_rate < 50% for 5 minutes\n      action: Page on-call + finance alert\n\nwarning_alerts:\n  slack_notification:\n    - name: \"High Latency\"\n      condition: p95_latency > 500ms for 10 minutes\n      action: Slack #alerts, investigate\n      \n    - name: \"Error Rate Elevated\"\n      condition: error_rate > 1% for 15 minutes\n      action: Slack #alerts\n      \n    - name: \"Memory High\"\n      condition: memory_usage > 85% for 10 minutes\n      action: Slack #alerts, may need scaling\n      \n    - name: \"Slow Queries\"\n      condition: slow_query_count > 50/minute\n      action: Slack #alerts, review query\n\ninfo_alerts:\n  daily_digest:\n    - Error budget consumption rate\n    - SLO compliance percentage\n    - Resource utilization trends\n    - Upcoming certificate expirations\n```\n\n---\n\nESCALATION MATRIX:\n\n```yaml\nlevel_1:\n  who: On-call engineer\n  response_time: 5 minutes\n  authority: Restart services, rollback, scale\n  \nlevel_2:\n  who: Senior engineer + team lead\n  response_time: 15 minutes\n  triggered_by: Issue not resolved in 30 minutes\n  authority: All L1 + database changes, vendor contact\n  \nlevel_3:\n  who: CTO + engineering leadership\n  response_time: 30 minutes\n  triggered_by: Customer impact > 1 hour OR data loss\n  authority: All decisions, public communication\n\non_call_rotation:\n  schedule: Weekly rotation\n  handoff: Monday 9am\n  coverage: 24/7\n  backup: Always have secondary on-call\n```\n\n---\n\nINCIDENT RUNBOOKS:\n\n```yaml\nrunbook_1_site_down:\n  trigger: \"Site Down\" alert\n  steps:\n    1. Verify alert is real:\n       - Check from multiple locations (Down for Everyone?)\n       - Check Vercel/Railway status pages\n       - Check CloudFlare status\n       \n    2. Identify scope:\n       - Full outage or partial?\n       - Which services affected?\n       - Check recent deployments\n       \n    3. Quick fixes (try in order):\n       - Rollback last deployment (Vercel: 1 click)\n       - Restart API containers (Railway dashboard)\n       - Check DNS resolution\n       \n    4. If database related:\n       - Check Supabase status\n       - Verify connection strings\n       - Check connection pool exhaustion\n       \n    5. Communicate:\n       - Update status page\n       - Notify affected customers if > 10 minutes\n       \n    6. Document:\n       - Timeline of events\n       - Actions taken\n       - Root cause (if known)\n\nrunbook_2_high_error_rate:\n  trigger: \"Error Rate Spike\" alert\n  steps:\n    1. Check Sentry for error patterns:\n       - New error types?\n       - Specific endpoint?\n       - Specific user segment?\n       \n    2. Check recent changes:\n       - New deployment in last hour?\n       - Config changes?\n       - Third-party service issues?\n       \n    3. If deployment related:\n       - Rollback immediately\n       - Verify error rate drops\n       \n    4. If third-party related:\n       - Enable fallback/graceful degradation\n       - Contact vendor if needed\n       \n    5. If unknown:\n       - Increase logging temporarily\n       - Sample failing requests for analysis\n\nrunbook_3_database_slow:\n  trigger: \"Slow Queries\" or \"High Latency\" alert\n  steps:\n    1. Check Supabase dashboard:\n       - Active queries\n       - Connection count\n       - CPU/memory usage\n       \n    2. Identify problematic queries:\n       - Check pg_stat_statements\n       - Look for missing indexes\n       - Check for table locks\n       \n    3. Quick mitigations:\n       - Kill long-running queries\n       - Add missing index (if safe)\n       - Increase connection pool size\n       \n    4. If connection exhaustion:\n       - Check for connection leaks in code\n       - Restart app to release connections\n       - Review pool configuration\n```\n\n---\n\nDASHBOARD LAYOUT:\n\n```yaml\noverview_dashboard:\n  row_1_slos:\n    - Availability (current vs target)\n    - Latency p95 (current vs target)\n    - Error rate (current vs target)\n    - Error budget remaining\n\n  row_2_traffic:\n    - Requests per minute (time series)\n    - Active users (real-time)\n    - Geographic distribution\n\n  row_3_performance:\n    - Response time heatmap\n    - Slowest endpoints\n    - Database query times\n\n  row_4_infrastructure:\n    - CPU usage by service\n    - Memory usage by service\n    - Container health\n\n  row_5_business:\n    - Signups today\n    - Payment success rate\n    - Feature usage breakdown\n```\n\n---\n\nPOST-INCIDENT REVIEW:\n\n```yaml\ntemplate:\n  incident_summary:\n    - Date/time and duration\n    - Severity and impact\n    - Services affected\n    - Customer impact (users, revenue)\n\n  timeline:\n    - When detected\n    - When acknowledged\n    - Key actions taken\n    - When resolved\n    - When confirmed stable\n\n  root_cause:\n    - Technical cause\n    - Contributing factors\n    - Why it wasn't caught earlier\n\n  action_items:\n    - Immediate fixes (already done)\n    - Short-term improvements (1-2 weeks)\n    - Long-term prevention (roadmap)\n    - Each item has owner and due date\n\n  lessons_learned:\n    - What went well\n    - What could improve\n    - Changes to runbooks needed\n\nreview_meeting:\n  when: Within 48 hours of resolution\n  attendees: All responders + team lead\n  duration: 30-60 minutes\n  output: Written post-mortem shared with team\n  follow_up: Action items tracked in project board\n```",
+    "commonMistakes": [
+      "No SLOs defined",
+      "Alerting on everything (alert fatigue)",
+      "No runbooks for common issues",
+      "No post-incident process"
+    ],
+    "keyElements": [
+      "Clear SLOs with thresholds",
+      "Tiered alerting with escalation",
+      "Step-by-step runbooks",
+      "Post-incident review template"
+    ],
+    "antiPatterns": [
+      "'Set up monitoring'",
+      "No alert thresholds",
+      "No response procedures",
+      "No learning from incidents"
+    ]
+  }
+}

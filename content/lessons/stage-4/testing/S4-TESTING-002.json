@@ -1,0 +1,103 @@
+{
+  "id": "S4-TESTING-002",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "testing",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S4-TESTING-001"],
+    "tags": ["testing", "integration", "mocking"]
+  },
+  "scenario": {
+    "title": "The Integration Tester",
+    "context": "You need to test a feature that spans multiple components and external services. You need AI to help design integration tests with proper mocking and test data.",
+    "goal": "Write a prompt that guides AI to generate integration tests with appropriate mocking strategies and realistic test scenarios.",
+    "constraints": [
+      "Test component interactions, not just units",
+      "Mock external services appropriately",
+      "Use realistic test data",
+      "Test error propagation across components"
+    ],
+    "exampleInput": "Test the checkout flow: user adds item → applies coupon → enters payment → order created. Involves: CartService, CouponService, StripeAPI, OrderRepository. Need to test happy path and failures at each step.",
+    "hints": [
+      "Map the component interactions",
+      "Identify what to mock vs test real",
+      "Design failure scenarios at each integration point"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "component-map",
+        "name": "Component Mapping",
+        "weight": 25,
+        "description": "Are component interactions mapped?",
+        "scoringGuide": {
+          "excellent": "Full interaction diagram with data flow",
+          "good": "Components and interactions listed",
+          "adequate": "Some components mentioned",
+          "poor": "No component mapping"
+        }
+      },
+      {
+        "id": "mocking-strategy",
+        "name": "Mocking Strategy",
+        "weight": 30,
+        "description": "Is mocking strategy clear?",
+        "scoringGuide": {
+          "excellent": "Clear mock vs real decisions with reasoning",
+          "good": "Mocking approach defined",
+          "adequate": "Some mocking mentioned",
+          "poor": "No mocking strategy"
+        }
+      },
+      {
+        "id": "test-scenarios",
+        "name": "Test Scenarios",
+        "weight": 25,
+        "description": "Are end-to-end scenarios defined?",
+        "scoringGuide": {
+          "excellent": "Multiple scenarios with variations",
+          "good": "Scenarios listed",
+          "adequate": "Basic happy path",
+          "poor": "No scenarios"
+        }
+      },
+      {
+        "id": "error-testing",
+        "name": "Error Testing",
+        "weight": 20,
+        "description": "Are failure modes tested?",
+        "scoringGuide": {
+          "excellent": "Errors at each integration point",
+          "good": "Some error testing",
+          "adequate": "Basic error handling",
+          "poor": "No error testing"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design integration tests for the checkout flow:\n\nINTEGRATION TESTING: Checkout Flow\n\n---\n\nCOMPONENT INTERACTION MAP:\n\n```\nUser Action Flow:\n\n[Client] → [CheckoutController]\n               |\n               ├─→ [CartService] → [CartRepository]\n               |\n               ├─→ [CouponService] → [CouponRepository]\n               |                   → [ExternalCouponAPI] (mock)\n               |\n               ├─→ [PaymentService] → [StripeAPI] (mock)\n               |\n               └─→ [OrderService] → [OrderRepository]\n                                  → [InventoryService]\n                                  → [EmailService] (mock)\n\nData Flow:\n1. Cart items → Calculate totals\n2. Apply coupon → Adjusted total\n3. Process payment → Payment confirmation\n4. Create order → Order record\n5. Send confirmation → Email queued\n```\n\n---\n\nMOCKING STRATEGY:\n\n```yaml\nmock_completely:\n  StripeAPI:\n    reason: \"External service, don't want real charges in tests\"\n    mock_responses:\n      - success: { paymentIntentId: 'pi_test_123', status: 'succeeded' }\n      - decline: { error: { code: 'card_declined', message: 'Card was declined' } }\n      - network_error: { throws: new Error('Network error') }\n\n  EmailService:\n    reason: \"Don't send real emails, just verify calls\"\n    mock_type: \"spy - verify called with correct args\"\n\n  ExternalCouponAPI:\n    reason: \"Third-party coupon validation\"\n    mock_responses:\n      - valid: { valid: true, discount: 0.20 }\n      - expired: { valid: false, reason: 'expired' }\n\nuse_real:\n  CartRepository:\n    reason: \"Test real DB interactions\"\n    setup: \"Use test database with known state\"\n\n  CouponRepository:\n    reason: \"Test coupon lookup logic\"\n    setup: \"Seed test coupons in beforeEach\"\n\n  OrderRepository:\n    reason: \"Verify orders created correctly\"\n    setup: \"Clean table before each test\"\n\n  InventoryService:\n    reason: \"Test inventory deduction\"\n    setup: \"Seed products with known inventory\"\n```\n\n---\n\nTEST SCENARIOS:\n\n```yaml\nhappy_path:\n  scenario_1_simple_checkout:\n    setup:\n      - Cart with 2 items (total: $50)\n      - User logged in\n      - Valid payment method\n    steps:\n      - Add items to cart\n      - Proceed to checkout\n      - Enter payment details\n      - Submit order\n    assertions:\n      - Order created in database\n      - Order status: 'confirmed'\n      - Payment intent succeeded\n      - Inventory decremented\n      - Confirmation email queued\n\n  scenario_2_with_coupon:\n    setup:\n      - Cart with items (total: $100)\n      - Valid coupon: SAVE20 (20% off)\n    steps:\n      - Add items to cart\n      - Apply coupon SAVE20\n      - Proceed to checkout\n      - Submit order\n    assertions:\n      - Discount applied: $20\n      - Final charge: $80\n      - Coupon marked as used\n      - Order has coupon reference\n\n  scenario_3_guest_checkout:\n    setup:\n      - Not logged in\n      - Cart with items\n    steps:\n      - Checkout as guest with email\n      - Enter payment\n      - Submit\n    assertions:\n      - Order created without user_id\n      - Guest email stored on order\n      - Confirmation sent to guest email\n\nerror_scenarios:\n  payment_declined:\n    setup:\n      - Valid cart\n      - Stripe mock returns: card_declined\n    assertions:\n      - Order NOT created\n      - Cart preserved\n      - Error message: 'Payment declined'\n      - Inventory NOT decremented\n\n  payment_network_error:\n    setup:\n      - Valid cart\n      - Stripe mock throws network error\n    assertions:\n      - Order NOT created\n      - Error message: 'Payment processing failed'\n      - User can retry\n\n  invalid_coupon:\n    setup:\n      - Valid cart\n      - Coupon mock returns: expired\n    assertions:\n      - Coupon not applied\n      - Error message: 'Coupon is expired'\n      - Can continue without coupon\n\n  out_of_stock:\n    setup:\n      - Cart with item\n      - Inventory: 0 (depleted between cart add and checkout)\n    assertions:\n      - Order NOT created\n      - Payment NOT attempted\n      - Error message: 'Item out of stock'\n      - Cart updated to show unavailable\n\n  partial_stock:\n    setup:\n      - Cart: 5 items\n      - Inventory: 3 available\n    assertions:\n      - Choice offered: proceed with 3 or cancel\n      - If proceed: order for 3, cart cleared\n      - If cancel: cart preserved\n\nedge_cases:\n  concurrent_checkout:\n    setup:\n      - Two users, same item, inventory: 1\n    test:\n      - Both attempt checkout simultaneously\n    assertions:\n      - One succeeds, one fails\n      - No overselling\n      - Proper error for loser\n\n  cart_modification_during_checkout:\n    setup:\n      - User starts checkout\n      - Cart modified in another tab\n    assertions:\n      - Detect cart change\n      - Require confirmation or recalculate\n```\n\n---\n\nTEST IMPLEMENTATION STRUCTURE:\n\n```typescript\nimport { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';\nimport { createTestDb, cleanupTestDb } from '../test-utils/database';\nimport { createMockStripe } from '../test-utils/stripe-mock';\nimport { CheckoutController } from './CheckoutController';\n\ndescribe('Checkout Integration', () => {\n  let db: TestDatabase;\n  let stripeMock: MockStripe;\n  let controller: CheckoutController;\n\n  beforeEach(async () => {\n    db = await createTestDb();\n    stripeMock = createMockStripe();\n    controller = new CheckoutController({\n      db,\n      stripe: stripeMock,\n      emailService: vi.fn(),\n    });\n\n    // Seed test data\n    await db.products.insert(testProducts);\n    await db.coupons.insert(testCoupons);\n  });\n\n  afterEach(async () => {\n    await cleanupTestDb(db);\n  });\n\n  describe('Happy Path', () => {\n    it('completes simple checkout successfully', async () => {\n      // Arrange\n      stripeMock.paymentIntents.create.mockResolvedValue({\n        id: 'pi_test',\n        status: 'succeeded',\n      });\n\n      const cart = await createTestCart(db, [\n        { productId: 'prod-1', quantity: 2 },\n      ]);\n\n      // Act\n      const result = await controller.checkout({\n        cartId: cart.id,\n        paymentMethodId: 'pm_test',\n        email: 'test@example.com',\n      });\n\n      // Assert\n      expect(result.success).toBe(true);\n      expect(result.orderId).toBeDefined();\n\n      const order = await db.orders.findById(result.orderId);\n      expect(order.status).toBe('confirmed');\n      expect(order.total).toBe(cart.total);\n\n      const inventory = await db.products.getInventory('prod-1');\n      expect(inventory).toBe(initialInventory - 2);\n    });\n  });\n\n  describe('Payment Failures', () => {\n    it('handles declined card gracefully', async () => {\n      // Arrange\n      stripeMock.paymentIntents.create.mockRejectedValue({\n        code: 'card_declined',\n        message: 'Your card was declined',\n      });\n\n      const cart = await createTestCart(db, [{ productId: 'prod-1', quantity: 1 }]);\n\n      // Act\n      const result = await controller.checkout({\n        cartId: cart.id,\n        paymentMethodId: 'pm_test',\n      });\n\n      // Assert\n      expect(result.success).toBe(false);\n      expect(result.error).toBe('Your card was declined');\n\n      // Verify no order created\n      const orders = await db.orders.findByCartId(cart.id);\n      expect(orders).toHaveLength(0);\n\n      // Verify cart still exists\n      const cartAfter = await db.carts.findById(cart.id);\n      expect(cartAfter).not.toBeNull();\n    });\n  });\n});\n```",
+    "commonMistakes": [
+      "No component interaction map",
+      "Mock everything or nothing",
+      "Only happy path tests",
+      "No error propagation tests"
+    ],
+    "keyElements": [
+      "Component interaction diagram",
+      "Clear mock vs real decisions",
+      "Multiple test scenarios",
+      "Error testing at each point"
+    ],
+    "antiPatterns": [
+      "'Test the checkout'",
+      "No mocking strategy",
+      "Single test scenario",
+      "No failure testing"
+    ]
+  }
+}

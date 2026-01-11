@@ -149,6 +149,41 @@ export const certifications = pgTable(
   (table) => [uniqueIndex('user_cert_idx').on(table.userId, table.certificationType)]
 );
 
+// Lessons table (stores lesson content from JSON files)
+export const lessons = pgTable('lessons', {
+  id: text('id').primaryKey(), // "S1-CLARITY-001"
+  version: integer('version').notNull().default(1),
+  stage: integer('stage').notNull(), // 1, 2, 3, or 4
+  skill: text('skill').notNull(), // "clarity", "constraints", etc.
+  difficulty: integer('difficulty').notNull(), // 1-5
+  estimatedMinutes: integer('estimated_minutes').notNull(),
+  prerequisites: jsonb('prerequisites').$type<string[]>().default([]),
+  tags: jsonb('tags').$type<string[]>().default([]),
+
+  // Scenario content
+  title: text('title').notNull(),
+  context: text('context').notNull(),
+  goal: text('goal').notNull(),
+  constraints: jsonb('constraints').$type<string[]>().notNull(),
+  exampleInput: text('example_input'),
+  hints: jsonb('hints').$type<string[]>().notNull(),
+
+  // Evaluation
+  rubric: jsonb('rubric').notNull(), // RubricItem[]
+  passingScore: integer('passing_score').notNull().default(70),
+
+  // Evaluator context (hidden from users)
+  idealResponse: text('ideal_response'),
+  commonMistakes: jsonb('common_mistakes').$type<string[]>().default([]),
+  keyElements: jsonb('key_elements').$type<string[]>().default([]),
+  antiPatterns: jsonb('anti_patterns').$type<string[]>().default([]),
+
+  // Publishing
+  isPublished: boolean('is_published').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Payment orders
 export const orders = pgTable('orders', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -181,3 +216,5 @@ export type Achievement = typeof achievements.$inferSelect;
 export type Certification = typeof certifications.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
+export type DbLesson = typeof lessons.$inferSelect;
+export type NewDbLesson = typeof lessons.$inferInsert;

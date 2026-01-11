@@ -1,0 +1,103 @@
+{
+  "id": "S4-DEPLOYMENT-001",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "deployment",
+    "difficulty": 1,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S4-TESTING-003"],
+    "tags": ["deployment", "ci-cd", "environment"]
+  },
+  "scenario": {
+    "title": "The Deployment Planner",
+    "context": "You're ready to deploy your AI-assisted project. You need to create a deployment checklist and environment configuration that AI can help verify and troubleshoot.",
+    "goal": "Write a prompt that guides AI to create a comprehensive deployment checklist and environment setup for a specific project type.",
+    "constraints": [
+      "Cover all deployment phases (build, test, deploy, verify)",
+      "Include environment-specific configurations",
+      "Address common deployment failures",
+      "Create rollback procedures"
+    ],
+    "exampleInput": "Deploy a Next.js app with Supabase backend to Vercel. Uses environment variables for API keys, has database migrations, and needs preview deployments for PRs.",
+    "hints": [
+      "Specify your tech stack and hosting platform",
+      "List what needs to happen before, during, and after deploy",
+      "Think about what could go wrong at each step"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "stack-context",
+        "name": "Stack Context",
+        "weight": 25,
+        "description": "Is the tech stack clearly specified?",
+        "scoringGuide": {
+          "excellent": "Complete stack with versions and hosting details",
+          "good": "Main technologies listed",
+          "adequate": "Some stack info",
+          "poor": "No stack context"
+        }
+      },
+      {
+        "id": "phase-coverage",
+        "name": "Deployment Phases",
+        "weight": 30,
+        "description": "Are all deployment phases covered?",
+        "scoringGuide": {
+          "excellent": "Build, test, deploy, verify, rollback all covered",
+          "good": "Most phases addressed",
+          "adequate": "Basic deploy steps",
+          "poor": "Just 'deploy it'"
+        }
+      },
+      {
+        "id": "environment-config",
+        "name": "Environment Configuration",
+        "weight": 25,
+        "description": "Are environment variables and configs addressed?",
+        "scoringGuide": {
+          "excellent": "Env vars, secrets management, per-environment config",
+          "good": "Environment variables covered",
+          "adequate": "Some config mentioned",
+          "poor": "No environment handling"
+        }
+      },
+      {
+        "id": "failure-handling",
+        "name": "Failure Handling",
+        "weight": 20,
+        "description": "Are failure scenarios and rollback addressed?",
+        "scoringGuide": {
+          "excellent": "Common failures listed with rollback procedures",
+          "good": "Some failure handling",
+          "adequate": "Rollback mentioned",
+          "poor": "No failure planning"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Create a deployment checklist for this project:\n\nDEPLOYMENT PLAN: Next.js + Supabase → Vercel\n\n---\n\nPROJECT STACK:\n\n```yaml\nframework: Next.js 14 (App Router)\nruntime: Node.js 20.x\ndatabase: Supabase (PostgreSQL)\nauth: Supabase Auth\nhosting: Vercel\nci_cd: GitHub Actions + Vercel Git Integration\n\nenvironment_variables:\n  - NEXT_PUBLIC_SUPABASE_URL (public)\n  - NEXT_PUBLIC_SUPABASE_ANON_KEY (public)\n  - SUPABASE_SERVICE_ROLE_KEY (secret)\n  - DATABASE_URL (secret, for migrations)\n  - NEXT_PUBLIC_APP_URL (per-environment)\n```\n\n---\n\nPRE-DEPLOYMENT CHECKLIST:\n\n```yaml\ncode_quality:\n  - [ ] All tests passing locally\n  - [ ] No TypeScript errors (npm run build)\n  - [ ] No lint errors (npm run lint)\n  - [ ] No console.logs in production code\n  - [ ] Error boundaries in place\n\ndatabase:\n  - [ ] Migrations tested on staging\n  - [ ] RLS policies reviewed\n  - [ ] Indexes for slow queries\n  - [ ] Backup taken before destructive migrations\n\nenvironment:\n  - [ ] All env vars set in Vercel dashboard\n  - [ ] Preview env vars configured\n  - [ ] Production secrets rotated recently\n  - [ ] NEXT_PUBLIC_APP_URL correct per environment\n\ndependencies:\n  - [ ] No security vulnerabilities (npm audit)\n  - [ ] Lock file committed (package-lock.json)\n  - [ ] No unused dependencies\n```\n\n---\n\nDEPLOYMENT PHASES:\n\n```yaml\nphase_1_build:\n  trigger: Push to main or PR\n  steps:\n    - Vercel clones repo\n    - Installs dependencies (npm ci)\n    - Runs build (next build)\n    - Outputs static + serverless functions\n  verification:\n    - Build logs show no errors\n    - Bundle size within limits\n    - All routes generated\n\nphase_2_database:\n  when: If migrations pending\n  steps:\n    - Connect to Supabase via DATABASE_URL\n    - Run: npx supabase db push (or migration script)\n    - Verify schema matches expected\n  verification:\n    - No migration errors\n    - Tables created/modified correctly\n    - RLS policies applied\n\nphase_3_deploy:\n  steps:\n    - Vercel deploys to edge network\n    - Serverless functions deployed\n    - Static assets cached\n  verification:\n    - Deployment URL accessible\n    - No 500 errors on key routes\n\nphase_4_verify:\n  steps:\n    - Hit health check endpoint\n    - Test auth flow\n    - Test database connection\n    - Test key user journeys\n  verification:\n    - /api/health returns 200\n    - Can login/logout\n    - Can read/write to database\n```\n\n---\n\nENVIRONMENT CONFIGURATION:\n\n```typescript\n// Vercel Environment Setup\n\nProduction (main branch):\n  NEXT_PUBLIC_SUPABASE_URL: https://xxx.supabase.co\n  NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJ...\n  SUPABASE_SERVICE_ROLE_KEY: eyJ... (encrypted)\n  NEXT_PUBLIC_APP_URL: https://myapp.com\n  NODE_ENV: production\n\nPreview (PR branches):\n  NEXT_PUBLIC_SUPABASE_URL: https://xxx.supabase.co (staging project)\n  NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJ... (staging key)\n  SUPABASE_SERVICE_ROLE_KEY: eyJ... (staging, encrypted)\n  NEXT_PUBLIC_APP_URL: $VERCEL_URL (automatic)\n  NODE_ENV: production\n\nLocal (.env.local):\n  NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321\n  NEXT_PUBLIC_SUPABASE_ANON_KEY: local-anon-key\n  SUPABASE_SERVICE_ROLE_KEY: local-service-key\n  NEXT_PUBLIC_APP_URL: http://localhost:3000\n```\n\n---\n\nCOMMON FAILURES & FIXES:\n\n```yaml\nbuild_failures:\n  - error: \"Module not found\"\n    cause: Missing dependency or wrong import path\n    fix: Check package.json, verify import paths\n  \n  - error: \"Type error\"\n    cause: TypeScript strict mode catching issues\n    fix: Run `npm run build` locally first\n  \n  - error: \"Out of memory\"\n    cause: Large bundle or too many pages\n    fix: Increase Node memory or optimize imports\n\nruntime_failures:\n  - error: \"Environment variable undefined\"\n    cause: Missing env var in Vercel dashboard\n    fix: Add to Vercel project settings\n  \n  - error: \"Database connection failed\"\n    cause: Wrong DATABASE_URL or Supabase down\n    fix: Verify URL, check Supabase status\n  \n  - error: \"Auth redirect loop\"\n    cause: NEXT_PUBLIC_APP_URL mismatch\n    fix: Set correct URL for environment\n```\n\n---\n\nROLLBACK PROCEDURE:\n\n```yaml\nif_deployment_fails:\n  vercel:\n    - Go to Vercel dashboard → Deployments\n    - Find last working deployment\n    - Click \"...\" → \"Promote to Production\"\n    - Instant rollback (no rebuild)\n\n  database:\n    - If migration caused issue:\n      - Create rollback migration (reverse changes)\n      - Push rollback migration\n      - Or restore from backup if data loss\n\n  full_rollback:\n    1. Rollback Vercel deployment\n    2. Rollback database migration\n    3. Verify app works on previous version\n    4. Investigate root cause before retry\n```\n\n---\n\nPOST-DEPLOYMENT:\n\n```yaml\nmonitoring:\n  - Check Vercel analytics for errors\n  - Monitor Supabase dashboard for query issues\n  - Set up alerts for 5xx errors\n\ndocumentation:\n  - Update changelog\n  - Note any manual steps required\n  - Update runbook if new failure modes found\n```",
+    "commonMistakes": [
+      "No stack context",
+      "Missing environment configuration",
+      "No rollback plan",
+      "Ignoring database migrations"
+    ],
+    "keyElements": [
+      "Complete tech stack",
+      "Phased deployment steps",
+      "Environment-specific config",
+      "Failure handling and rollback"
+    ],
+    "antiPatterns": [
+      "'Deploy to Vercel'",
+      "No environment handling",
+      "No verification steps",
+      "No rollback plan"
+    ]
+  }
+}

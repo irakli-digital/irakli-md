@@ -1,0 +1,103 @@
+{
+  "id": "S3-BRANCHING-002",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "branching",
+    "difficulty": 2,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-BRANCHING-001"],
+    "tags": ["branching", "decision-tree", "complex-logic"]
+  },
+  "scenario": {
+    "title": "The Eligibility Engine",
+    "context": "Your loan application system uses AI to evaluate eligibility through a complex decision tree. Different branches require different data collection and evaluation criteria.",
+    "goal": "Write a prompt that implements a multi-level decision tree with data-dependent branching and different evaluation paths.",
+    "constraints": [
+      "Design 3+ level deep decision tree",
+      "Each branch may require different additional data",
+      "Include scoring logic per branch",
+      "Handle incomplete data scenarios"
+    ],
+    "exampleInput": "Loan eligibility: First check loan type (personal/mortgage/auto) → then check amount threshold → then evaluate based on type-specific criteria. Personal <$10k has simpler criteria than >$50k mortgage.",
+    "hints": [
+      "Map the decision tree visually first",
+      "Define data requirements per branch",
+      "Specify evaluation criteria at leaf nodes"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "tree-structure",
+        "name": "Decision Tree Structure",
+        "weight": 30,
+        "description": "Is the decision tree clearly mapped?",
+        "scoringGuide": {
+          "excellent": "Multi-level tree with all branches defined",
+          "good": "Tree structure present",
+          "adequate": "Some branching logic",
+          "poor": "No tree structure"
+        }
+      },
+      {
+        "id": "branch-criteria",
+        "name": "Branch Criteria",
+        "weight": 25,
+        "description": "Are branching conditions specified?",
+        "scoringGuide": {
+          "excellent": "All conditions with thresholds defined",
+          "good": "Conditions listed",
+          "adequate": "Some conditions implied",
+          "poor": "No branch criteria"
+        }
+      },
+      {
+        "id": "data-requirements",
+        "name": "Data Requirements",
+        "weight": 25,
+        "description": "Are data needs per branch defined?",
+        "scoringGuide": {
+          "excellent": "Different data sets per branch",
+          "good": "Data requirements mentioned",
+          "adequate": "Some data awareness",
+          "poor": "No data requirements"
+        }
+      },
+      {
+        "id": "leaf-evaluation",
+        "name": "Leaf Node Evaluation",
+        "weight": 20,
+        "description": "Are end evaluations defined?",
+        "scoringGuide": {
+          "excellent": "Scoring logic at each leaf",
+          "good": "Evaluation present",
+          "adequate": "End states defined",
+          "poor": "No leaf evaluation"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a loan eligibility decision tree:\n\nDECISION TREE: Loan Eligibility Engine\n\n```\n                    [START]\n                       |\n              [Loan Type?]\n             /     |      \\\n      Personal  Mortgage   Auto\n          |        |         |\n     [Amount?] [Amount?]  [Amount?]\n      /    \\     /    \\     /    \\\n   <10k  >10k  <200k >200k  <30k  >30k\n     |     |     |     |      |     |\n  [Simple][Standard][Standard][Premium][Simple][Standard]\n   Eval    Eval     Eval     Eval    Eval    Eval\n```\n\n---\n\nLEVEL 1: Loan Type Classification\n\n```json\n{\n  \"node\": \"loan_type\",\n  \"prompt\": \"Based on the application, classify the loan type\",\n  \"branches\": [\n    {\n      \"value\": \"personal\",\n      \"criteria\": \"Unsecured personal loan, general purpose\",\n      \"next\": \"personal_amount\"\n    },\n    {\n      \"value\": \"mortgage\",\n      \"criteria\": \"Home purchase or refinance, property as collateral\",\n      \"next\": \"mortgage_amount\"\n    },\n    {\n      \"value\": \"auto\",\n      \"criteria\": \"Vehicle purchase, vehicle as collateral\",\n      \"next\": \"auto_amount\"\n    }\n  ]\n}\n```\n\n---\n\nLEVEL 2: Amount Thresholds\n\nPersonal Loan Branch:\n```json\n{\n  \"node\": \"personal_amount\",\n  \"branches\": [\n    {\n      \"condition\": \"amount < 10000\",\n      \"next\": \"personal_simple_eval\",\n      \"required_data\": [\"income\", \"credit_score\"],\n      \"description\": \"Quick approval path\"\n    },\n    {\n      \"condition\": \"amount >= 10000 AND amount < 50000\",\n      \"next\": \"personal_standard_eval\",\n      \"required_data\": [\"income\", \"credit_score\", \"employment_history\", \"debt_ratio\"],\n      \"description\": \"Standard evaluation\"\n    },\n    {\n      \"condition\": \"amount >= 50000\",\n      \"next\": \"personal_premium_eval\",\n      \"required_data\": [\"income\", \"credit_score\", \"employment_history\", \"debt_ratio\", \"assets\", \"tax_returns\"],\n      \"description\": \"Full underwriting required\"\n    }\n  ]\n}\n```\n\nMortgage Branch:\n```json\n{\n  \"node\": \"mortgage_amount\",\n  \"branches\": [\n    {\n      \"condition\": \"amount < 200000\",\n      \"next\": \"mortgage_standard_eval\",\n      \"required_data\": [\"income\", \"credit_score\", \"employment_history\", \"debt_ratio\", \"property_value\", \"down_payment\"]\n    },\n    {\n      \"condition\": \"amount >= 200000 AND amount < 500000\",\n      \"next\": \"mortgage_standard_eval\",\n      \"required_data\": [\"income\", \"credit_score\", \"employment_history\", \"debt_ratio\", \"property_value\", \"down_payment\", \"assets\"]\n    },\n    {\n      \"condition\": \"amount >= 500000\",\n      \"next\": \"mortgage_jumbo_eval\",\n      \"required_data\": [\"income\", \"credit_score\", \"employment_history\", \"debt_ratio\", \"property_value\", \"down_payment\", \"assets\", \"tax_returns\", \"investment_accounts\"],\n      \"description\": \"Jumbo loan - additional scrutiny\"\n    }\n  ]\n}\n```\n\n---\n\nLEVEL 3: Leaf Node Evaluations\n\nPersonal Simple Evaluation:\n```json\n{\n  \"node\": \"personal_simple_eval\",\n  \"type\": \"leaf\",\n  \"ai_prompt\": \"Evaluate this small personal loan application using simplified criteria.\",\n  \"scoring_rules\": {\n    \"credit_score\": {\n      \"weight\": 60,\n      \"thresholds\": {\n        \"excellent\": {\"min\": 720, \"score\": 100},\n        \"good\": {\"min\": 680, \"score\": 80},\n        \"fair\": {\"min\": 620, \"score\": 60},\n        \"poor\": {\"min\": 0, \"score\": 30}\n      }\n    },\n    \"income_to_payment_ratio\": {\n      \"weight\": 40,\n      \"thresholds\": {\n        \"excellent\": {\"max_ratio\": 0.10, \"score\": 100},\n        \"good\": {\"max_ratio\": 0.20, \"score\": 80},\n        \"acceptable\": {\"max_ratio\": 0.30, \"score\": 60}\n      }\n    }\n  },\n  \"decision_thresholds\": {\n    \"auto_approve\": 80,\n    \"manual_review\": 60,\n    \"auto_decline\": 60\n  },\n  \"output\": {\n    \"decision\": \"approved|review|declined\",\n    \"score\": 85,\n    \"reasons\": [\"Excellent credit score\", \"Low payment ratio\"],\n    \"conditions\": [\"Rate: 8.5%\", \"Term: 36 months\"]\n  }\n}\n```\n\nMortgage Jumbo Evaluation:\n```json\n{\n  \"node\": \"mortgage_jumbo_eval\",\n  \"type\": \"leaf\",\n  \"ai_prompt\": \"Perform comprehensive evaluation for jumbo mortgage application.\",\n  \"scoring_rules\": {\n    \"credit_score\": {\"weight\": 25, \"min_required\": 700},\n    \"debt_to_income\": {\"weight\": 25, \"max_allowed\": 0.43},\n    \"down_payment_percent\": {\"weight\": 20, \"min_required\": 0.20},\n    \"reserves_months\": {\"weight\": 15, \"min_required\": 12},\n    \"employment_stability\": {\"weight\": 15, \"min_years\": 2}\n  },\n  \"hard_stops\": [\n    {\"field\": \"credit_score\", \"condition\": \"< 700\", \"action\": \"decline\"},\n    {\"field\": \"down_payment_percent\", \"condition\": \"< 0.10\", \"action\": \"decline\"}\n  ],\n  \"decision_thresholds\": {\n    \"auto_approve\": 85,\n    \"manual_review\": 70,\n    \"auto_decline\": 70\n  }\n}\n```\n\n---\n\nINCOMPLETE DATA HANDLING:\n\n```json\n{\n  \"missing_data_strategy\": {\n    \"required_fields_missing\": {\n      \"action\": \"request_data\",\n      \"response\": {\n        \"status\": \"incomplete\",\n        \"missing_fields\": [\"employment_history\", \"tax_returns\"],\n        \"message\": \"Additional documentation required\",\n        \"can_continue\": false\n      }\n    },\n    \"optional_fields_missing\": {\n      \"action\": \"continue_with_penalty\",\n      \"penalty\": \"reduce_score_by_10_per_missing\"\n    },\n    \"partial_data\": {\n      \"action\": \"use_conservative_estimate\",\n      \"note\": \"Flag for manual review\"\n    }\n  }\n}\n```",
+    "commonMistakes": [
+      "Flat decision logic",
+      "Same data for all branches",
+      "No scoring at leaf nodes",
+      "Missing incomplete data handling"
+    ],
+    "keyElements": [
+      "Multi-level decision tree",
+      "Branch-specific data requirements",
+      "Scoring logic at leaves",
+      "Incomplete data strategy"
+    ],
+    "antiPatterns": [
+      "'Evaluate loan eligibility'",
+      "Single evaluation path",
+      "No branching conditions",
+      "Missing data ignored"
+    ]
+  }
+}

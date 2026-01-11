@@ -1,0 +1,103 @@
+{
+  "id": "S4-CODE-GENERATION-001",
+  "version": 1,
+  "meta": {
+    "stage": 4,
+    "skill": "code-generation",
+    "difficulty": 1,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S3-CHAINING-001"],
+    "tags": ["code-generation", "prompts", "production"]
+  },
+  "scenario": {
+    "title": "The Feature Implementer",
+    "context": "You're using AI to help implement a new feature in an existing codebase. You need to provide enough context about the codebase patterns and conventions for the AI to generate code that fits.",
+    "goal": "Write a prompt that guides AI to generate production-ready code following existing patterns, conventions, and architecture.",
+    "constraints": [
+      "Include relevant existing code as context",
+      "Specify coding conventions and patterns",
+      "Define file structure expectations",
+      "Request proper error handling and types"
+    ],
+    "exampleInput": "Add user notification preferences feature to React/TypeScript app. Existing patterns: React Query for data, Zod for validation, TailwindCSS. Need: API endpoint, DB schema, React component, form validation.",
+    "hints": [
+      "Show examples of similar existing code",
+      "Specify the tech stack explicitly",
+      "Define what 'production-ready' means for this codebase"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "context-provision",
+        "name": "Context Provision",
+        "weight": 30,
+        "description": "Is enough codebase context provided?",
+        "scoringGuide": {
+          "excellent": "Relevant code examples with patterns explained",
+          "good": "Some existing code shown",
+          "adequate": "Stack mentioned",
+          "poor": "No context"
+        }
+      },
+      {
+        "id": "conventions",
+        "name": "Convention Specification",
+        "weight": 25,
+        "description": "Are coding conventions defined?",
+        "scoringGuide": {
+          "excellent": "Detailed conventions with examples",
+          "good": "Conventions listed",
+          "adequate": "Some standards mentioned",
+          "poor": "No conventions"
+        }
+      },
+      {
+        "id": "structure",
+        "name": "Structure Definition",
+        "weight": 25,
+        "description": "Is file/component structure defined?",
+        "scoringGuide": {
+          "excellent": "Full file structure with naming conventions",
+          "good": "Structure outlined",
+          "adequate": "Some organization",
+          "poor": "No structure guidance"
+        }
+      },
+      {
+        "id": "quality-requirements",
+        "name": "Quality Requirements",
+        "weight": 20,
+        "description": "Are quality expectations specified?",
+        "scoringGuide": {
+          "excellent": "Types, error handling, testing requirements",
+          "good": "Quality expectations mentioned",
+          "adequate": "Some requirements",
+          "poor": "No quality guidance"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Guide AI to implement a notification preferences feature:\n\nFEATURE REQUEST: User Notification Preferences\n\n---\n\nCODEBASE CONTEXT:\n\n```\nTech Stack:\n- Frontend: React 18 + TypeScript 5\n- State/Data: React Query (TanStack Query v5)\n- Styling: TailwindCSS + shadcn/ui components\n- Validation: Zod schemas\n- Backend: tRPC + Drizzle ORM + PostgreSQL\n- Auth: NextAuth.js\n```\n\nProject Structure:\n```\nsrc/\n  components/\n    ui/          # shadcn components (don't modify)\n    settings/    # Settings page components\n  server/\n    routers/     # tRPC routers\n  lib/\n    db/\n      schema.ts  # Drizzle schema\n    validations/ # Zod schemas\n  types/         # TypeScript types\n```\n\n---\n\nEXISTING PATTERNS TO FOLLOW:\n\nAPI Router Pattern (server/routers/user.ts):\n```typescript\nimport { router, protectedProcedure } from '../trpc';\nimport { z } from 'zod';\nimport { eq } from 'drizzle-orm';\nimport { users } from '@/lib/db/schema';\n\nexport const userRouter = router({\n  getProfile: protectedProcedure.query(async ({ ctx }) => {\n    const user = await ctx.db\n      .select()\n      .from(users)\n      .where(eq(users.id, ctx.session.user.id))\n      .limit(1);\n    return user[0] ?? null;\n  }),\n\n  updateProfile: protectedProcedure\n    .input(updateProfileSchema)\n    .mutation(async ({ ctx, input }) => {\n      // Always validate, always use transactions for multi-step\n      return ctx.db\n        .update(users)\n        .set({ ...input, updatedAt: new Date() })\n        .where(eq(users.id, ctx.session.user.id))\n        .returning();\n    }),\n});\n```\n\nReact Component Pattern (components/settings/ProfileForm.tsx):\n```typescript\n'use client';\n\nimport { useForm } from 'react-hook-form';\nimport { zodResolver } from '@hookform/resolvers/zod';\nimport { api } from '@/lib/api';\nimport { Button } from '@/components/ui/button';\nimport { Input } from '@/components/ui/input';\nimport { toast } from 'sonner';\nimport type { ProfileFormData } from '@/types';\nimport { profileSchema } from '@/lib/validations/user';\n\nexport function ProfileForm() {\n  const { data: profile, isLoading } = api.user.getProfile.useQuery();\n  const updateMutation = api.user.updateProfile.useMutation({\n    onSuccess: () => {\n      toast.success('Profile updated');\n    },\n    onError: (error) => {\n      toast.error(error.message);\n    },\n  });\n\n  const form = useForm<ProfileFormData>({\n    resolver: zodResolver(profileSchema),\n    defaultValues: profile,\n  });\n\n  // ... rest of component\n}\n```\n\nDatabase Schema Pattern (lib/db/schema.ts):\n```typescript\nimport { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';\n\nexport const users = pgTable('users', {\n  id: text('id').primaryKey(),\n  email: text('email').notNull().unique(),\n  name: text('name'),\n  createdAt: timestamp('created_at').defaultNow(),\n  updatedAt: timestamp('updated_at').defaultNow(),\n});\n```\n\n---\n\nFEATURE REQUIREMENTS:\n\n```yaml\nFeature: Notification Preferences\n\nUser Stories:\n- User can enable/disable email notifications\n- User can enable/disable push notifications\n- User can choose notification frequency (immediate, daily digest, weekly)\n- User can select which events trigger notifications\n\nNotification Types:\n- marketing: Product updates, tips (default: off)\n- activity: Likes, comments, mentions (default: on)\n- security: Password changes, new logins (default: on, cannot disable)\n- reminders: Scheduled reminders (default: on)\n\nAPI Requirements:\n- GET current preferences\n- PATCH update preferences\n- Preferences tied to user ID (1:1 relationship)\n\nUI Requirements:\n- Toggle switches for each notification type\n- Dropdown for frequency selection\n- Save button with loading state\n- Success/error toast messages\n- Match existing settings page styling\n```\n\n---\n\nCODE GENERATION REQUEST:\n\nGenerate the following files following the patterns above:\n\n1. **lib/db/schema.ts addition** - Add notification_preferences table\n   - Foreign key to users\n   - Columns for each preference\n   - Use proper types (boolean, text enum)\n\n2. **lib/validations/notifications.ts** - Zod schemas\n   - Schema for preferences object\n   - Schema for update input\n\n3. **server/routers/notifications.ts** - tRPC router\n   - getPreferences query\n   - updatePreferences mutation\n   - Create default preferences on first access\n\n4. **components/settings/NotificationPreferences.tsx** - React component\n   - Use shadcn Switch and Select components\n   - Follow existing form patterns\n   - Handle loading and error states\n\nCONVENTIONS:\n- Use 'use client' directive for client components\n- Prefer async/await over .then()\n- Always type function parameters and returns\n- Use descriptive variable names (no abbreviations)\n- Error messages should be user-friendly\n- Add JSDoc comments for exported functions",
+    "commonMistakes": [
+      "No existing code examples",
+      "Vague tech stack description",
+      "Missing file structure",
+      "No quality requirements"
+    ],
+    "keyElements": [
+      "Existing code patterns shown",
+      "Conventions explicitly stated",
+      "Clear file structure",
+      "Quality expectations defined"
+    ],
+    "antiPatterns": [
+      "'Add a notification settings feature'",
+      "No code examples",
+      "No convention guidance",
+      "No error handling requirements"
+    ]
+  }
+}

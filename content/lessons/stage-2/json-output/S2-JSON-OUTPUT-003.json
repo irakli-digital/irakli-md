@@ -1,0 +1,103 @@
+{
+  "id": "S2-JSON-OUTPUT-003",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "json-output",
+    "difficulty": 3,
+    "estimatedMinutes": 8,
+    "prerequisites": ["S2-JSON-OUTPUT-002"],
+    "tags": ["json", "complex", "conditional"]
+  },
+  "scenario": {
+    "title": "The API Response Builder",
+    "context": "You're designing an AI-powered API that processes customer support tickets. The response needs to follow a strict schema that includes conditional fields, enums, and proper error handling - all in a format that passes JSON Schema validation.",
+    "goal": "Write a prompt that generates API-style JSON responses with discriminated unions, enums, and conditional required fields.",
+    "constraints": [
+      "Must include a 'status' enum: 'resolved', 'escalated', 'pending'",
+      "If status is 'escalated', include required 'escalation_reason' and 'priority' fields",
+      "If status is 'resolved', include required 'resolution_summary' field",
+      "All responses need 'ticket_id', 'timestamp', and 'category'"
+    ],
+    "exampleInput": "Ticket: Customer can't log in. After investigation: Password was expired. Reset link sent. Customer confirmed access restored.",
+    "hints": [
+      "Use discriminated union pattern - different shapes based on status",
+      "Show examples for each status type",
+      "Specify enum values explicitly"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "enum-specification",
+        "name": "Enum Definition",
+        "weight": 25,
+        "description": "Are enum values clearly specified?",
+        "scoringGuide": {
+          "excellent": "All enum values listed with descriptions",
+          "good": "Enum values listed",
+          "adequate": "Enum implied",
+          "poor": "No enum specification"
+        }
+      },
+      {
+        "id": "conditional-fields",
+        "name": "Conditional Fields",
+        "weight": 30,
+        "description": "Are status-dependent fields properly defined?",
+        "scoringGuide": {
+          "excellent": "Clear conditional rules with examples for each status",
+          "good": "Conditional fields mentioned with rules",
+          "adequate": "Some conditional logic present",
+          "poor": "No conditional handling"
+        }
+      },
+      {
+        "id": "schema-completeness",
+        "name": "Schema Completeness",
+        "weight": 25,
+        "description": "Is the full schema structure defined?",
+        "scoringGuide": {
+          "excellent": "All fields, types, and requirements specified",
+          "good": "Main structure with most fields",
+          "adequate": "Basic structure present",
+          "poor": "Incomplete schema"
+        }
+      },
+      {
+        "id": "examples",
+        "name": "Example Coverage",
+        "weight": 20,
+        "description": "Are examples provided for different cases?",
+        "scoringGuide": {
+          "excellent": "Examples for each status type",
+          "good": "At least one complete example",
+          "adequate": "Partial example",
+          "poor": "No examples"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Process this support ticket and return a JSON response following this exact schema:\n\nBase fields (always required):\n```json\n{\n  \"ticket_id\": \"TKT-12345\",\n  \"timestamp\": \"2024-01-15T10:30:00Z\",\n  \"category\": \"account_access\",\n  \"status\": \"resolved\"\n}\n```\n\nStatus enum values: \"resolved\" | \"escalated\" | \"pending\"\n\nConditional fields by status:\n\nIf status = \"resolved\":\n```json\n{\n  ...base_fields,\n  \"status\": \"resolved\",\n  \"resolution_summary\": \"Description of how issue was resolved\"\n}\n```\n\nIf status = \"escalated\":\n```json\n{\n  ...base_fields,\n  \"status\": \"escalated\",\n  \"escalation_reason\": \"Why this needs escalation\",\n  \"priority\": \"high\" | \"medium\" | \"low\"\n}\n```\n\nIf status = \"pending\":\n```json\n{\n  ...base_fields,\n  \"status\": \"pending\",\n  \"next_action\": \"What needs to happen next\",\n  \"waiting_on\": \"customer\" | \"internal\" | \"third_party\"\n}\n```\n\nCategory enum: \"account_access\" | \"billing\" | \"technical\" | \"general\"\n\nAnalyze the ticket and return ONLY the appropriate JSON response.\n\nTicket: [ticket text here]",
+    "commonMistakes": [
+      "Not specifying conditional field requirements",
+      "Missing enum value lists",
+      "No examples for different statuses",
+      "Unclear which fields are required vs optional"
+    ],
+    "keyElements": [
+      "Enum values explicitly listed",
+      "Conditional fields per status defined",
+      "Examples for each status type",
+      "Base fields clearly specified"
+    ],
+    "antiPatterns": [
+      "'Return a JSON response'",
+      "No conditional logic specified",
+      "Enum values not listed",
+      "Single example only"
+    ]
+  }
+}

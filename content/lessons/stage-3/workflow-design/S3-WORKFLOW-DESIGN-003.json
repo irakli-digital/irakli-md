@@ -1,0 +1,104 @@
+{
+  "id": "S3-WORKFLOW-DESIGN-003",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "workflow-design",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S3-WORKFLOW-DESIGN-002"],
+    "tags": ["workflow", "state-machine", "complex"]
+  },
+  "scenario": {
+    "title": "The Approval Workflow",
+    "context": "You're designing a document approval workflow that involves multiple AI analysis steps, human approval gates, and the ability to loop back for revisions. The workflow must track state and handle complex transitions.",
+    "goal": "Write a prompt that defines a state machine workflow with loops, human-in-the-loop gates, and comprehensive state tracking.",
+    "constraints": [
+      "Define explicit states and valid transitions",
+      "Include at least one human approval gate",
+      "Support revision loops (reject → revise → resubmit)",
+      "Track audit trail of all state changes"
+    ],
+    "exampleInput": "Document approval: Draft → AI Review → Manager Approval → (if rejected: back to author for revision) → Legal Review → Published. Need full audit trail and max 3 revision cycles.",
+    "hints": [
+      "Define states as a finite set",
+      "Map valid transitions between states",
+      "Include data captured at each transition",
+      "Define loop/cycle limits"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "state-definition",
+        "name": "State Definition",
+        "weight": 25,
+        "description": "Are workflow states clearly defined?",
+        "scoringGuide": {
+          "excellent": "All states enumerated with descriptions",
+          "good": "States listed",
+          "adequate": "Some states present",
+          "poor": "No state definition"
+        }
+      },
+      {
+        "id": "transitions",
+        "name": "State Transitions",
+        "weight": 25,
+        "description": "Are valid transitions mapped?",
+        "scoringGuide": {
+          "excellent": "Full transition matrix with conditions",
+          "good": "Transitions defined",
+          "adequate": "Some transitions shown",
+          "poor": "No transition logic"
+        }
+      },
+      {
+        "id": "human-gates",
+        "name": "Human-in-the-Loop",
+        "weight": 25,
+        "description": "Are human approval gates defined?",
+        "scoringGuide": {
+          "excellent": "Clear gates with escalation and timeout",
+          "good": "Approval gates present",
+          "adequate": "Human step mentioned",
+          "poor": "No human gates"
+        }
+      },
+      {
+        "id": "audit-trail",
+        "name": "Audit Trail",
+        "weight": 25,
+        "description": "Is state change tracking defined?",
+        "scoringGuide": {
+          "excellent": "Full audit log schema with all fields",
+          "good": "Audit tracking mentioned",
+          "adequate": "Some history implied",
+          "poor": "No audit trail"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design a document approval state machine workflow:\n\nWORKFLOW: Document Approval Pipeline\nType: State Machine with Human Gates\n\n---\n\nSTATES:\n```\nDRAFT          - Initial state, document being created\nAI_REVIEW      - Automated quality/compliance check\nPENDING_MANAGER - Awaiting manager approval\nREVISION       - Sent back to author for changes\nPENDING_LEGAL  - Awaiting legal review\nAPPROVED       - All approvals complete\nPUBLISHED      - Final state, document live\nREJECTED       - Terminal state, permanently declined\n```\n\n---\n\nVALID TRANSITIONS:\n```\nDRAFT → AI_REVIEW\n  Trigger: Author submits\n  Condition: Document not empty\n\nAI_REVIEW → PENDING_MANAGER\n  Trigger: AI check passes\n  Condition: ai_score >= 70\n\nAI_REVIEW → REVISION\n  Trigger: AI check fails\n  Condition: ai_score < 70\n\nPENDING_MANAGER → PENDING_LEGAL\n  Trigger: Manager approves\n  Condition: Human action\n\nPENDING_MANAGER → REVISION\n  Trigger: Manager requests changes\n  Condition: Human action\n\nPENDING_MANAGER → REJECTED\n  Trigger: Manager rejects permanently\n  Condition: Human action + reason required\n\nREVISION → AI_REVIEW\n  Trigger: Author resubmits\n  Condition: revision_count < 3\n\nREVISION → REJECTED\n  Trigger: Max revisions exceeded\n  Condition: revision_count >= 3\n\nPENDING_LEGAL → APPROVED\n  Trigger: Legal approves\n  Condition: Human action\n\nPENDING_LEGAL → REVISION\n  Trigger: Legal requests changes\n  Condition: Human action\n\nAPPROVED → PUBLISHED\n  Trigger: Scheduled publish time OR manual publish\n  Condition: All approvals valid\n```\n\n---\n\nHUMAN APPROVAL GATES:\n\nGate 1: Manager Approval\n```json\n{\n  \"gate_id\": \"manager_approval\",\n  \"state\": \"PENDING_MANAGER\",\n  \"assignee_role\": \"manager\",\n  \"timeout\": \"48h\",\n  \"timeout_action\": \"escalate_to_director\",\n  \"required_fields\": [\"decision\", \"comments\"],\n  \"decisions\": [\"approve\", \"request_changes\", \"reject\"]\n}\n```\n\nGate 2: Legal Review\n```json\n{\n  \"gate_id\": \"legal_review\",\n  \"state\": \"PENDING_LEGAL\",\n  \"assignee_role\": \"legal_team\",\n  \"timeout\": \"72h\",\n  \"timeout_action\": \"notify_compliance\",\n  \"required_fields\": [\"decision\", \"legal_notes\"],\n  \"decisions\": [\"approve\", \"request_changes\"]\n}\n```\n\n---\n\nLOOP CONTROL:\n```json\n{\n  \"max_revision_cycles\": 3,\n  \"current_revision\": 0,\n  \"on_max_exceeded\": \"auto_reject\",\n  \"revision_history\": [\n    {\n      \"cycle\": 1,\n      \"returned_from\": \"PENDING_MANAGER\",\n      \"reason\": \"Needs more data\",\n      \"returned_at\": \"2024-01-15T10:00:00Z\"\n    }\n  ]\n}\n```\n\n---\n\nAUDIT TRAIL SCHEMA:\n```json\n{\n  \"document_id\": \"doc-123\",\n  \"audit_log\": [\n    {\n      \"event_id\": \"evt-001\",\n      \"timestamp\": \"2024-01-15T10:30:00Z\",\n      \"from_state\": \"DRAFT\",\n      \"to_state\": \"AI_REVIEW\",\n      \"trigger\": \"author_submit\",\n      \"actor\": {\n        \"type\": \"user\",\n        \"id\": \"user-456\",\n        \"name\": \"John Smith\"\n      },\n      \"metadata\": {\n        \"document_version\": 1,\n        \"comments\": \"Initial submission\"\n      }\n    },\n    {\n      \"event_id\": \"evt-002\",\n      \"timestamp\": \"2024-01-15T10:30:05Z\",\n      \"from_state\": \"AI_REVIEW\",\n      \"to_state\": \"PENDING_MANAGER\",\n      \"trigger\": \"ai_check_pass\",\n      \"actor\": {\n        \"type\": \"system\",\n        \"id\": \"ai-reviewer\"\n      },\n      \"metadata\": {\n        \"ai_score\": 85,\n        \"checks_passed\": [\"grammar\", \"compliance\", \"format\"]\n      }\n    }\n  ]\n}\n```\n\n---\n\nWORKFLOW METADATA:\n```json\n{\n  \"workflow_id\": \"wf-approval-v1\",\n  \"created_at\": \"2024-01-15T10:00:00Z\",\n  \"current_state\": \"PENDING_MANAGER\",\n  \"revision_count\": 0,\n  \"total_duration_hours\": 0.5,\n  \"sla_deadline\": \"2024-01-18T10:00:00Z\"\n}\n```",
+    "commonMistakes": [
+      "States not explicitly enumerated",
+      "Missing transition conditions",
+      "No loop/cycle limits",
+      "Incomplete audit trail"
+    ],
+    "keyElements": [
+      "Finite state enumeration",
+      "Transition matrix with conditions",
+      "Human gates with timeouts",
+      "Complete audit trail schema"
+    ],
+    "antiPatterns": [
+      "'Create approval workflow'",
+      "Informal state descriptions",
+      "No transition rules",
+      "Missing audit requirements"
+    ]
+  }
+}

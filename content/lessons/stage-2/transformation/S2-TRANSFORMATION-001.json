@@ -1,0 +1,103 @@
+{
+  "id": "S2-TRANSFORMATION-001",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "transformation",
+    "difficulty": 1,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S2-JSON-OUTPUT-002"],
+    "tags": ["transformation", "mapping", "beginner"]
+  },
+  "scenario": {
+    "title": "The Format Converter",
+    "context": "Your integration service receives data from a legacy system in one format and needs to transform it to a modern API format. The AI needs to map fields between schemas.",
+    "goal": "Write a prompt that transforms data from a source schema to a target schema with explicit field mappings.",
+    "constraints": [
+      "Map legacy field names to modern equivalents",
+      "Convert data types where needed (string dates to ISO)",
+      "Apply default values for missing fields",
+      "Handle field renaming and restructuring"
+    ],
+    "exampleInput": "Legacy format: {cust_nm: 'JOHN SMITH', cust_dob: '15/01/1990', cust_tel: '555.123.4567', active_flg: 'Y'}. Target format needs: full_name, date_of_birth (ISO), phone (digits), is_active (boolean).",
+    "hints": [
+      "Create explicit source → target mapping",
+      "Define transformation rules per field",
+      "Specify how to handle missing mappings"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "field-mapping",
+        "name": "Field Mapping",
+        "weight": 30,
+        "description": "Is the field mapping clearly defined?",
+        "scoringGuide": {
+          "excellent": "Complete source→target mapping table",
+          "good": "Mappings listed",
+          "adequate": "Some mappings present",
+          "poor": "No explicit mappings"
+        }
+      },
+      {
+        "id": "type-conversion",
+        "name": "Type Conversion",
+        "weight": 25,
+        "description": "Are type conversions specified?",
+        "scoringGuide": {
+          "excellent": "All conversions with rules/examples",
+          "good": "Conversions mentioned",
+          "adequate": "Some type awareness",
+          "poor": "No type handling"
+        }
+      },
+      {
+        "id": "default-values",
+        "name": "Default Values",
+        "weight": 25,
+        "description": "Are defaults for missing fields defined?",
+        "scoringGuide": {
+          "excellent": "Defaults specified per field",
+          "good": "Default handling mentioned",
+          "adequate": "Some default awareness",
+          "poor": "No default handling"
+        }
+      },
+      {
+        "id": "output-structure",
+        "name": "Target Structure",
+        "weight": 20,
+        "description": "Is the target structure clearly shown?",
+        "scoringGuide": {
+          "excellent": "Complete target schema with types",
+          "good": "Target structure shown",
+          "adequate": "Target mentioned",
+          "poor": "No target specification"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Transform this legacy customer record to the modern API format.\n\nField Mapping Table:\n| Source Field | Target Field | Transformation |\n|--------------|--------------|----------------|\n| cust_nm | full_name | Title Case |\n| cust_dob | date_of_birth | DD/MM/YYYY → YYYY-MM-DD |\n| cust_tel | phone | Remove non-digits |\n| active_flg | is_active | 'Y'→true, 'N'→false |\n| (missing) | created_at | Use current timestamp |\n| (missing) | source_system | Default: \"legacy\" |\n\nTransformation Rules:\n\n1. full_name:\n   - Source: cust_nm (uppercase)\n   - Convert to Title Case: 'JOHN SMITH' → 'John Smith'\n\n2. date_of_birth:\n   - Source: cust_dob in DD/MM/YYYY\n   - Convert to ISO: '15/01/1990' → '1990-01-15'\n\n3. phone:\n   - Source: cust_tel with various separators\n   - Keep only digits: '555.123.4567' → '5551234567'\n\n4. is_active:\n   - Source: active_flg ('Y'/'N' string)\n   - Convert to boolean: 'Y' → true, 'N' → false\n   - Default if missing: false\n\nTarget Schema:\n```json\n{\n  \"full_name\": \"John Smith\",\n  \"date_of_birth\": \"1990-01-15\",\n  \"phone\": \"5551234567\",\n  \"is_active\": true,\n  \"created_at\": \"2024-01-15T10:30:00Z\",\n  \"source_system\": \"legacy\"\n}\n```\n\nInput:\n[legacy data here]\n\nReturn ONLY the transformed JSON.",
+    "commonMistakes": [
+      "No explicit field mappings",
+      "Missing type conversions",
+      "No default values for missing fields",
+      "Unclear target structure"
+    ],
+    "keyElements": [
+      "Clear source→target mapping",
+      "Type conversion rules",
+      "Default value specification",
+      "Target schema shown"
+    ],
+    "antiPatterns": [
+      "'Convert to modern format'",
+      "No mapping table",
+      "Implicit conversions only",
+      "No defaults specified"
+    ]
+  }
+}

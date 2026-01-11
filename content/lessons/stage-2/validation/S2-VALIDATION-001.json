@@ -1,0 +1,103 @@
+{
+  "id": "S2-VALIDATION-001",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "validation",
+    "difficulty": 1,
+    "estimatedMinutes": 6,
+    "prerequisites": ["S2-JSON-OUTPUT-002"],
+    "tags": ["validation", "rules", "beginner"]
+  },
+  "scenario": {
+    "title": "The Form Validator",
+    "context": "You're building an AI that generates user registration data for testing. The output needs to pass validation rules before being inserted into the database.",
+    "goal": "Write a prompt that generates valid test data conforming to specific validation rules for each field.",
+    "constraints": [
+      "Email must be valid format with specific domains allowed",
+      "Password must meet complexity requirements",
+      "Age must be 18-120",
+      "Username must be 3-20 chars, alphanumeric + underscore only"
+    ],
+    "exampleInput": "Generate 3 test users for a fintech app. Allowed email domains: @testmail.com, @example.org. Passwords need: 8+ chars, 1 uppercase, 1 number, 1 special char.",
+    "hints": [
+      "Specify each validation rule explicitly",
+      "Ask the AI to verify its output meets rules",
+      "Include examples of valid vs invalid values"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "rule-clarity",
+        "name": "Validation Rules",
+        "weight": 30,
+        "description": "Are validation rules clearly specified?",
+        "scoringGuide": {
+          "excellent": "All rules with patterns/ranges and examples",
+          "good": "Rules listed with specifics",
+          "adequate": "General rules mentioned",
+          "poor": "No validation rules"
+        }
+      },
+      {
+        "id": "self-verification",
+        "name": "Self-Verification",
+        "weight": 25,
+        "description": "Does the prompt ask AI to verify compliance?",
+        "scoringGuide": {
+          "excellent": "Explicit verification step with checklist",
+          "good": "Verification mentioned",
+          "adequate": "Implied need for valid output",
+          "poor": "No verification"
+        }
+      },
+      {
+        "id": "examples",
+        "name": "Valid/Invalid Examples",
+        "weight": 25,
+        "description": "Are examples of valid/invalid values provided?",
+        "scoringGuide": {
+          "excellent": "Examples for each rule with reasoning",
+          "good": "Some examples provided",
+          "adequate": "One example",
+          "poor": "No examples"
+        }
+      },
+      {
+        "id": "edge-cases",
+        "name": "Edge Case Handling",
+        "weight": 20,
+        "description": "Are boundary conditions addressed?",
+        "scoringGuide": {
+          "excellent": "Edge cases explicitly listed",
+          "good": "Some boundaries mentioned",
+          "adequate": "Ranges specified",
+          "poor": "No boundary handling"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Generate 3 test user records that pass ALL validation rules.\n\nValidation rules:\n\n1. username:\n   - Length: 3-20 characters\n   - Allowed chars: a-z, A-Z, 0-9, underscore (_)\n   - Must start with a letter\n   - Valid: 'john_doe123', 'Alice99'\n   - Invalid: '2fast', 'has-dash', 'ab'\n\n2. email:\n   - Must be valid email format: user@domain.tld\n   - Allowed domains ONLY: @testmail.com, @example.org\n   - Valid: 'user1@testmail.com'\n   - Invalid: 'user@gmail.com', 'notanemail'\n\n3. password:\n   - Minimum 8 characters\n   - At least 1 uppercase letter (A-Z)\n   - At least 1 number (0-9)\n   - At least 1 special character (!@#$%^&*)\n   - Valid: 'Secure1@pass'\n   - Invalid: 'password', 'PASSWORD1', 'Pass1234'\n\n4. age:\n   - Must be integer\n   - Range: 18-120 (inclusive)\n   - Valid: 18, 45, 120\n   - Invalid: 17, 121, 25.5\n\nOutput format:\n```json\n[\n  {\n    \"username\": \"...\",\n    \"email\": \"...@testmail.com\",\n    \"password\": \"...\",\n    \"age\": 25\n  }\n]\n```\n\nBefore returning, verify each record passes ALL rules. Return ONLY the JSON array.",
+    "commonMistakes": [
+      "Vague validation rules",
+      "No valid/invalid examples",
+      "Missing boundary values",
+      "No self-verification step"
+    ],
+    "keyElements": [
+      "Explicit validation rules per field",
+      "Valid and invalid examples",
+      "Boundary values specified",
+      "Verification instruction"
+    ],
+    "antiPatterns": [
+      "'Generate valid test users'",
+      "No specific rules",
+      "No examples",
+      "No verification step"
+    ]
+  }
+}

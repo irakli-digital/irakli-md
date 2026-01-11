@@ -8,12 +8,15 @@ import { PlanCard, FreePlanCard, TrialCard } from '@/components/subscription/pla
 import { trpc } from '@/lib/trpc/client';
 import { CreditCard, Shield, Zap, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function PricingPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Derive success state from URL params
+  const isSuccess = searchParams.get('success') === 'true';
 
   const { data: plans } = trpc.subscription.getPlans.useQuery();
   const { data: status, refetch: refetchStatus } = trpc.subscription.getStatus.useQuery();
@@ -21,11 +24,12 @@ export default function PricingPage() {
   const startTrial = trpc.subscription.startTrial.useMutation({
     onSuccess: (data) => {
       if (data.checkoutUrl) {
+        toast.loading('Redirecting to payment...');
         window.location.href = data.checkoutUrl;
       }
     },
     onError: (error) => {
-      alert(error.message);
+      toast.error(error.message);
       setIsProcessing(null);
     },
   });
@@ -33,24 +37,28 @@ export default function PricingPage() {
   const subscribe = trpc.subscription.subscribe.useMutation({
     onSuccess: (data) => {
       if (data.checkoutUrl) {
+        toast.loading('Redirecting to payment...');
         window.location.href = data.checkoutUrl;
       }
     },
     onError: (error) => {
-      alert(error.message);
+      toast.error(error.message);
       setIsProcessing(null);
     },
   });
 
-  // Check for success from Flitt callback
+  // Handle success from Flitt callback
   useEffect(() => {
-    if (searchParams.get('success') === 'true') {
-      setShowSuccess(true);
+    if (isSuccess) {
       refetchStatus();
-      // Clear the URL params
-      router.replace('/pricing');
+      toast.success('Payment successful!');
+      // Clear the URL params after a brief delay
+      const timer = setTimeout(() => {
+        router.replace('/pricing');
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [searchParams, refetchStatus, router]);
+  }, [isSuccess, refetchStatus, router]);
 
   const handleStartTrial = () => {
     setIsProcessing('trial');
@@ -68,7 +76,7 @@ export default function PricingPage() {
   return (
     <div className="space-y-8">
       {/* Success message */}
-      {showSuccess && (
+      {isSuccess && (
         <div className="flex items-center gap-3 p-4 bg-[#22C55E]/10 border border-[#22C55E]/30 rounded-lg">
           <CheckCircle className="h-5 w-5 text-[#22C55E]" />
           <div>

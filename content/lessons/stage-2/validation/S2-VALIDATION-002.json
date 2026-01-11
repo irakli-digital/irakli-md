@@ -1,0 +1,103 @@
+{
+  "id": "S2-VALIDATION-002",
+  "version": 1,
+  "meta": {
+    "stage": 2,
+    "skill": "validation",
+    "difficulty": 2,
+    "estimatedMinutes": 7,
+    "prerequisites": ["S2-VALIDATION-001"],
+    "tags": ["validation", "cross-field", "business-rules"]
+  },
+  "scenario": {
+    "title": "The Booking Validator",
+    "context": "Your travel booking AI generates flight itineraries. Beyond simple field validation, the output must satisfy complex business rules involving multiple fields.",
+    "goal": "Write a prompt that generates booking data satisfying cross-field validation rules and temporal constraints.",
+    "constraints": [
+      "Return flight must be after departure flight",
+      "Layover must be minimum 2 hours, maximum 8 hours",
+      "Total trip duration cannot exceed 30 days",
+      "Passenger count must match across all segments"
+    ],
+    "exampleInput": "Generate a round-trip itinerary: NYC to London, departing Jan 15 2024, returning Jan 22 2024. Include one layover each way. 2 passengers.",
+    "hints": [
+      "Define cross-field dependencies explicitly",
+      "Specify temporal calculation rules",
+      "Include validation logic the AI should apply"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "cross-field-rules",
+        "name": "Cross-Field Validation",
+        "weight": 30,
+        "description": "Are cross-field dependencies defined?",
+        "scoringGuide": {
+          "excellent": "All cross-field rules with specific conditions",
+          "good": "Cross-field rules mentioned",
+          "adequate": "Some dependencies implied",
+          "poor": "No cross-field validation"
+        }
+      },
+      {
+        "id": "temporal-rules",
+        "name": "Temporal Constraints",
+        "weight": 25,
+        "description": "Are date/time constraints specified?",
+        "scoringGuide": {
+          "excellent": "All temporal rules with calculation logic",
+          "good": "Time constraints listed",
+          "adequate": "Some time awareness",
+          "poor": "No temporal rules"
+        }
+      },
+      {
+        "id": "consistency",
+        "name": "Data Consistency",
+        "weight": 25,
+        "description": "Are consistency rules defined?",
+        "scoringGuide": {
+          "excellent": "Explicit consistency requirements across entities",
+          "good": "Consistency mentioned",
+          "adequate": "Implied consistency",
+          "poor": "No consistency rules"
+        }
+      },
+      {
+        "id": "calculation-rules",
+        "name": "Derived Values",
+        "weight": 20,
+        "description": "Are calculated fields properly defined?",
+        "scoringGuide": {
+          "excellent": "All derived fields with formulas",
+          "good": "Some calculations specified",
+          "adequate": "Calculations implied",
+          "poor": "No calculation rules"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Generate a valid flight itinerary following these rules:\n\nBasic structure:\n```json\n{\n  \"booking_ref\": \"ABC123\",\n  \"passenger_count\": 2,\n  \"outbound\": {\n    \"segments\": [...],\n    \"total_duration_minutes\": 720\n  },\n  \"return\": {\n    \"segments\": [...],\n    \"total_duration_minutes\": 690\n  },\n  \"trip_duration_days\": 7\n}\n```\n\nSegment structure:\n```json\n{\n  \"flight_number\": \"BA123\",\n  \"departure_airport\": \"JFK\",\n  \"arrival_airport\": \"LHR\",\n  \"departure_time\": \"2024-01-15T18:00:00Z\",\n  \"arrival_time\": \"2024-01-16T06:00:00Z\",\n  \"duration_minutes\": 420,\n  \"passengers\": 2\n}\n```\n\nCROSS-FIELD VALIDATION RULES:\n\n1. Temporal sequence:\n   - Each segment's departure_time > previous segment's arrival_time\n   - return.segments[0].departure_time > outbound.segments[-1].arrival_time\n   - return departure must be on or after specified return date\n\n2. Layover constraints:\n   - Time between connecting flights: minimum 120 min, maximum 480 min\n   - Calculate: next_departure - previous_arrival\n   - If layover < 120 min or > 480 min → INVALID\n\n3. Consistency rules:\n   - passenger_count must match 'passengers' field in ALL segments\n   - outbound starts at origin, ends at destination\n   - return starts at destination, ends at origin\n\n4. Trip duration:\n   - trip_duration_days = return arrival date - outbound departure date\n   - Must not exceed 30 days\n\n5. Calculated fields:\n   - segment.duration_minutes = arrival_time - departure_time\n   - total_duration_minutes = sum of segment durations + layover times\n\nVerify all rules before returning. Return ONLY valid JSON.",
+    "commonMistakes": [
+      "Ignoring temporal sequence",
+      "No layover time validation",
+      "Passenger count inconsistency",
+      "Missing duration calculations"
+    ],
+    "keyElements": [
+      "Cross-field temporal rules",
+      "Layover min/max constraints",
+      "Consistency requirements",
+      "Calculated field formulas"
+    ],
+    "antiPatterns": [
+      "'Generate a flight itinerary'",
+      "No cross-field validation",
+      "No temporal constraints",
+      "No consistency checks"
+    ]
+  }
+}

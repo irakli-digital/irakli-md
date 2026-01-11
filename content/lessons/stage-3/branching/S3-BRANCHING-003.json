@@ -1,0 +1,103 @@
+{
+  "id": "S3-BRANCHING-003",
+  "version": 1,
+  "meta": {
+    "stage": 3,
+    "skill": "branching",
+    "difficulty": 3,
+    "estimatedMinutes": 9,
+    "prerequisites": ["S3-BRANCHING-002"],
+    "tags": ["branching", "dynamic", "runtime-routing"]
+  },
+  "scenario": {
+    "title": "The Adaptive Conversation",
+    "context": "You're building a conversational AI that dynamically adjusts its conversation flow based on user responses, sentiment, and engagement level. The system must decide next steps at runtime.",
+    "goal": "Write a prompt that implements dynamic branching based on runtime analysis of conversation state and user behavior.",
+    "constraints": [
+      "Analyze conversation context to determine next step",
+      "Adjust strategy based on detected sentiment/engagement",
+      "Include escape hatches (human handoff triggers)",
+      "Support conversation memory across turns"
+    ],
+    "exampleInput": "Sales conversation: If user shows interest → deep dive on features. If objections → address concerns. If frustration detected → offer human rep. If ready to buy → streamline to checkout. Adapt in real-time.",
+    "hints": [
+      "Define signals that trigger each branch",
+      "Include conversation state tracking",
+      "Specify adaptation rules"
+    ]
+  },
+  "evaluation": {
+    "rubric": [
+      {
+        "id": "signal-detection",
+        "name": "Signal Detection",
+        "weight": 30,
+        "description": "Are behavioral signals defined?",
+        "scoringGuide": {
+          "excellent": "Comprehensive signal taxonomy with examples",
+          "good": "Signals defined",
+          "adequate": "Some signals mentioned",
+          "poor": "No signal detection"
+        }
+      },
+      {
+        "id": "dynamic-routing",
+        "name": "Dynamic Routing",
+        "weight": 25,
+        "description": "Is real-time branching logic defined?",
+        "scoringGuide": {
+          "excellent": "Clear rules for runtime decisions",
+          "good": "Dynamic routing present",
+          "adequate": "Some adaptation",
+          "poor": "Static flow only"
+        }
+      },
+      {
+        "id": "escape-hatches",
+        "name": "Escape Hatches",
+        "weight": 25,
+        "description": "Are handoff triggers defined?",
+        "scoringGuide": {
+          "excellent": "Multiple handoff conditions with thresholds",
+          "good": "Handoff mentioned",
+          "adequate": "Some escalation",
+          "poor": "No escape hatches"
+        }
+      },
+      {
+        "id": "state-tracking",
+        "name": "Conversation State",
+        "weight": 20,
+        "description": "Is conversation memory maintained?",
+        "scoringGuide": {
+          "excellent": "Full state schema with history",
+          "good": "State tracking present",
+          "adequate": "Some context kept",
+          "poor": "No state management"
+        }
+      }
+    ],
+    "passingScore": 70
+  },
+  "evaluatorContext": {
+    "idealResponse": "Design an adaptive conversation flow system:\n\nSYSTEM: Dynamic Sales Conversation\n\n---\n\nCONVERSATION STATE SCHEMA:\n\n```json\n{\n  \"conversation_id\": \"conv-123\",\n  \"user_id\": \"user-456\",\n  \"started_at\": \"2024-01-15T10:00:00Z\",\n  \"turn_count\": 5,\n  \n  \"current_phase\": \"discovery\" | \"presentation\" | \"objection_handling\" | \"closing\" | \"handoff\",\n  \n  \"user_profile\": {\n    \"detected_role\": \"decision_maker\" | \"researcher\" | \"unknown\",\n    \"budget_signals\": \"high\" | \"medium\" | \"low\" | \"unknown\",\n    \"urgency\": \"high\" | \"medium\" | \"low\",\n    \"technical_level\": \"expert\" | \"intermediate\" | \"beginner\"\n  },\n  \n  \"engagement_metrics\": {\n    \"avg_response_length\": 45,\n    \"questions_asked\": 3,\n    \"objections_raised\": 1,\n    \"positive_signals\": 2,\n    \"negative_signals\": 0\n  },\n  \n  \"sentiment_history\": [\n    {\"turn\": 1, \"sentiment\": \"neutral\", \"score\": 0.5},\n    {\"turn\": 2, \"sentiment\": \"interested\", \"score\": 0.7},\n    {\"turn\": 3, \"sentiment\": \"concerned\", \"score\": 0.4}\n  ],\n  \n  \"topics_discussed\": [\"pricing\", \"features\"],\n  \"objections_addressed\": [\"price_too_high\"],\n  \"features_highlighted\": [\"automation\", \"reporting\"],\n  \n  \"handoff_risk_score\": 0.2\n}\n```\n\n---\n\nSIGNAL DETECTION:\n\n```json\n{\n  \"signals\": {\n    \"high_interest\": {\n      \"indicators\": [\n        \"Asking about pricing/plans\",\n        \"Questions about implementation\",\n        \"Comparing to current solution\",\n        \"Asking about contract terms\",\n        \"Response length > 100 chars\"\n      ],\n      \"confidence_boost\": 0.2\n    },\n    \"buying_intent\": {\n      \"indicators\": [\n        \"'How do I get started'\",\n        \"'What's the next step'\",\n        \"'Can you send me a proposal'\",\n        \"Asking about onboarding\",\n        \"Discussing timeline\"\n      ],\n      \"trigger_action\": \"transition_to_closing\"\n    },\n    \"objection\": {\n      \"indicators\": [\n        \"'too expensive'\",\n        \"'not sure if'\",\n        \"'competitor does'\",\n        \"'need to think about'\",\n        \"'check with my team'\"\n      ],\n      \"trigger_action\": \"handle_objection\"\n    },\n    \"frustration\": {\n      \"indicators\": [\n        \"Short responses after long ones\",\n        \"'I already told you'\",\n        \"Repeated questions\",\n        \"Negative sentiment score < 0.3\",\n        \"'Just answer my question'\"\n      ],\n      \"trigger_action\": \"de_escalate_or_handoff\"\n    },\n    \"disengagement\": {\n      \"indicators\": [\n        \"Single word responses\",\n        \"Increasing response time\",\n        \"'ok' or 'sure' only\",\n        \"No questions for 3+ turns\"\n      ],\n      \"trigger_action\": \"re_engage_or_graceful_exit\"\n    }\n  }\n}\n```\n\n---\n\nDYNAMIC ROUTING LOGIC:\n\n```json\n{\n  \"turn_analysis_prompt\": {\n    \"instruction\": \"Analyze user's response and determine next action\",\n    \"input\": {\n      \"latest_message\": \"{{user_message}}\",\n      \"conversation_state\": \"{{state}}\",\n      \"previous_ai_message\": \"{{last_ai_response}}\"\n    },\n    \"output\": {\n      \"detected_signals\": [\"objection\", \"price_concern\"],\n      \"sentiment\": {\"label\": \"concerned\", \"score\": 0.4},\n      \"engagement_level\": \"medium\",\n      \"recommended_action\": \"handle_objection\",\n      \"specific_objection\": \"price_too_high\",\n      \"confidence\": 0.85\n    }\n  },\n  \n  \"routing_rules\": [\n    {\n      \"condition\": \"sentiment.score < 0.3 AND frustration_signals >= 2\",\n      \"action\": \"offer_human_handoff\",\n      \"priority\": 1\n    },\n    {\n      \"condition\": \"buying_intent_detected AND confidence > 0.7\",\n      \"action\": \"transition_to_closing\",\n      \"priority\": 2\n    },\n    {\n      \"condition\": \"objection_detected\",\n      \"action\": \"handle_specific_objection\",\n      \"sub_route\": \"objection_type\",\n      \"priority\": 3\n    },\n    {\n      \"condition\": \"high_interest AND current_phase == 'discovery'\",\n      \"action\": \"transition_to_presentation\",\n      \"priority\": 4\n    },\n    {\n      \"condition\": \"disengagement_signals >= 2\",\n      \"action\": \"re_engagement_attempt\",\n      \"max_attempts\": 2,\n      \"fallback\": \"graceful_exit\",\n      \"priority\": 5\n    },\n    {\n      \"condition\": \"default\",\n      \"action\": \"continue_current_phase\",\n      \"priority\": 99\n    }\n  ]\n}\n```\n\n---\n\nPHASE-SPECIFIC PROMPTS:\n\n```json\n{\n  \"phases\": {\n    \"discovery\": {\n      \"goal\": \"Understand user needs and qualify\",\n      \"prompt_template\": \"Continue discovery conversation. Ask about their current challenges and goals. User profile: {{user_profile}}. Topics not yet covered: {{uncovered_topics}}\",\n      \"max_turns\": 5,\n      \"transition_triggers\": [\"high_interest\", \"budget_confirmed\"]\n    },\n    \"presentation\": {\n      \"goal\": \"Present relevant features based on discovered needs\",\n      \"prompt_template\": \"Present solution focusing on: {{relevant_features}}. Adapt to technical level: {{technical_level}}. Reference their stated needs: {{discovered_needs}}\",\n      \"transition_triggers\": [\"buying_intent\", \"objection\"]\n    },\n    \"objection_handling\": {\n      \"goal\": \"Address specific concerns\",\n      \"prompt_template\": \"Address objection: {{specific_objection}}. Previous objections resolved: {{resolved_objections}}. Keep tone empathetic.\",\n      \"objection_responses\": {\n        \"price_too_high\": \"Acknowledge value concern, highlight ROI, offer flexible options\",\n        \"need_to_think\": \"Understand timeline, offer to send summary, schedule follow-up\",\n        \"competitor_comparison\": \"Acknowledge competitor, differentiate on {{unique_features}}\"\n      }\n    },\n    \"closing\": {\n      \"goal\": \"Guide to conversion\",\n      \"prompt_template\": \"User shows buying intent. Summarize value proposition, address any final questions, guide to next step: {{recommended_next_step}}\"\n    }\n  }\n}\n```\n\n---\n\nESCAPE HATCHES (Human Handoff):\n\n```json\n{\n  \"handoff_triggers\": [\n    {\n      \"trigger\": \"explicit_request\",\n      \"condition\": \"User says 'speak to human/agent/person'\",\n      \"action\": \"immediate_handoff\",\n      \"message\": \"Of course! Let me connect you with a team member...\"\n    },\n    {\n      \"trigger\": \"frustration_threshold\",\n      \"condition\": \"sentiment_score < 0.25 for 2+ turns\",\n      \"action\": \"offer_handoff\",\n      \"message\": \"I sense I might not be addressing your concerns well. Would you prefer to speak with one of our specialists?\"\n    },\n    {\n      \"trigger\": \"loop_detection\",\n      \"condition\": \"Same topic discussed 3+ times without resolution\",\n      \"action\": \"suggest_handoff\",\n      \"message\": \"I want to make sure you get the best help. Let me connect you with someone who can dive deeper into this.\"\n    },\n    {\n      \"trigger\": \"high_value_opportunity\",\n      \"condition\": \"budget_signals == 'high' AND buying_intent AND turn_count < 3\",\n      \"action\": \"priority_handoff\",\n      \"reason\": \"High-value lead, fast-track to sales rep\"\n    },\n    {\n      \"trigger\": \"complex_question\",\n      \"condition\": \"AI confidence < 0.5 on response\",\n      \"action\": \"admit_and_handoff\",\n      \"message\": \"That's a great question that deserves a detailed answer from our team. Let me connect you.\"\n    }\n  ],\n  \"handoff_data_package\": {\n    \"conversation_summary\": \"{{generated_summary}}\",\n    \"key_needs\": \"{{discovered_needs}}\",\n    \"objections\": \"{{objections_raised}}\",\n    \"sentiment_trend\": \"{{sentiment_history}}\",\n    \"recommended_approach\": \"{{ai_recommendation}}\"\n  }\n}\n```",
+    "commonMistakes": [
+      "Static conversation flow",
+      "No sentiment tracking",
+      "Missing handoff triggers",
+      "No conversation memory"
+    ],
+    "keyElements": [
+      "Signal taxonomy with indicators",
+      "Runtime routing rules",
+      "Multiple handoff conditions",
+      "Full conversation state schema"
+    ],
+    "antiPatterns": [
+      "'Adapt based on response'",
+      "Fixed conversation script",
+      "No escalation path",
+      "Stateless interactions"
+    ]
+  }
+}

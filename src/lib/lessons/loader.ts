@@ -1,71 +1,111 @@
-import fs from 'fs';
-import path from 'path';
-import type { Lesson } from '@/types/lesson';
+import { db } from '@/lib/db';
+import { lessons } from '@/lib/db/schema';
+import { eq, and, asc } from 'drizzle-orm';
+import type { Lesson, RubricItem } from '@/types/lesson';
+import type { DbLesson } from '@/lib/db/schema';
 
-const LESSONS_DIR = path.join(process.cwd(), 'content/lessons');
+/**
+ * Transform database row to Lesson interface
+ */
+function transformDbToLesson(row: DbLesson): Lesson {
+  return {
+    id: row.id,
+    version: row.version,
+    meta: {
+      stage: row.stage as 1 | 2 | 3 | 4,
+      skill: row.skill,
+      difficulty: row.difficulty as 1 | 2 | 3 | 4 | 5,
+      estimatedMinutes: row.estimatedMinutes,
+      prerequisites: (row.prerequisites as string[]) || [],
+      tags: (row.tags as string[]) || [],
+    },
+    scenario: {
+      title: row.title,
+      context: row.context,
+      goal: row.goal,
+      constraints: row.constraints as string[],
+      exampleInput: row.exampleInput || undefined,
+      hints: row.hints as string[],
+    },
+    evaluation: {
+      rubric: row.rubric as RubricItem[],
+      passingScore: row.passingScore,
+    },
+    evaluatorContext: {
+      idealResponse: row.idealResponse || '',
+      commonMistakes: (row.commonMistakes as string[]) || [],
+      keyElements: (row.keyElements as string[]) || [],
+      antiPatterns: (row.antiPatterns as string[]) || [],
+    },
+  };
+}
 
+/**
+ * Load a single lesson by ID
+ */
 export async function loadLesson(lessonId: string): Promise<Lesson | null> {
-  // Parse lesson ID: S1-CLARITY-001 -> stage-1/clarity/S1-CLARITY-001.json
-  const match = lessonId.match(/^S(\d)-([A-Z_]+)-(\d+)$/);
-  if (!match) return null;
+  const [row] = await db
+    .select()
+    .from(lessons)
+    .where(and(eq(lessons.id, lessonId), eq(lessons.isPublished, true)));
 
-  const [, stage, skill] = match;
-  const filePath = path.join(
-    LESSONS_DIR,
-    `stage-${stage}`,
-    skill.toLowerCase().replace('_', '-'),
-    `${lessonId}.json`
-  );
-
-  try {
-    const content = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(content) as Lesson;
-  } catch {
-    return null;
-  }
+  if (!row) return null;
+  return transformDbToLesson(row);
 }
 
+/**
+ * Load all lessons for a specific stage
+ */
 export async function loadLessonsByStage(stage: number): Promise<Lesson[]> {
-  const stageDir = path.join(LESSONS_DIR, `stage-${stage}`);
-  const lessons: Lesson[] = [];
+  const rows = await db
+    .select()
+    .from(lessons)
+    .where(and(eq(lessons.stage, stage), eq(lessons.isPublished, true)))
+    .orderBy(asc(lessons.skill), asc(lessons.difficulty));
 
-  try {
-    const skills = fs.readdirSync(stageDir);
-
-    for (const skill of skills) {
-      const skillDir = path.join(stageDir, skill);
-      if (!fs.statSync(skillDir).isDirectory()) continue;
-
-      const files = fs.readdirSync(skillDir).filter((f) => f.endsWith('.json'));
-
-      for (const file of files) {
-        try {
-          const content = fs.readFileSync(path.join(skillDir, file), 'utf-8');
-          lessons.push(JSON.parse(content) as Lesson);
-        } catch {
-          // Skip invalid files
-        }
-      }
-    }
-  } catch {
-    // Directory doesn't exist yet
-  }
-
-  return lessons.sort((a, b) => {
-    // Sort by stage, then skill, then difficulty
-    if (a.meta.stage !== b.meta.stage) return a.meta.stage - b.meta.stage;
-    if (a.meta.skill !== b.meta.skill) return a.meta.skill.localeCompare(b.meta.skill);
-    return a.meta.difficulty - b.meta.difficulty;
-  });
+  return rows.map(transformDbToLesson);
 }
 
+/**
+ * Load all published lessons across all stages
+ */
 export async function loadAllLessons(): Promise<Lesson[]> {
-  const allLessons: Lesson[] = [];
+  const rows = await db
+    .select()
+    .from(lessons)
+    .where(eq(lessons.isPublished, true))
+    .orderBy(asc(lessons.stage), asc(lessons.skill), asc(lessons.difficulty));
 
-  for (let stage = 1; stage <= 4; stage++) {
-    const stageLessons = await loadLessonsByStage(stage);
-    allLessons.push(...stageLessons);
-  }
+  return rows.map(transformDbToLesson);
+}
 
-  return allLessons;
+/**
+ * Get lesson count by stage (for progress tracking)
+ */
+export async function getLessonCountByStage(stage: number): Promise<number> {
+  const rows = await db
+    .select()
+    .from(lessons)
+    .where(and(eq(lessons.stage, stage), eq(lessons.isPublished, true)));
+
+  return rows.length;
+}
+
+/**
+ * Get lessons by skill for a specific stage
+ */
+export async function loadLessonsBySkill(stage: number, skill: string): Promise<Lesson[]> {
+  const rows = await db
+    .select()
+    .from(lessons)
+    .where(
+      and(
+        eq(lessons.stage, stage),
+        eq(lessons.skill, skill),
+        eq(lessons.isPublished, true)
+      )
+    )
+    .orderBy(asc(lessons.difficulty));
+
+  return rows.map(transformDbToLesson);
 }
