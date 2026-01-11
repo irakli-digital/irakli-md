@@ -14,9 +14,11 @@ import { Menu, X } from 'lucide-react';
 const navLinks = [
   { href: '/', label: 'dashboard' },
   { href: '/progress', label: 'progress' },
+  { href: '/certifications', label: 'certs' },
   { href: '/achievements', label: 'achievements' },
   { href: '/leaderboard', label: 'leaderboard' },
   { href: '/pricing', label: 'pricing' },
+  { href: '/settings', label: 'settings' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

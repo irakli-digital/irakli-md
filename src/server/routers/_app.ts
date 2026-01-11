@@ -5,6 +5,9 @@ import { progressRouter } from './progress';
 import { achievementsRouter } from './achievements';
 import { leaderboardRouter } from './leaderboard';
 import { subscriptionRouter } from './subscription';
+import { profileRouter } from './profile';
+import { certificationsRouter } from './certifications';
+import { reflectionsRouter } from './reflections';
 import { adminRouter } from './admin';
 
 export const appRouter = router({
@@ -14,6 +17,9 @@ export const appRouter = router({
   achievements: achievementsRouter,
   leaderboard: leaderboardRouter,
   subscription: subscriptionRouter,
+  profile: profileRouter,
+  certifications: certificationsRouter,
+  reflections: reflectionsRouter,
   admin: adminRouter,
 });
 

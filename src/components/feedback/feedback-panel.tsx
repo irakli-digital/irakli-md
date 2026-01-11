@@ -3,16 +3,18 @@
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle, RotateCcw, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ReflectionInput } from './reflection-input';
 import type { EvaluationResult } from '@/lib/anthropic/evaluator';
 
 interface FeedbackPanelProps {
   evaluation: EvaluationResult;
   passed: boolean;
+  attemptId?: string;
   onRetry: () => void;
   onNext?: () => void;
 }
 
-export function FeedbackPanel({ evaluation, passed, onRetry, onNext }: FeedbackPanelProps) {
+export function FeedbackPanel({ evaluation, passed, attemptId, onRetry, onNext }: FeedbackPanelProps) {
   const scoreColor =
     evaluation.totalScore >= 80
       ? 'text-[#22C55E]'
@@ -107,6 +109,13 @@ export function FeedbackPanel({ evaluation, passed, onRetry, onNext }: FeedbackP
           <pre className="p-3 bg-[#1A1A1A] rounded text-xs text-[#A3A3A3] whitespace-pre-wrap overflow-x-auto">
             {evaluation.improvedExample}
           </pre>
+        </div>
+      )}
+
+      {/* Reflection */}
+      {attemptId && (
+        <div className="mb-6">
+          <ReflectionInput attemptId={attemptId} passed={passed} />
         </div>
       )}
 

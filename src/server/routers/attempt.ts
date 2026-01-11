@@ -210,6 +210,37 @@ export const attemptRouter = router({
         orderBy: (attempts, { desc }) => [desc(attempts.createdAt)],
       });
     }),
+
+  // Generate AI-powered hint
+  getHint: protectedProcedure
+    .input(
+      z.object({
+        lessonId: z.string(),
+        currentPrompt: z.string(),
+        hintNumber: z.number().min(1).max(5),
+        previousHints: z.array(z.string()).default([]),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const { generateHint } = await import('@/lib/anthropic/hints');
+      const lesson = await loadLesson(input.lessonId);
+
+      if (!lesson) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Lesson not found',
+        });
+      }
+
+      const hint = await generateHint(
+        lesson,
+        input.currentPrompt,
+        input.hintNumber,
+        input.previousHints
+      );
+
+      return hint;
+    }),
 });
 
 // Helper function to get achievement stats efficiently

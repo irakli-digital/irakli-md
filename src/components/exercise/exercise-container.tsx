@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Lightbulb, Clock } from 'lucide-react';
+import { Lightbulb, Clock, Sparkles } from 'lucide-react';
 import { PromptInput } from './prompt-input';
 import { FeedbackPanel } from '@/components/feedback/feedback-panel';
 import { TerminalWindow } from '@/components/terminal/terminal-window';
@@ -11,6 +11,12 @@ import { trpc } from '@/lib/trpc/client';
 import type { PublicLesson } from '@/types/lesson';
 import type { EvaluationResult } from '@/lib/anthropic/evaluator';
 
+interface GeneratedHint {
+  hint: string;
+  focusArea: string;
+  encouragement: string;
+}
+
 interface ExerciseContainerProps {
   lesson: PublicLesson;
   onComplete?: () => void;
@@ -18,8 +24,8 @@ interface ExerciseContainerProps {
 
 export function ExerciseContainer({ lesson, onComplete }: ExerciseContainerProps) {
   const [prompt, setPrompt] = useState('');
-  const [hintsRevealed, setHintsRevealed] = useState(0);
-  const [result, setResult] = useState<(EvaluationResult & { passed: boolean }) | null>(null);
+  const [hints, setHints] = useState<GeneratedHint[]>([]);
+  const [result, setResult] = useState<(EvaluationResult & { passed: boolean; attemptId: string }) | null>(null);
 
   const submitMutation = trpc.attempt.submit.useMutation({
     onSuccess: (data) => {
@@ -37,14 +43,26 @@ export function ExerciseContainer({ lesson, onComplete }: ExerciseContainerProps
     });
   };
 
+  const getHintMutation = trpc.attempt.getHint.useMutation({
+    onSuccess: (data) => {
+      setHints((prev) => [...prev, data]);
+    },
+  });
+
   const handleRetry = () => {
     setResult(null);
     setPrompt('');
+    setHints([]);
   };
 
-  const revealHint = () => {
-    if (hintsRevealed < lesson.scenario.hints.length) {
-      setHintsRevealed(hintsRevealed + 1);
+  const requestHint = () => {
+    if (hints.length < 5 && !getHintMutation.isPending) {
+      getHintMutation.mutate({
+        lessonId: lesson.id,
+        currentPrompt: prompt,
+        hintNumber: hints.length + 1,
+        previousHints: hints.map((h) => h.hint),
+      });
     }
   };
 
@@ -126,18 +144,26 @@ export function ExerciseContainer({ lesson, onComplete }: ExerciseContainerProps
         </div>
       </TerminalWindow>
 
-      {/* Hints */}
-      {hintsRevealed > 0 && (
+      {/* AI Hints */}
+      {hints.length > 0 && (
         <div className="p-4 bg-[#F59E0B]/10 border border-[#F59E0B]/30 rounded-lg">
-          <div className="flex items-start gap-2">
-            <Lightbulb className="h-5 w-5 text-[#F59E0B] mt-0.5" />
-            <div className="space-y-2">
-              {lesson.scenario.hints.slice(0, hintsRevealed).map((hint, i) => (
-                <p key={i} className="text-sm text-[#E5E5E5] font-mono">
-                  {hint}
-                </p>
-              ))}
-            </div>
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="h-4 w-4 text-[#F59E0B]" />
+            <span className="text-xs text-[#F59E0B] font-mono">ai-generated hints</span>
+          </div>
+          <div className="space-y-3">
+            {hints.map((hint, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-[#737373] font-mono">hint {i + 1}</span>
+                  <span className="text-xs text-[#525252] font-mono">• {hint.focusArea}</span>
+                </div>
+                <p className="text-sm text-[#E5E5E5] font-mono">{hint.hint}</p>
+                {i === hints.length - 1 && (
+                  <p className="text-xs text-[#A3A3A3] italic font-mono mt-1">{hint.encouragement}</p>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -150,15 +176,22 @@ export function ExerciseContainer({ lesson, onComplete }: ExerciseContainerProps
               <TerminalLine prefix=">" prefixColor="accent">
                 write your prompt below
               </TerminalLine>
-              {hintsRevealed < lesson.scenario.hints.length && (
+              {hints.length < 5 && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={revealHint}
+                  onClick={requestHint}
+                  disabled={getHintMutation.isPending}
                   className="text-[#F59E0B] hover:text-[#F59E0B] hover:bg-[#F59E0B]/10 font-mono text-xs"
                 >
-                  <Lightbulb className="h-4 w-4 mr-1" />
-                  hint ({lesson.scenario.hints.length - hintsRevealed} left)
+                  {getHintMutation.isPending ? (
+                    <>generating hint...</>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-1" />
+                      get ai hint ({5 - hints.length} left)
+                    </>
+                  )}
                 </Button>
               )}
             </div>
@@ -185,7 +218,7 @@ export function ExerciseContainer({ lesson, onComplete }: ExerciseContainerProps
           </div>
         </TerminalWindow>
       ) : (
-        <FeedbackPanel evaluation={result} passed={result.passed} onRetry={handleRetry} />
+        <FeedbackPanel evaluation={result} passed={result.passed} attemptId={result.attemptId} onRetry={handleRetry} />
       )}
     </div>
   );
