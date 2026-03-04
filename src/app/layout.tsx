@@ -11,8 +11,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AI Literacy Platform',
-  description: 'Learn AI by doing. Practice makes perfect.',
+  title: 'Irakli Chkheidze | Builder, Educator, Digital Strategist',
+  description: 'Building products, teaching AI, scaling digital. Head of Digital Acquisition at TBC/Payme. AI Educator & Builder.',
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark scroll-smooth">
       <body className={`${jetbrainsMono.variable} font-mono antialiased bg-[#1A1A1A] text-[#E5E5E5]`}>
         <SessionProvider>
           <TRPCProvider>{children}</TRPCProvider>
