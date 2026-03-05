@@ -11,8 +11,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Irakli Chkheidze | Builder, Educator, Digital Strategist',
-  description: 'Building products, teaching AI, scaling digital. Head of Digital Acquisition & Telesales at TBC/Payme. AI Educator & Builder.',
+  title: 'Irakli Chkheidze | Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
+  description: 'Head of Digital Acquisition & Telesales at TBC/Payme. 19.4M+ users, 300+ team, $15M+ budgets. AI Educator & Builder.',
+  openGraph: {
+    title: 'Irakli Chkheidze',
+    description: 'Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
+    siteName: 'irakli.md',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Irakli Chkheidze',
+    description: 'Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
+    creator: '@IrakliDigital',
+  },
 };
 
 export default function RootLayout({
