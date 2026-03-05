@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ArrowRight, Mail } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/context';
 
@@ -12,10 +12,21 @@ export function HeroSection({ onBootComplete }: HeroSectionProps) {
   const { t } = useI18n();
   const [bootStep, setBootStep] = useState(0);
   const [showContent, setShowContent] = useState(false);
+  const [skipped, setSkipped] = useState(false);
 
   const bootLines = t.hero.boot;
 
+  const skipBoot = useCallback(() => {
+    if (showContent || skipped) return;
+    setSkipped(true);
+    setBootStep(bootLines.length - 1);
+    setShowContent(true);
+    onBootComplete();
+  }, [showContent, skipped, bootLines.length, onBootComplete]);
+
   useEffect(() => {
+    if (skipped) return;
+
     const timer = setInterval(() => {
       setBootStep((prev) => {
         if (prev >= bootLines.length - 1) {
@@ -23,18 +34,33 @@ export function HeroSection({ onBootComplete }: HeroSectionProps) {
           setTimeout(() => {
             setShowContent(true);
             onBootComplete();
-          }, 300);
+          }, 200);
           return prev;
         }
         return prev + 1;
       });
-    }, 350);
+    }, 150);
 
     return () => clearInterval(timer);
-  }, [bootLines.length, onBootComplete]);
+  }, [bootLines.length, onBootComplete, skipped]);
+
+  useEffect(() => {
+    const handleClick = () => skipBoot();
+    const handleKeyDown = () => skipBoot();
+
+    if (!showContent) {
+      document.addEventListener('click', handleClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showContent, skipBoot]);
 
   return (
-    <section id="hero" className="min-h-[90vh] flex flex-col justify-center">
+    <section id="hero" className="min-h-[70vh] flex flex-col justify-center">
       {/* Boot Sequence */}
       <div className="space-y-1 mb-8">
         {bootLines.slice(0, bootStep + 1).map((line, i) => (
@@ -44,8 +70,9 @@ export function HeroSection({ onBootComplete }: HeroSectionProps) {
             style={{ animationDelay: `${i * 80}ms` }}
           >
             <span className="text-[#737373]">{line}</span>
-            {line.includes('done') && <span className="text-[#22C55E]"> ✓</span>}
-            {line.includes('found') && <span className="text-[#22C55E]"> ✓</span>}
+            {(line.includes('done') || line.includes('found') || line.includes('registered') || line.includes('generated')) && (
+              <span className="text-[#22C55E]"> ✓</span>
+            )}
           </div>
         ))}
       </div>

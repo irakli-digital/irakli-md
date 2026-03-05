@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { ExternalLink, Send } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/context';
 
 const socialLinks = [
@@ -17,7 +16,7 @@ const socialLinks = [
   },
   {
     key: 'email' as const,
-    url: 'mailto:hello@irakli.md',
+    url: 'mailto:irakli.digital@gmail.com',
     color: '#D97706',
   },
   {
@@ -29,12 +28,6 @@ const socialLinks = [
 
 export function ContactSection() {
   const { t } = useI18n();
-  const [email, setEmail] = useState('');
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    setEmail('');
-  };
 
   return (
     <section id="contact" className="pt-8 pb-4">
@@ -65,31 +58,6 @@ export function ContactSection() {
             </a>
           ))}
         </div>
-
-        {/* Newsletter */}
-        <form onSubmit={handleSubscribe} className="space-y-2 pt-2">
-          <div className="flex items-center gap-2 bg-[#252525] rounded px-3 py-2 border border-[#333] focus-within:border-[#D97706] transition-colors">
-            <span className="text-[#D97706] font-mono text-sm">{'>'}</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t.contact.subscribe.placeholder}
-              className="flex-1 bg-transparent text-[#E5E5E5] text-sm font-mono placeholder:text-[#737373] outline-none"
-              required
-            />
-            <button
-              type="submit"
-              className="flex items-center gap-1 px-3 py-1 bg-[#D97706] hover:bg-[#F59E0B] text-[#1A1A1A] font-mono text-xs rounded transition-colors"
-            >
-              {t.contact.subscribe.button}
-              <Send className="w-3 h-3" />
-            </button>
-          </div>
-          <p className="font-mono text-xs text-[#737373]">
-            {t.contact.subscribe.note}
-          </p>
-        </form>
 
         {/* Final CTA */}
         <div className="font-mono text-sm pt-2">

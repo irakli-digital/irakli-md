@@ -8,7 +8,7 @@ import { AboutSection } from '@/components/landing/about-section';
 import { ProjectsSection } from '@/components/landing/projects-section';
 import { ServicesSection } from '@/components/landing/services-section';
 import { SpeakingSection } from '@/components/landing/speaking-section';
-import { BlogPreview } from '@/components/landing/blog-preview';
+import { LabSection } from '@/components/landing/lab-section';
 import { ContactSection } from '@/components/landing/contact-section';
 import { ChatBubble } from '@/components/landing/chat-bubble';
 
@@ -21,7 +21,8 @@ function TerminalBar() {
     { href: '#projects', label: t.nav.projects },
     { href: '#services', label: t.nav.services },
     { href: '#speaking', label: t.nav.speaking },
-    { href: '#blog', label: t.nav.blog },
+    { href: '#lab', label: t.nav.lab },
+    { href: '/tools', label: t.nav.tools },
     { href: '#contact', label: t.nav.contact },
   ];
 
@@ -139,7 +140,7 @@ function LandingContent() {
                 <ProjectsSection />
                 <ServicesSection />
                 <SpeakingSection />
-                <BlogPreview />
+                <LabSection />
                 <ContactSection />
               </div>
             )}
