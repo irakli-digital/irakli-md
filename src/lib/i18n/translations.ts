@@ -233,7 +233,7 @@ export const translations = {
         {
           slug: 'mypen',
           name: 'mypen.ge',
-          description: 'Multi-model LLM chat platform for Georgian language. Wraps OpenAI, Anthropic, and more in one interface with Georgian UX, referral system, and subscription tiers. Built on LibreChat.',
+          description: 'Multi-model LLM chat platform for Georgian language. Wraps OpenAI, Anthropic, and more in one interface with Georgian UX, referral system, and subscription tiers.',
           status: 'live' as const,
           progress: 90,
         },

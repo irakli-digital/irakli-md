@@ -25,7 +25,7 @@ export function HeroSection() {
       {/* Main Content */}
       <div className="space-y-8 animate-fade-in">
         {/* ASCII Name — desktop */}
-        <pre className="text-[#D97706] text-[8px] sm:text-[10px] md:text-xs leading-tight hidden sm:block whitespace-pre">
+        <pre className="text-[#D97706] text-[7px] sm:text-[8px] md:text-[10px] leading-tight hidden sm:block whitespace-pre">
 {`██╗██████╗  █████╗ ██╗  ██╗██╗     ██╗
 ██║██╔══██╗██╔══██╗██║ ██╔╝██║     ██║
 ██║██████╔╝███████║█████╔╝ ██║     ██║
@@ -33,7 +33,7 @@ export function HeroSection() {
 ██║██║  ██║██║  ██║██║  ██╗███████╗██║
 ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝`}
         </pre>
-        <pre className="text-[#D97706] text-[8px] sm:text-[10px] md:text-xs leading-tight hidden sm:block whitespace-pre">
+        <pre className="text-[#D97706] text-[7px] sm:text-[8px] md:text-[10px] leading-tight hidden sm:block whitespace-pre">
 {` ██████╗██╗  ██╗██╗  ██╗██╗  ██╗███████╗██╗██████╗ ███████╗███████╗
 ██╔════╝██║  ██║██║ ██╔╝██║  ██║██╔════╝██║██╔══██╗╚══███╔╝██╔════╝
 ██║     ███████║█████╔╝ ███████║█████╗  ██║██║  ██║  ███╔╝ █████╗
@@ -42,9 +42,24 @@ export function HeroSection() {
  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═════╝ ╚══════╝╚══════╝`}
         </pre>
 
-        {/* Mobile name */}
-        <div className="sm:hidden">
-          <h1 className="text-2xl font-bold text-[#D97706]">Irakli Chkheidze</h1>
+        {/* Mobile ASCII name */}
+        <div className="sm:hidden overflow-x-auto">
+          <pre className="text-[#D97706] text-[5px] leading-tight whitespace-pre">
+{`██╗██████╗  █████╗ ██╗  ██╗██╗     ██╗
+██║██╔══██╗██╔══██╗██║ ██╔╝██║     ██║
+██║██████╔╝███████║█████╔╝ ██║     ██║
+██║██╔══██╗██╔══██║██╔═██╗ ██║     ██║
+██║██║  ██║██║  ██║██║  ██╗███████╗██║
+╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝`}
+          </pre>
+          <pre className="text-[#D97706] text-[5px] leading-tight whitespace-pre">
+{` ██████╗██╗  ██╗██╗  ██╗██╗  ██╗███████╗██╗██████╗ ███████╗███████╗
+██╔════╝██║  ██║██║ ██╔╝██║  ██║██╔════╝██║██╔══██╗╚══███╔╝██╔════╝
+██║     ███████║█████╔╝ ███████║█████╗  ██║██║  ██║  ███╔╝ █████╗
+██║     ██╔══██║██╔═██╗ ██╔══██║██╔══╝  ██║██║  ██║ ███╔╝  ██╔══╝
+╚██████╗██║  ██║██║  ██╗██║  ██║███████╗██║██████╔╝███████╗███████╗
+ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚═════╝ ╚══════╝╚══════╝`}
+          </pre>
         </div>
 
         {/* Tagline */}
@@ -58,12 +73,7 @@ export function HeroSection() {
         </div>
 
         {/* CTA */}
-        <div className="space-y-4 pt-2">
-          <div className="flex items-center gap-2 text-[#737373] font-mono text-sm">
-            <span className="text-[#D97706]">{'>'}</span>
-            <span className="w-2 h-4 bg-[#D97706] animate-cursor-blink" />
-          </div>
-
+        <div className="pt-2">
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={() => {
