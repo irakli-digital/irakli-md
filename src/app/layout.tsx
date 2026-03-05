@@ -12,7 +12,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'Irakli Chkheidze | Builder, Educator, Digital Strategist',
-  description: 'Building products, teaching AI, scaling digital. Head of Digital Acquisition at TBC/Payme. AI Educator & Builder.',
+  description: 'Building products, teaching AI, scaling digital. Head of Digital Acquisition & Telesales at TBC/Payme. AI Educator & Builder.',
 };
 
 export default function RootLayout({

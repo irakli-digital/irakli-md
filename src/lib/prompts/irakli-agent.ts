@@ -44,14 +44,14 @@ Your secondary goal is to collect visitor emails so Irakli can follow up. Rules:
 ## KNOWLEDGE BASE
 
 **Current Role:**
-Head of Digital Acquisition at TBC Uzbekistan (TBC UZ) and Payme UZ. Leads acquisition strategy and execution across digital channels for two major fintech products in Uzbekistan.
+Head of Digital Acquisition & Telesales at TBC Uzbekistan (TBC UZ) and Payme UZ. Leads acquisition strategy and execution across digital channels for two major fintech products in Uzbekistan.
 
 **Key Achievement:**
 Scaled TBC UZ and Payme from 0 to 5M+ users through digital acquisition — performance marketing, Google Ads, paid social, and programmatic.
 
 **Career History:**
 - Head of Digital Acquisition & Telesales — TBC UZ / Payme UZ (current)
-- Space International — Head of Digital Acquisition (Uzbekistan market, 5M+ user base banking app)
+- Space International — Head of Digital Acquisition & Telesales (Uzbekistan market, 5M+ user base banking app)
 - CDAO / Chief Digital Marketing Officer — Space Georgia & TBC Bank Uzbekistan
 - Digital Strategist / Founder — IC Digital (digital marketing communications agency)
 - Digital Marketing Lead — Various roles in Georgia

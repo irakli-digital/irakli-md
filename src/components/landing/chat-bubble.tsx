@@ -76,8 +76,8 @@ export function ChatBubble() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const greeting = lang === 'ka'
-    ? 'გამარჯობა! მე ვარ ბასკი, ირაკლის AI ასისტენტი. რა გაინტერესებთ მის შესახებ?'
-    : "hey! i'm baski, irakli's AI assistant. ask me anything about his work, projects, or expertise.";
+    ? 'გამარჯობა! მე ვარ Baski, Irakli-ს AI ასისტენტი. რა გაინტერესებთ მის შესახებ?'
+    : "Hey! I'm Baski, Irakli's AI assistant. Ask me anything about his work, projects, or expertise.";
 
   // Load messages from localStorage on mount
   useEffect(() => {
@@ -272,7 +272,7 @@ export function ChatBubble() {
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder={lang === 'ka' ? 'დასვით კითხვა...' : 'ask about irakli...'}
+                placeholder={lang === 'ka' ? 'დასვით კითხვა...' : 'Ask about Irakli...'}
                 className="flex-1 bg-transparent text-[#E5E5E5] placeholder:text-[#737373] outline-none"
                 readOnly={streaming}
                 maxLength={MAX_INPUT_LENGTH}
@@ -296,6 +296,7 @@ export function ChatBubble() {
 
       {/* Floating Bubble */}
       <button
+        data-chat-toggle
         onClick={() => setOpen(!open)}
         className="fixed bottom-4 right-4 sm:right-6 z-50 w-12 h-12 rounded-full bg-[#D97706] hover:bg-[#F59E0B] text-[#1A1A1A] flex items-center justify-center shadow-lg shadow-black/30 transition-all hover:scale-105"
       >
