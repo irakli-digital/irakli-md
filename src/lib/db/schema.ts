@@ -209,6 +209,35 @@ export const orders = pgTable('orders', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// Chat leads (website chat widget)
+export const chatLeads = pgTable('chat_leads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull().unique(),
+  ip: text('ip'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Chat messages (website chat widget conversation log)
+export const chatMessages = pgTable('baski_chat_messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  leadId: uuid('lead_id')
+    .notNull()
+    .references(() => chatLeads.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(), // 'user' | 'assistant'
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Contact form submissions
+export const contactMessages = pgTable('contact_messages', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  message: text('message').notNull(),
+  ip: text('ip'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // Type exports
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
@@ -221,3 +250,9 @@ export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type DbLesson = typeof lessons.$inferSelect;
 export type NewDbLesson = typeof lessons.$inferInsert;
+export type ChatLead = typeof chatLeads.$inferSelect;
+export type NewChatLead = typeof chatLeads.$inferInsert;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type NewChatMessage = typeof chatMessages.$inferInsert;
+export type ContactMessage = typeof contactMessages.$inferSelect;
+export type NewContactMessage = typeof contactMessages.$inferInsert;

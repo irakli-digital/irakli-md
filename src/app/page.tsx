@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { I18nProvider, useI18n } from '@/lib/i18n/context';
 import { LanguageToggle } from '@/components/landing/language-toggle';
 import { HeroSection } from '@/components/landing/hero-section';
@@ -88,6 +88,8 @@ function TerminalBar() {
 function ToolsBanner() {
   const { t } = useI18n();
 
+  const highlightColors = ['#D946EF', '#3B82F6'];
+
   return (
     <section id="tools" className="pt-8">
       <div className="border-t border-[#333] mb-8" />
@@ -96,7 +98,52 @@ function ToolsBanner() {
           <span className="text-[#D97706]">{t.tools.command}</span>
         </div>
 
-        {/* Banner card */}
+        {/* Highlighted tools — two boxes side by side */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          {t.tools.highlightedTools.map((tool, idx) => {
+            const color = highlightColors[idx] || '#D97706';
+            return (
+              <a
+                key={tool.slug}
+                href={tool.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block border rounded-lg p-5 bg-[#252525] transition-all duration-300"
+                style={{ borderColor: `${color}30` }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = color; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = `${color}30`; }}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <span
+                    className="font-mono text-[10px] px-1.5 py-0.5 rounded border"
+                    style={{
+                      color,
+                      borderColor: `${color}40`,
+                      backgroundColor: `${color}10`,
+                    }}
+                  >
+                    {tool.label}
+                  </span>
+                  <ArrowUpRight
+                    className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    style={{ color }}
+                  />
+                </div>
+                <h4 className="font-mono text-sm font-medium text-[#E5E5E5] mb-0.5">
+                  {tool.name}
+                </h4>
+                <p className="font-mono text-[10px] mb-2" style={{ color: `${color}CC` }}>
+                  {tool.tagline}
+                </p>
+                <p className="font-mono text-xs text-[#A3A3A3] leading-relaxed">
+                  {tool.description}
+                </p>
+              </a>
+            );
+          })}
+        </div>
+
+        {/* Full tools banner card */}
         <a
           href="/tools"
           className="group block border border-[#333] rounded-lg p-6 bg-[#252525] hover:border-[#D97706] transition-all duration-300"

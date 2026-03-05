@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageSquare, X, Send, RotateCcw } from 'lucide-react';
+import { MessageSquare, X, Send, RotateCcw, Mail } from 'lucide-react';
 import { useI18n } from '@/lib/i18n/context';
 import ReactMarkdown, { type Components } from 'react-markdown';
 
@@ -11,6 +11,8 @@ interface Message {
 }
 
 const STORAGE_KEY = 'baski-chat-messages';
+const LEAD_ID_KEY = 'baski-lead-id';
+const LEAD_EMAIL_KEY = 'baski-lead-email';
 const MAX_INPUT_LENGTH = 500;
 
 // Terminal-themed markdown components for assistant messages
@@ -44,6 +46,8 @@ const mdComponents: Components = {
   ),
 };
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 function loadMessages(): Message[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -65,22 +69,54 @@ function saveMessages(messages: Message[]) {
   }
 }
 
+function getStoredLeadId(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem(LEAD_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function getStoredEmail(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    return localStorage.getItem(LEAD_EMAIL_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function ChatBubble() {
   const { lang } = useI18n();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [emailSubmitting, setEmailSubmitting] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [streaming, setStreaming] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [leadId, setLeadId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   const greeting = lang === 'ka'
     ? 'გამარჯობა! მე ვარ Baski, Irakli-ს AI ასისტენტი. რა გაინტერესებთ მის შესახებ?'
     : "Hey! I'm Baski, Irakli's AI assistant. Ask me anything about his work, projects, or expertise.";
 
-  // Load messages from localStorage on mount
+  const emailPrompt = lang === 'ka'
+    ? 'სანამ დავიწყებთ, გთხოვთ შეიყვანოთ თქვენი ელ.ფოსტა:'
+    : 'Before we start, please enter your email:';
+
+  const emailPlaceholder = lang === 'ka'
+    ? 'თქვენი ელ.ფოსტა...'
+    : 'your@email.com';
+
+  // Load persisted session on mount
   useEffect(() => {
+    setLeadId(getStoredLeadId());
     setMessages(loadMessages());
     setHydrated(true);
   }, []);
@@ -97,20 +133,93 @@ export function ChatBubble() {
   }, [messages]);
 
   useEffect(() => {
-    if (open && inputRef.current) {
-      inputRef.current.focus();
+    if (open) {
+      if (leadId) {
+        inputRef.current?.focus();
+      } else {
+        emailInputRef.current?.focus();
+      }
     }
-  }, [open]);
+  }, [open, leadId]);
 
   const resetChat = useCallback(() => {
     setMessages([]);
     setInput('');
     localStorage.removeItem(STORAGE_KEY);
+    // Keep leadId — don't re-ask for email
   }, []);
+
+  const fullReset = useCallback(() => {
+    setMessages([]);
+    setInput('');
+    setLeadId(null);
+    setEmailInput('');
+    setEmailError('');
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(LEAD_ID_KEY);
+    localStorage.removeItem(LEAD_EMAIL_KEY);
+  }, []);
+
+  const submitEmail = async () => {
+    const email = emailInput.trim().toLowerCase();
+
+    if (!email) {
+      setEmailError(lang === 'ka' ? 'გთხოვთ შეიყვანოთ ელ.ფოსტა.' : 'Please enter your email.');
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(email)) {
+      setEmailError(lang === 'ka' ? 'გთხოვთ შეიყვანოთ ვალიდური ელ.ფოსტა.' : 'Please enter a valid email address.');
+      return;
+    }
+
+    setEmailError('');
+    setEmailSubmitting(true);
+
+    try {
+      const res = await fetch('/api/chat/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setEmailError(data.error || 'Something went wrong.');
+        return;
+      }
+
+      const data = await res.json();
+      const newLeadId = data.lead_id;
+
+      // Persist session
+      localStorage.setItem(LEAD_ID_KEY, newLeadId);
+      localStorage.setItem(LEAD_EMAIL_KEY, email);
+      setLeadId(newLeadId);
+
+      // If returning user, load any existing messages from localStorage
+      // Otherwise start fresh
+      if (!data.returning) {
+        setMessages([]);
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      setEmailError(lang === 'ka' ? 'კავშირის შეცდომა. სცადეთ თავიდან.' : 'Connection error. Please try again.');
+    } finally {
+      setEmailSubmitting(false);
+    }
+  };
+
+  const handleEmailKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      submitEmail();
+    }
+  };
 
   const sendMessage = async () => {
     const text = input.trim();
-    if (!text || streaming) return;
+    if (!text || streaming || !leadId) return;
 
     const userMsg: Message = { role: 'user', content: text };
     const newMessages = [...messages, userMsg];
@@ -123,13 +232,17 @@ export function ChatBubble() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
+        body: JSON.stringify({ messages: newMessages, lead_id: leadId }),
       });
 
       if (!res.ok) {
         let errorMsg = 'something went wrong. try again.';
         if (res.status === 429) {
           errorMsg = 'slow down a bit! try again in a moment.';
+        } else if (res.status === 401) {
+          // Session expired — force re-registration
+          fullReset();
+          return;
         } else {
           try {
             const data = await res.json();
@@ -193,6 +306,7 @@ export function ChatBubble() {
 
   const charsRemaining = MAX_INPUT_LENGTH - input.length;
   const showCharCount = charsRemaining <= 50;
+  const storedEmail = getStoredEmail();
 
   return (
     <>
@@ -208,9 +322,14 @@ export function ChatBubble() {
                 <div className="w-2 h-2 rounded-full bg-[#4AC75A]" />
               </div>
               <span className="text-xs text-[#A3A3A3]">~/baski</span>
+              {leadId && storedEmail && (
+                <span className="text-[10px] text-[#737373] truncate max-w-[120px]" title={storedEmail}>
+                  ({storedEmail})
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-1.5">
-              {messages.length > 0 && !streaming && (
+              {leadId && messages.length > 0 && !streaming && (
                 <button
                   onClick={resetChat}
                   className="text-[#737373] hover:text-[#E5E5E5] transition-colors p-0.5"
@@ -228,15 +347,24 @@ export function ChatBubble() {
             </div>
           </div>
 
-          {/* Messages */}
+          {/* Messages area */}
           <div className="flex-1 overflow-y-auto p-3 space-y-3 min-h-[300px] max-h-[380px]">
-            {/* Greeting */}
+            {/* Greeting always shown */}
             <div>
               <span className="text-[#D97706]">{'> '}</span>
               <span className="text-[#A3A3A3]">{greeting}</span>
             </div>
 
-            {messages.map((msg, i) => (
+            {/* Email gate (shown when no lead_id) */}
+            {!leadId && (
+              <div>
+                <span className="text-[#D97706]">{'> '}</span>
+                <span className="text-[#A3A3A3]">{emailPrompt}</span>
+              </div>
+            )}
+
+            {/* Chat messages (only shown when authenticated) */}
+            {leadId && messages.map((msg, i) => (
               <div key={i}>
                 {msg.role === 'user' ? (
                   <div>
@@ -262,34 +390,73 @@ export function ChatBubble() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
+          {/* Input area */}
           <div className="border-t border-[#333] p-2">
-            <div className="flex items-center gap-2 bg-[#252525] rounded px-2 py-1.5 border border-[#333] focus-within:border-[#D97706] transition-colors">
-              <span className="text-[#D97706]">{'>'}</span>
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder={lang === 'ka' ? 'დასვით კითხვა...' : 'Ask about Irakli...'}
-                className="flex-1 bg-transparent text-[#E5E5E5] placeholder:text-[#737373] outline-none"
-                readOnly={streaming}
-                maxLength={MAX_INPUT_LENGTH}
-              />
-              {showCharCount && (
-                <span className={`text-[10px] tabular-nums ${charsRemaining <= 10 ? 'text-[#EF4444]' : 'text-[#737373]'}`}>
-                  {charsRemaining}
-                </span>
-              )}
-              <button
-                onClick={sendMessage}
-                disabled={streaming || !input.trim()}
-                className="text-[#D97706] hover:text-[#F59E0B] disabled:text-[#333] transition-colors"
-              >
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            </div>
+            {!leadId ? (
+              /* Email input */
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 bg-[#252525] rounded px-2 py-1.5 border border-[#333] focus-within:border-[#D97706] transition-colors">
+                  <Mail className="w-3.5 h-3.5 text-[#D97706] flex-shrink-0" />
+                  <input
+                    ref={emailInputRef}
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => {
+                      setEmailInput(e.target.value);
+                      setEmailError('');
+                    }}
+                    onKeyDown={handleEmailKeyDown}
+                    placeholder={emailPlaceholder}
+                    className="flex-1 bg-transparent text-[#E5E5E5] placeholder:text-[#737373] outline-none"
+                    disabled={emailSubmitting}
+                    autoComplete="email"
+                  />
+                  <button
+                    onClick={submitEmail}
+                    disabled={emailSubmitting || !emailInput.trim()}
+                    className="text-[#D97706] hover:text-[#F59E0B] disabled:text-[#333] transition-colors"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {emailError && (
+                  <p className="text-[#EF4444] text-[11px] px-1">{emailError}</p>
+                )}
+                {emailSubmitting && (
+                  <p className="text-[#A3A3A3] text-[11px] px-1 animate-pulse">
+                    {lang === 'ka' ? 'მიმდინარეობს...' : 'Connecting...'}
+                  </p>
+                )}
+              </div>
+            ) : (
+              /* Chat input */
+              <div className="flex items-center gap-2 bg-[#252525] rounded px-2 py-1.5 border border-[#333] focus-within:border-[#D97706] transition-colors">
+                <span className="text-[#D97706]">{'>'}</span>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder={lang === 'ka' ? 'დასვით კითხვა...' : 'Ask about Irakli...'}
+                  className="flex-1 bg-transparent text-[#E5E5E5] placeholder:text-[#737373] outline-none"
+                  readOnly={streaming}
+                  maxLength={MAX_INPUT_LENGTH}
+                />
+                {showCharCount && (
+                  <span className={`text-[10px] tabular-nums ${charsRemaining <= 10 ? 'text-[#EF4444]' : 'text-[#737373]'}`}>
+                    {charsRemaining}
+                  </span>
+                )}
+                <button
+                  onClick={sendMessage}
+                  disabled={streaming || !input.trim()}
+                  className="text-[#D97706] hover:text-[#F59E0B] disabled:text-[#333] transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

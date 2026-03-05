@@ -6,12 +6,14 @@ import { LanguageToggle } from '@/components/landing/language-toggle';
 
 const categoryColors: Record<string, string> = {
   AI: '#8B5CF6',
+  'Agentic AI': '#D946EF',
   Automation: '#F59E0B',
   Hosting: '#3B82F6',
   Database: '#10B981',
   Design: '#EC4899',
   Productivity: '#6366F1',
   // Georgian categories
+  'აგენტური AI': '#D946EF',
   'ავტომატიზაცია': '#F59E0B',
   'ჰოსტინგი': '#3B82F6',
   'მონაცემთა ბაზა': '#10B981',

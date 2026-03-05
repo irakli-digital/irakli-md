@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { IRAKLI_AGENT_SYSTEM_PROMPT } from '@/lib/prompts/irakli-agent';
+import { db } from '@/lib/db';
+import { chatLeads, chatMessages } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -66,69 +67,6 @@ function sanitizeMessages(
     }));
 }
 
-// --- Email Detection & Lead Storage ---
-const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-
-// In-memory set to avoid duplicate leads within a server lifecycle
-const seenEmails = new Set<string>();
-
-const LEADS_FILE = path.join(process.cwd(), 'leads.json');
-
-interface Lead {
-  email: string;
-  context: string;
-  timestamp: string;
-  ip: string;
-}
-
-async function readLeads(): Promise<Lead[]> {
-  try {
-    const data = await fs.readFile(LEADS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function storeLead(email: string, context: string, ip: string): Promise<boolean> {
-  const normalizedEmail = email.toLowerCase().trim();
-
-  if (seenEmails.has(normalizedEmail)) {
-    return false;
-  }
-
-  console.log('=== NEW LEAD ===');
-  console.log('Email:', normalizedEmail);
-  console.log('Context:', context);
-  console.log('IP:', ip);
-  console.log('Timestamp:', new Date().toISOString());
-  console.log('================');
-
-  try {
-    const leads = await readLeads();
-
-    if (leads.some((l) => l.email === normalizedEmail)) {
-      seenEmails.add(normalizedEmail);
-      return false;
-    }
-
-    leads.push({
-      email: normalizedEmail,
-      context,
-      timestamp: new Date().toISOString(),
-      ip,
-    });
-
-    await fs.writeFile(LEADS_FILE, JSON.stringify(leads, null, 2), 'utf-8');
-    seenEmails.add(normalizedEmail);
-    return true;
-  } catch (err) {
-    console.error('Failed to write lead to file:', err);
-    seenEmails.add(normalizedEmail);
-    return true;
-  }
-}
-
 // --- GET client IP from request ---
 function getClientIP(req: NextRequest): string {
   return (
@@ -159,7 +97,15 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const leadId = body.lead_id;
     const messages = sanitizeMessages(body.messages);
+
+    if (!leadId || typeof leadId !== 'string') {
+      return NextResponse.json(
+        { error: 'Email registration required before chatting.' },
+        { status: 401 }
+      );
+    }
 
     if (messages.length === 0) {
       return NextResponse.json(
@@ -168,17 +114,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if the latest user message contains an email
+    // Verify lead exists
+    const lead = await db
+      .select()
+      .from(chatLeads)
+      .where(eq(chatLeads.id, leadId))
+      .limit(1);
+
+    if (lead.length === 0) {
+      return NextResponse.json(
+        { error: 'Invalid session. Please register your email again.' },
+        { status: 401 }
+      );
+    }
+
+    // Save the latest user message to database
     const lastUserMessage = messages[messages.length - 1];
     if (lastUserMessage?.role === 'user') {
-      const emailMatch = lastUserMessage.content.match(EMAIL_REGEX);
-      if (emailMatch) {
-        const context = messages
-          .slice(-6)
-          .map((m) => `${m.role}: ${m.content}`)
-          .join('\n');
-        await storeLead(emailMatch[0], context, ip);
-      }
+      await db.insert(chatMessages).values({
+        leadId,
+        role: 'user',
+        content: lastUserMessage.content,
+      });
     }
 
     // Create streaming completion
@@ -195,16 +152,32 @@ export async function POST(req: NextRequest) {
 
     // Convert OpenAI stream to a ReadableStream for the Response
     const encoder = new TextEncoder();
+    let fullResponse = '';
+
     const readable = new ReadableStream({
       async start(controller) {
         try {
           for await (const chunk of stream) {
             const delta = chunk.choices[0]?.delta?.content;
             if (delta) {
+              fullResponse += delta;
               controller.enqueue(encoder.encode(delta));
             }
           }
           controller.close();
+
+          // Save assistant response to database after stream completes
+          if (fullResponse) {
+            try {
+              await db.insert(chatMessages).values({
+                leadId,
+                role: 'assistant',
+                content: fullResponse,
+              });
+            } catch (err) {
+              console.error('Failed to save assistant message:', err);
+            }
+          }
         } catch (err) {
           console.error('Stream error:', err);
           controller.error(err);
