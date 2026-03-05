@@ -13,17 +13,27 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: 'Irakli Chkheidze | Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
   description: 'Head of Digital Acquisition & Telesales at TBC/Payme. 19.4M+ users, 300+ team, $15M+ budgets. AI Educator & Builder.',
+  metadataBase: new URL('https://irakli.md'),
   openGraph: {
     title: 'Irakli Chkheidze',
     description: 'Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
     siteName: 'irakli.md',
     type: 'website',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Irakli Chkheidze — Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Irakli Chkheidze',
     description: 'Leading AI-driven acquisition teams. Teaching AI. Scaling fintech growth.',
     creator: '@IrakliDigital',
+    images: ['/opengraph-image'],
   },
 };
 
