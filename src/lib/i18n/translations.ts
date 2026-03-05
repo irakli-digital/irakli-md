@@ -399,9 +399,16 @@ export const translations = {
       cta: "let's build something together.",
       links: {
         linkedin: 'open linkedin',
-        github: 'open github',
-        email: 'mail irakli',
-        twitter: 'open twitter',
+        twitter: 'open x / twitter',
+      },
+      form: {
+        title: 'send a message',
+        emailPlaceholder: 'your email',
+        messagePlaceholder: 'your message...',
+        send: 'send',
+        sending: 'sending...',
+        success: 'message sent! irakli will get back to you.',
+        errorGeneric: 'something went wrong. please try again.',
       },
     },
 
@@ -812,9 +819,16 @@ export const translations = {
       cta: 'მოდით, ერთად ავაშენოთ რამე.',
       links: {
         linkedin: 'open linkedin',
-        github: 'open github',
-        email: 'mail irakli',
-        twitter: 'open twitter',
+        twitter: 'open x / twitter',
+      },
+      form: {
+        title: 'შეტყობინების გაგზავნა',
+        emailPlaceholder: 'თქვენი ელფოსტა',
+        messagePlaceholder: 'თქვენი შეტყობინება...',
+        send: 'გაგზავნა',
+        sending: 'იგზავნება...',
+        success: 'შეტყობინება გაიგზავნა! ირაკლი დაგიკავშირდებათ.',
+        errorGeneric: 'რაღაც შეცდომა მოხდა. გთხოვთ სცადოთ ხელახლა.',
       },
     },
 
