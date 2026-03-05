@@ -24,7 +24,7 @@ export const translations = {
       tagline: 'scaling fintech to 19M+ users. teaching AI. building digital products.',
       subtitle: 'Head of Digital Acquisition & Telesales | AI Educator | Growth Executive',
       cta: {
-        chat: 'Talk to Baski',
+        chat: 'Talk to my AI Agent',
         projects: 'explore experience',
         contact: 'get in touch',
       },
