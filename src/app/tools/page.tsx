@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { I18nProvider, useI18n } from '@/lib/i18n/context';
 import { LanguageToggle } from '@/components/landing/language-toggle';
@@ -23,6 +24,32 @@ const categoryColors: Record<string, string> = {
 
 function ToolsContent() {
   const { t } = useI18n();
+  const [bootDone, setBootDone] = useState(false);
+  const [bootStep, setBootStep] = useState(0);
+
+  const totalTools = t.tools.items.length;
+
+  const bootLines = [
+    '> cd ~/tools',
+    'loading stack...',
+    `found ${totalTools} tools`,
+    'ready.',
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setBootStep((prev) => {
+        if (prev >= bootLines.length - 1) {
+          clearInterval(timer);
+          setTimeout(() => setBootDone(true), 150);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 120);
+
+    return () => clearInterval(timer);
+  }, [bootLines.length]);
 
   return (
     <div className="min-h-screen bg-[#111111]">
@@ -44,72 +71,87 @@ function ToolsContent() {
 
           {/* Content */}
           <div className="p-6 text-sm text-[#E5E5E5] font-mono">
-            {/* Back link */}
-            <a
-              href="/"
-              className="inline-flex items-center gap-1.5 text-[#737373] hover:text-[#D97706] transition-colors text-xs mb-6"
-            >
-              <ArrowLeft className="w-3 h-3" />
-              {t.tools.backHome}
-            </a>
-
-            {/* Command */}
-            <div className="font-mono text-sm mb-2">
-              <span className="text-[#D97706]">{t.tools.command}</span>
+            {/* Boot sequence */}
+            <div className="space-y-1 mb-6">
+              {bootLines.slice(0, bootStep + 1).map((line, i) => (
+                <div
+                  key={i}
+                  className="font-mono text-sm animate-fade-in"
+                  style={{ animationDelay: `${i * 60}ms` }}
+                >
+                  <span className={i === 0 ? 'text-[#D97706]' : 'text-[#737373]'}>{line}</span>
+                  {line.includes('found') && <span className="text-[#22C55E]"> ✓</span>}
+                  {line === 'ready.' && <span className="text-[#22C55E]"> ✓</span>}
+                </div>
+              ))}
             </div>
 
-            {/* Subtitle */}
-            <p className="text-[#737373] font-mono text-xs mb-6">
-              {t.tools.subtitle}
-            </p>
+            {bootDone && (
+              <div className="animate-fade-in">
+                {/* Back link */}
+                <a
+                  href="/"
+                  className="inline-flex items-center gap-1.5 text-[#737373] hover:text-[#D97706] transition-colors text-xs mb-6"
+                >
+                  <ArrowLeft className="w-3 h-3" />
+                  {t.tools.backHome}
+                </a>
 
-            {/* Tools Grid */}
-            <div className="grid sm:grid-cols-2 gap-4">
-              {t.tools.items.map((tool) => {
-                const color = categoryColors[tool.category] || '#D97706';
-                return (
-                  <div
-                    key={tool.slug}
-                    className="border border-[#333] rounded-lg p-4 bg-[#252525] group"
-                  >
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-2">
-                      <span
-                        className="font-mono text-[10px] px-1.5 py-0.5 rounded border"
-                        style={{
-                          color,
-                          borderColor: `${color}40`,
-                          backgroundColor: `${color}10`,
-                        }}
+                {/* Subtitle */}
+                <p className="text-[#737373] font-mono text-xs mb-6">
+                  {t.tools.subtitle}
+                </p>
+
+                {/* Tools Grid */}
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {t.tools.items.map((tool, index) => {
+                    const color = categoryColors[tool.category] || '#D97706';
+                    return (
+                      <div
+                        key={tool.slug}
+                        className="border border-[#333] rounded-lg p-4 bg-[#252525] group animate-fade-in"
+                        style={{ animationDelay: `${index * 60}ms` }}
                       >
-                        {tool.category}
-                      </span>
-                    </div>
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-2">
+                          <span
+                            className="font-mono text-[10px] px-1.5 py-0.5 rounded border"
+                            style={{
+                              color,
+                              borderColor: `${color}40`,
+                              backgroundColor: `${color}10`,
+                            }}
+                          >
+                            {tool.category}
+                          </span>
+                        </div>
 
-                    {/* Name */}
-                    <h3 className="font-mono text-sm font-medium text-[#E5E5E5] mb-1">
-                      {tool.name}
-                    </h3>
+                        {/* Name */}
+                        <h3 className="font-mono text-sm font-medium text-[#E5E5E5] mb-1">
+                          {tool.name}
+                        </h3>
 
-                    {/* Description */}
-                    <p className="text-[#A3A3A3] font-mono text-xs leading-relaxed mb-3">
-                      {tool.description}
-                    </p>
+                        {/* Description */}
+                        <p className="text-[#A3A3A3] font-mono text-xs leading-relaxed mb-3">
+                          {tool.description}
+                        </p>
 
-                    {/* CTA */}
-                    <a
-                      href={tool.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-[#D97706] hover:text-[#F59E0B] transition-colors"
-                    >
-                      {t.tools.cta}
-                      <ArrowUpRight className="w-3 h-3" />
-                    </a>
-                  </div>
-                );
-              })}
-            </div>
+                        {/* CTA */}
+                        <a
+                          href={tool.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 font-mono text-xs text-[#D97706] hover:text-[#F59E0B] transition-colors"
+                        >
+                          {t.tools.cta}
+                          <ArrowUpRight className="w-3 h-3" />
+                        </a>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

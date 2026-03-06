@@ -229,11 +229,22 @@ export const chatMessages = pgTable('baski_chat_messages', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-// Contact form submissions
+// Contact form submissions (legacy — kept for existing data)
 export const contactMessages = pgTable('contact_messages', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull(),
   message: text('message').notNull(),
+  ip: text('ip'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// Form leads (website contact form)
+export const formLeads = pgTable('form_leads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  email: text('email').notNull(),
+  reason: text('reason'), // 'consulting' | 'speaking' | 'collaboration' | 'other'
+  message: text('message').notNull(),
+  source: text('source').default('contact_form'), // 'contact_form' | future sources
   ip: text('ip'),
   createdAt: timestamp('created_at').defaultNow(),
 });
@@ -256,3 +267,5 @@ export type ChatMessage = typeof chatMessages.$inferSelect;
 export type NewChatMessage = typeof chatMessages.$inferInsert;
 export type ContactMessage = typeof contactMessages.$inferSelect;
 export type NewContactMessage = typeof contactMessages.$inferInsert;
+export type FormLead = typeof formLeads.$inferSelect;
+export type NewFormLead = typeof formLeads.$inferInsert;

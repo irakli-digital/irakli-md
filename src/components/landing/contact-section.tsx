@@ -20,6 +20,7 @@ const socialLinks = [
 export function ContactSection() {
   const { t } = useI18n();
   const [email, setEmail] = useState('');
+  const [reason, setReason] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -33,7 +34,7 @@ export function ContactSection() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), message: message.trim() }),
+        body: JSON.stringify({ email: email.trim(), reason: reason || null, message: message.trim() }),
       });
 
       const data = await res.json();
@@ -46,6 +47,7 @@ export function ContactSection() {
 
       setStatus('sent');
       setEmail('');
+      setReason('');
       setMessage('');
 
       // Reset back to idle after 4 seconds
@@ -110,6 +112,22 @@ export function ContactSection() {
                   required
                   className="w-full bg-[#1A1A1A] border border-[#333] rounded px-3 py-2 font-mono text-sm text-[#E5E5E5] placeholder:text-[#737373] focus:outline-none focus:border-[#D97706] transition-colors"
                 />
+              </div>
+              <div>
+                <select
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  required
+                  className="w-full bg-[#1A1A1A] border border-[#333] rounded px-3 py-2 font-mono text-sm text-[#E5E5E5] focus:outline-none focus:border-[#D97706] transition-colors appearance-none"
+                  style={{ color: reason ? '#E5E5E5' : '#737373' }}
+                >
+                  <option value="" disabled>{t.contact.form.reasonPlaceholder}</option>
+                  {Object.entries(t.contact.form.reasons).map(([key, label]) => (
+                    <option key={key} value={key} className="text-[#E5E5E5] bg-[#1A1A1A]">
+                      {label}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <textarea

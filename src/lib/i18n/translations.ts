@@ -4,7 +4,7 @@ export const translations = {
     nav: {
       about: 'about',
       projects: 'experience',
-      services: 'services',
+      services: 'skills',
       speaking: 'speaking',
       lab: 'lab',
       tools: 'tools',
@@ -403,6 +403,13 @@ export const translations = {
       },
       form: {
         title: 'send a message',
+        reasonPlaceholder: 'reason for reaching out',
+        reasons: {
+          consulting: 'consulting inquiry',
+          speaking: 'speaking / guest lecture',
+          collaboration: 'collaboration / partnership',
+          other: 'other',
+        },
         emailPlaceholder: 'your email',
         messagePlaceholder: 'your message...',
         send: 'send',
@@ -424,7 +431,7 @@ export const translations = {
     nav: {
       about: 'ჩემ შესახებ',
       projects: 'გამოცდილება',
-      services: 'სერვისები',
+      services: 'უნარები',
       speaking: 'სპიკერობა',
       lab: 'ლაბორატორია',
       tools: 'ინსტრუმენტები',
@@ -823,6 +830,13 @@ export const translations = {
       },
       form: {
         title: 'შეტყობინების გაგზავნა',
+        reasonPlaceholder: 'დაკავშირების მიზეზი',
+        reasons: {
+          consulting: 'კონსულტაცია',
+          speaking: 'სპიკერობა / მოწვეული ლექცია',
+          collaboration: 'თანამშრომლობა / პარტნიორობა',
+          other: 'სხვა',
+        },
         emailPlaceholder: 'თქვენი ელფოსტა',
         messagePlaceholder: 'თქვენი შეტყობინება...',
         send: 'გაგზავნა',

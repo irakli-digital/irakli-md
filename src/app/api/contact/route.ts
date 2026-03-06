@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { contactMessages } from '@/lib/db/schema';
+import { formLeads } from '@/lib/db/schema';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const MAX_MESSAGE_LENGTH = 2000;
@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const email = (body.email || '').toLowerCase().trim();
+    const reason = (body.reason || '').trim().slice(0, 100) || null;
     const message = (body.message || '').trim().slice(0, MAX_MESSAGE_LENGTH);
 
     if (!email || !EMAIL_REGEX.test(email)) {
@@ -56,12 +57,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await db.insert(contactMessages).values({ email, message, ip });
+    await db.insert(formLeads).values({ email, reason, message, source: 'contact_form', ip });
 
-    console.log('=== NEW CONTACT MESSAGE ===');
+    console.log('=== NEW FORM LEAD ===');
     console.log('Email:', email);
+    console.log('Reason:', reason);
     console.log('Message:', message.slice(0, 100));
-    console.log('===========================');
+    console.log('=====================');
 
     return NextResponse.json({ success: true });
   } catch (error) {
