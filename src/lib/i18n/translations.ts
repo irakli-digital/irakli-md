@@ -419,6 +419,144 @@ export const translations = {
       },
     },
 
+    // AMI Start
+    amiStart: {
+      bootLines: [
+        '> cd ~/ami-start',
+        'loading pre-work checklist...',
+        'found 6 accounts, 4 installs',
+        'ready.',
+      ],
+      backHome: 'cd ~/',
+      title: 'AI 360 — Pre-Work',
+      subtitle: 'Please complete everything below before the first session. If you get stuck on anything, bring your questions — we\'ll troubleshoot together.',
+      beforeHighlight: 'before',
+      accounts: {
+        title: 'accounts to create // required',
+        signUp: 'sign up',
+        items: [
+          {
+            name: 'Claude (Anthropic)',
+            description: 'Our main AI tool for vibe coding and the agent',
+            url: 'https://claude.ai',
+            cost: '$100/mo recommended (min $20, ideal $200)',
+            category: 'AI',
+          },
+          {
+            name: 'GitHub',
+            description: 'Where your code lives online',
+            url: 'https://github.com',
+            cost: 'Free',
+            category: 'Code',
+          },
+          {
+            name: 'Railway',
+            description: 'Hosting — makes your website live on the internet',
+            url: 'https://railway.app',
+            cost: 'Free tier to start',
+            category: 'Hosting',
+          },
+          {
+            name: 'N8N Cloud',
+            description: 'No-code automation platform',
+            url: 'https://n8n.io',
+            cost: 'Free trial available',
+            category: 'Automation',
+          },
+          {
+            name: 'Neon',
+            description: 'Postgres database (for agent memory/knowledge base)',
+            url: 'https://neon.tech',
+            cost: 'Free tier available',
+            category: 'Database',
+          },
+          {
+            name: 'Google Account',
+            description: 'For integrations (Google Sheets, Gmail) via N8N',
+            url: 'https://google.com',
+            cost: 'Free',
+            category: 'Integration',
+          },
+        ],
+      },
+      optional: {
+        title: 'nice to have // optional',
+        items: [
+          {
+            name: 'Gemini (Google)',
+            description: 'Alternative AI, good for comparison',
+            cost: '$20/month',
+          },
+          {
+            name: 'ChatGPT (OpenAI)',
+            description: 'Alternative AI, Custom GPTs',
+            cost: '$20/month',
+          },
+        ],
+      },
+      software: {
+        title: 'software to download & install',
+        items: [
+          {
+            name: 'VS Code',
+            what: 'Your code workspace (like Word, but for code)',
+            url: 'https://code.visualstudio.com/',
+            verify: 'Install it, open it once to make sure it works',
+          },
+          {
+            name: 'Claude Desktop App',
+            what: 'Claude\'s desktop app — includes "Cowork," which gives you agentic AI power for non-technical tasks',
+            url: 'https://claude.com/download',
+            verify: 'Install it, sign in with your Claude account. Make sure you\'re on a paid plan to access Cowork',
+          },
+          {
+            name: 'Node.js',
+            what: 'A tool that runs behind the scenes — needed for many of our tools',
+            url: 'https://nodejs.org/',
+            verify: 'Install it, then open VS Code\'s terminal and type node --version to verify',
+          },
+          {
+            name: 'Wispr Flow',
+            what: 'AI voice-to-text dictation — speak naturally and it types for you. Works everywhere on your Mac.',
+            url: 'https://ref.wisprflow.ai/irakli-chkheidze',
+            verify: 'Install it, grant microphone access, and try dictating a sentence',
+          },
+        ],
+      },
+      checklist: {
+        title: 'verification checklist',
+        hint: 'click to check off items as you complete them:',
+        items: [
+          'I have a computer (Mac or Windows)',
+          'I can open VS Code',
+          'I can open the terminal inside VS Code (View > Terminal)',
+          'node --version shows a version number in the terminal',
+          'I can log in to Claude desktop app',
+          'I have accounts on GitHub, Railway, N8N Cloud, and Neon',
+          'I have a Google account ready',
+        ],
+      },
+      costs: {
+        title: 'about costs',
+        claudeRecommended: 'Claude (recommended)',
+        claudeMinimum: 'Claude (minimum)',
+        everythingElse: 'Everything else',
+        free: 'Free (free tiers)',
+        totalRecommended: 'Total recommended',
+        note: 'The $100 Claude plan gives you enough usage for vibe coding, the agent, and daily work. The $20 plan works but runs out fast when building things. If you can get the $200 plan, even better — you won\'t hit any limits.',
+      },
+      dontWorry: {
+        title: 'what NOT to worry about',
+        items: [
+          'You don\'t need to know how to code',
+          'You don\'t need to understand anything in VS Code yet',
+          'You don\'t need to set up any projects',
+          'Just install and create accounts — we\'ll do everything else together',
+        ],
+      },
+      signOff: 'See you at the session!',
+    },
+
     // Footer
     footer: {
       left: 'irakli.md v1.0',
@@ -844,6 +982,144 @@ export const translations = {
         success: 'შეტყობინება გაიგზავნა! ირაკლი დაგიკავშირდებათ.',
         errorGeneric: 'რაღაც შეცდომა მოხდა. გთხოვთ სცადოთ ხელახლა.',
       },
+    },
+
+    // AMI Start
+    amiStart: {
+      bootLines: [
+        '> cd ~/ami-start',
+        'წინასწარი დავალებების ჩატვირთვა...',
+        'ნაპოვნია 6 ანგარიში, 4 ინსტალაცია',
+        'მზადაა.',
+      ],
+      backHome: 'cd ~/',
+      title: 'AI 360 — წინასწარი მომზადება',
+      subtitle: 'გთხოვთ, შეასრულოთ ყველაფერი ქვემოთ მოცემული პირველ სესიამდე. თუ რამეში გაიჭედებით, მოიტანეთ თქვენი კითხვები — ერთად მოვაგვარებთ.',
+      beforeHighlight: 'პირველ სესიამდე',
+      accounts: {
+        title: 'შესაქმნელი ანგარიშები // სავალდებულო',
+        signUp: 'რეგისტრაცია',
+        items: [
+          {
+            name: 'Claude (Anthropic)',
+            description: 'ჩვენი მთავარი AI ინსტრუმენტი vibe coding-ისა და აგენტისთვის',
+            url: 'https://claude.ai',
+            cost: 'რეკომენდებული $100/თვე (მინ $20, იდეალური $200)',
+            category: 'AI',
+          },
+          {
+            name: 'GitHub',
+            description: 'სადაც თქვენი კოდი ინახება ონლაინ',
+            url: 'https://github.com',
+            cost: 'უფასო',
+            category: 'Code',
+          },
+          {
+            name: 'Railway',
+            description: 'ჰოსტინგი — თქვენს ვებსაიტს ინტერნეტში აქვეყნებს',
+            url: 'https://railway.app',
+            cost: 'უფასო დონე დასაწყისისთვის',
+            category: 'Hosting',
+          },
+          {
+            name: 'N8N Cloud',
+            description: 'No-code ავტომატიზაციის პლატფორმა',
+            url: 'https://n8n.io',
+            cost: 'უფასო საცდელი პერიოდი',
+            category: 'Automation',
+          },
+          {
+            name: 'Neon',
+            description: 'Postgres მონაცემთა ბაზა (აგენტის მეხსიერებისა და ცოდნის ბაზისთვის)',
+            url: 'https://neon.tech',
+            cost: 'უფასო დონე ხელმისაწვდომია',
+            category: 'Database',
+          },
+          {
+            name: 'Google ანგარიში',
+            description: 'ინტეგრაციებისთვის (Google Sheets, Gmail) N8N-ის მეშვეობით',
+            url: 'https://google.com',
+            cost: 'უფასო',
+            category: 'Integration',
+          },
+        ],
+      },
+      optional: {
+        title: 'სასურველი // არასავალდებულო',
+        items: [
+          {
+            name: 'Gemini (Google)',
+            description: 'ალტერნატიული AI, კარგია შედარებისთვის',
+            cost: '$20/თვე',
+          },
+          {
+            name: 'ChatGPT (OpenAI)',
+            description: 'ალტერნატიული AI, Custom GPT-ები',
+            cost: '$20/თვე',
+          },
+        ],
+      },
+      software: {
+        title: 'ჩამოსატვირთი და დასაინსტალირებელი პროგრამები',
+        items: [
+          {
+            name: 'VS Code',
+            what: 'თქვენი კოდის სამუშაო გარემო (როგორც Word, მაგრამ კოდისთვის)',
+            url: 'https://code.visualstudio.com/',
+            verify: 'დააინსტალირეთ, გახსენით ერთხელ და დარწმუნდით რომ მუშაობს',
+          },
+          {
+            name: 'Claude Desktop App',
+            what: 'Claude-ის დესკტოპ აპლიკაცია — მოიცავს "Cowork"-ს, რომელიც გაძლევთ აგენტურ AI ძალას არატექნიკური ამოცანებისთვის',
+            url: 'https://claude.com/download',
+            verify: 'დააინსტალირეთ, შედით თქვენი Claude ანგარიშით. დარწმუნდით რომ ფასიან გეგმაზე ხართ Cowork-ის გამოსაყენებლად',
+          },
+          {
+            name: 'Node.js',
+            what: 'ინსტრუმენტი რომელიც კულისებში მუშაობს — საჭიროა ჩვენი ბევრი ხელსაწყოსთვის',
+            url: 'https://nodejs.org/',
+            verify: 'დააინსტალირეთ, შემდეგ VS Code-ის ტერმინალში ჩაწერეთ node --version შესამოწმებლად',
+          },
+          {
+            name: 'Wispr Flow',
+            what: 'AI ხმოვანი აკრეფა — ისაუბრეთ ბუნებრივად და ის თქვენს ნაცვლად აკრეფს. მუშაობს ყველგან Mac-ზე.',
+            url: 'https://ref.wisprflow.ai/irakli-chkheidze',
+            verify: 'დააინსტალირეთ, მიეცით მიკროფონზე წვდომა და სცადეთ წინადადების კარნახი',
+          },
+        ],
+      },
+      checklist: {
+        title: 'გადამოწმების ჩამონათვალი',
+        hint: 'დააწკაპუნეთ პუნქტებზე შესრულებისას:',
+        items: [
+          'მაქვს კომპიუტერი (Mac ან Windows)',
+          'შემიძლია VS Code-ის გახსნა',
+          'შემიძლია ტერმინალის გახსნა VS Code-ში (View > Terminal)',
+          'node --version აჩვენებს ვერსიის ნომერს ტერმინალში',
+          'შემიძლია Claude-ის დესკტოპ აპლიკაციაში შესვლა',
+          'მაქვს ანგარიშები GitHub-ზე, Railway-ზე, N8N Cloud-ზე და Neon-ზე',
+          'მაქვს Google ანგარიში მომზადებული',
+        ],
+      },
+      costs: {
+        title: 'ხარჯების შესახებ',
+        claudeRecommended: 'Claude (რეკომენდებული)',
+        claudeMinimum: 'Claude (მინიმალური)',
+        everythingElse: 'ყველაფერი დანარჩენი',
+        free: 'უფასო (უფასო დონეები)',
+        totalRecommended: 'სულ რეკომენდებული',
+        note: 'Claude-ის $100-იანი გეგმა საკმარისია vibe coding-ისთვის, აგენტისთვის და ყოველდღიური სამუშაოსთვის. $20-იანი გეგმა მუშაობს, მაგრამ სწრაფად იწურება პროექტების აშენებისას. თუ $200-იან გეგმას აიღებთ, კიდევ უკეთესი — არანაირ ლიმიტს არ მიაღწევთ.',
+      },
+      dontWorry: {
+        title: 'რაზეც არ უნდა იდარდოთ',
+        items: [
+          'არ გჭირდებათ კოდის ცოდნა',
+          'არ გჭირდებათ VS Code-ში რაიმეს გაგება ჯერჯერობით',
+          'არ გჭირდებათ პროექტების დაყენება',
+          'უბრალოდ დააინსტალირეთ და შექმენით ანგარიშები — ყველაფერ დანარჩენს ერთად გავაკეთებთ',
+        ],
+      },
+      signOff: 'სესიაზე შევხვდებით!',
     },
 
     // Footer
