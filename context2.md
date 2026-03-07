@@ -8,7 +8,7 @@ And you also **own analytics specifically for digital acquisition**, not the ent
 So your real scope looks like this:
 
 ---
-
+dd
 # Your Actual Responsibility Scope
 
 ## 1. Digital Acquisition Strategy
