@@ -249,6 +249,14 @@ export const formLeads = pgTable('form_leads', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
+// AMI leads (phone numbers)
+export const leadsAmi = pgTable('leads_ami', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  phone: text('phone').notNull().unique(),
+  name: text('name'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
 // Type exports
 export type Profile = typeof profiles.$inferSelect;
 export type NewProfile = typeof profiles.$inferInsert;
@@ -269,3 +277,5 @@ export type ContactMessage = typeof contactMessages.$inferSelect;
 export type NewContactMessage = typeof contactMessages.$inferInsert;
 export type FormLead = typeof formLeads.$inferSelect;
 export type NewFormLead = typeof formLeads.$inferInsert;
+export type LeadAmi = typeof leadsAmi.$inferSelect;
+export type NewLeadAmi = typeof leadsAmi.$inferInsert;
